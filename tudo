@@ -234,7 +234,7 @@ valid_path_in_system_partition_regex='^/system/.*'
 valid_path_under_termux_files_regex='^'"$TERMUX_FILES"'/.+'
 valid_path_under_termux_home_regex='^'"$TERMUX_HOME"'/.+'
 
-### Set Default Variables
+### Set Default Variables End
 
 }
 
