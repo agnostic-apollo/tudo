@@ -414,7 +414,7 @@ The `bash` shell is automatically chosen as the default script shell if the `--s
 
 The `$PREFIX/` and `~/` prefixes are supported for all command options that take in absolute paths as arguments. The `$PREFIX/` is a shortcut for the termux prefix directory `/data/data/com.termux/files/usr/`. The `~/` is a shortcut for the termux home directory `/data/data/com.termux/files/home/`. Note that if the paths with shortcuts are not surrounded with single quotes, they will expanded by the local shell before being passed to the `tudo` script instead of the `tudo` script manually expanding them. Note that `~/` will expand to the shell or post shell home and not the necessarily the termux home if used inside scripts or the `*-commands` options.
 
-Its the users responsibility to properly quote all arguments passed to command options and also for any values like paths passed inside the arguments, specifically the `*-commands` and `*-options` options, so that whitespace splitting does not occur.
+It's the users responsibility to properly quote all arguments passed to command options and also for any values like paths passed inside the arguments, specifically the `*-commands` and `*-options` options, so that whitespace splitting does not occur.
 
 Check [Arguments and Result Data Limits](#Arguments-and-Result-Data-Limits) for details on the max size of arguments that you can pass to `tudo` script, specifically the size of `core_script` and its arguments for the `script` command type.
 
@@ -545,7 +545,7 @@ Check [Arguments and Result Data Limits](#Arguments-and-Result-Data-Limits) for 
 - `--post-shell-stdin-string=<string>` ] option can be used with the `script` command type to set the string that should be passed as `stdin` to the `tudo post shell` using process substitution or herestring depending on shell capabilities. Some shells when run in interactive mode may automatically exit after running the commands received through `stdin` or may not even accept strings from `stdin`. This option is used for automated testing.
 
 
-- `--remove-prev-temp` option can be used with the `script` command type to remove temp files and directories created on previous runs of `tudo` command that may have been left behind due to `tudo` being killed and not cleanly exiting, or Termux crashing or being killed by android `OOM` killer or the phone rebooting as long as the `tudo shell` home is not changed.
+- `--remove-prev-temp` option can be used with the `script` command type to remove temp files and directories created on previous runs of `tudo` command that may have been left behind due to `tudo` being killed and not cleanly exiting, or Termux crashing or being killed by android `OOM` killer or the phone rebooting. Although, temp files are created in `$TMPDIR` which is automatically cleared when termux sessions are closed.
 
 
 - `--script-decode` option can be used with the `script` command type so that the `core_script` passed is considered as a `base64` encoded string that should be decoded and stored in temp file. The temp file path is passed to the script shell. This can be useful to pass a script whose normal decoded form contains non `UTF-8` or binary data which if passed directly as an argument may be discarded by the shell if not encoded first since such data cannot be stored in bash variables. If this is passed, then `-r` option processing will be ignored for the `core_script` but not for any arguments.
@@ -1418,8 +1418,8 @@ For `Tasker` use the `Variable Search Replace` action on an `%argument` variable
 If you don't know what `$PATH`, `$LD_LIBRARY_PATH` and `$PS1` variables or `rc` files are or don't care to find out, then just run the commands below so that `tudo` works properly, otherwise read the details below. Ignore `No such file or directory` errors when running the commands.
 
 ```
-sed -i'' -E 's/^PS1='\''\\\$ '\''$/\(\[ -z "\$PS1" \] \|\| \[\[ "\$PS1" == '\''\\s-\\v\\\$ '\'' \]\]\) \&\& PS1='\''\\\$ '\''/' "/data/data/com.termux/files/usr/etc/bash.bashrc"
-sed -i'' -E 's/^PS1='\''%# '\''$/\(\[ -z "\$PS1" \] \|\| \[\[ "\$PS1" == '\''%m%# '\'' \]\]\) \&\& PS1='\''%# '\''/' "/data/data/com.termux/files/usr/etc/zshrc"
+sed -i'' -E 's/^(PS1=.*)$/\(\[ -z "\$PS1" \] \|\| \[\[ "\$PS1" == '\''\\s-\\v\\\$ '\'' \]\]\) \&\& \1/' "/data/data/com.termux/files/usr/etc/bash.bashrc"
+sed -i'' -E 's/^(PS1=.*)$/\(\[ -z "\$PS1" \] \|\| \[\[ "\$PS1" == '\''%m%# '\'' \]\]\) \&\& \1/' "/data/data/com.termux/files/usr/etc/zshrc"
 ```
 &nbsp;
 
@@ -1446,15 +1446,15 @@ If you want to allow `tudo` to set its own default `$PS1` value `Ⲧ ` or the on
 
 1. The `rc` files in `$PREFIX/etc/` are sourced first whenever shells are started by `tudo`. The `$PS1` value is set and exported by `tudo` before new shells are started, however, the value will get replaced if its overridden by the `rc` files when they are sourced during startup of the new shell.  
 
-    - `bash` shell currently uses the `$PREFIX/etc/bash.bashrc` file, in which it sets the default value of `$PS1` to `\$ `. You need to replace the line `PS1='\$ '` with the conditional `([[ -z "$PS1" ]] || [[ "$PS1" == '\s-\v\$ ' ]]) && PS1='\$ '` so that `$PS1` is only set if its not already set or is set to the default value internally used by `bash`. You can run the command `sed -i'' -E 's/^PS1='\''\\\$ '\''$/\(\[ -z "\$PS1" \] \|\| \[\[ "\$PS1" == '\''\\s-\\v\\\$ '\'' \]\]\) \&\& PS1='\''\\\$ '\''/' "/data/data/com.termux/files/usr/etc/bash.bashrc"` to automatically do it or you can do it manually by running `nano "/data/data/com.termux/files/usr/etc/bash.bashrc"`.  
+    - `bash` shell currently uses the `$PREFIX/etc/bash.bashrc` file, in which it sets the default value of `$PS1` to `\$ ` or `\[\e[0;32m\]\w\[\e[0m\] \[\e[0;97m\]\$\[\e[0m\] ` in recent versions. You need to replace the line `PS1='\$ '` or `PS1=<default>` with the conditional `([[ -z "$PS1" ]] || [[ "$PS1" == '\s-\v\$ ' ]]) && PS1=<default>` so that `$PS1` is only set if its not already set or is set to the default value internally used by `bash`. You can run the command `sed -i'' -E 's/^(PS1=.*)$/\(\[ -z "\$PS1" \] \|\| \[\[ "\$PS1" == '\''\\s-\\v\\\$ '\'' \]\]\) \&\& \1/' "/data/data/com.termux/files/usr/etc/bash.bashrc"` to automatically do it or you can do it manually by running `nano "/data/data/com.termux/files/usr/etc/bash.bashrc"`.  
 
-    - `zsh` shell currently uses the `$PREFIX/etc/bash.zshrc` file, in which it sets the default value of `$PS1` to `%# `. You need to replace the line `PS1='%# '` with the conditional `([[ -z "$PS1" ]] || [[ "$PS1" == '%m%# ' ]]) && PS1='%# '` so that `$PS1` is only set if its not already set or is set to the default value internally used by `zsh`. You can run the command `sed -i'' -E 's/^PS1='\''%# '\''$/\(\[ -z "\$PS1" \] \|\| \[\[ "\$PS1" == '\''%m%# '\'' \]\]\) \&\& PS1='\''%# '\''/' "/data/data/com.termux/files/usr/etc/zshrc"` to automatically do it or you can do it manually by running `nano "/data/data/com.termux/files/usr/etc/zshrc"`.  
+    - `zsh` shell currently uses the `$PREFIX/etc/zshrc` file, in which it sets the default value of `$PS1` to `%# `. You need to replace the line `PS1='%# '` or `PS1=<default>` with the conditional `([[ -z "$PS1" ]] || [[ "$PS1" == '%m%# ' ]]) && PS1=<default>` so that `$PS1` is only set if its not already set or is set to the default value internally used by `zsh`. You can run the command `sed -i'' -E 's/^(PS1=.*)$/\(\[ -z "\$PS1" \] \|\| \[\[ "\$PS1" == '\''%m%# '\'' \]\]\) \&\& \1/' "/data/data/com.termux/files/usr/etc/zshrc"` to automatically do it or you can do it manually by running `nano "/data/data/com.termux/files/usr/etc/zshrc"`.  
 
 2. The `rc` files in `~/` (default `tudo shell` home) are also sourced afterwards whenever shells are started by `tudo`. They must also not override the `$PS1` value. However, if you want to set a custom value in them for usage outside `tudo`, then you can add conditionals to override `$PS1` only if its not already set or is set to the default `termux` value set by `$PREFIX/etc/*` `rc` files.  
 
-    - `bash` shell default `rc` file set by `tudo` is `~/.bashrc`. You can for example set `$PS1` to `£ ` by adding the line `([[ -z "$PS1" ]] || [[ "$PS1" == '\$ ' ]]) && PS1='£ '` to it.  
+    - `bash` shell default `rc` file set by `tudo` is `~/.bashrc`. You can for example set `$PS1` to `£ ` by adding the line `([[ -z "$PS1" ]] || [[ "$PS1" == '\$ ' ]]) && PS1='£ '` to it, where `'\$ '` is the default value for `PS1` in `$PREFIX/etc/bash.bashrc` file.  
 
-    - `zsh` shell default `rc` file set by `tudo` is `~/.zshrc`. You can for example set `$PS1` to `£ ` by adding the line `([[ -z "$PS1" ]] || [[ "$PS1" == '%# ' ]]) && PS1='£ '` to it.  
+    - `zsh` shell default `rc` file set by `tudo` is `~/.zshrc`. You can for example set `$PS1` to `£ ` by adding the line `([[ -z "$PS1" ]] || [[ "$PS1" == '%# ' ]]) && PS1='£ '` to it, where `'%# '` is the default value for `PS1` in `$PREFIX/etc/zshrc` file.  
 
 This will ensure that the exported `$PS1` variables will not be overridden by `rc` files for `bash` and `zsh`. For other shells that may use the `$PS1` variable, you can use similar conditionals in their `rc` files.
 &nbsp;&nbsp;
