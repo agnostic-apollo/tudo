@@ -726,7 +726,7 @@ tudo_set_required_variables() {
 	tudo_log 2 "PATH=\"$PATH\""
 
 	#find machine arch
-	ARCH="$(uname -m)"
+	ARCH="$(dpkg --print-architecture)"
 	return_value=$?
 	if [ $return_value -ne 0 ]; then
 		tudo_log_errors "Failed to find machine arch"
