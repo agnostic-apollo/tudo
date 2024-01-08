@@ -4,7 +4,7 @@
 
 Make sure to read the [Worthy Of Note](#Worthy-Of-Note) section, **specially the [RC File Variables](#rc-file-variables) section. This is very important.**
 
-To use `tudo` with [Termux:Tasker] plugin and [RUN_COMMAND Intent], check [Termux:Tasker] `Setup Instructions` section for details on how to them up. The [Tasker App] or your plugin host app must be granted `com.termux.permission.RUN_COMMAND` permission. The `tudo` script must be installed at `$PREFIX/bin/tudo`. The `allow-external-apps` property must also be set to `true` in `~/.termux/termux.properties` file since the `$PREFIX/bin/tudo` absolute path is outside the `~/.termux/tasker/` directory. For android `>= 10`, the [Termux App] should also be granted `Draw Over Apps` permission so that foreground commands automatically start executing without the user having to manually click the `Termux` notification in the status bar dropdown notifications list for the commands to start. Check [Templates](#Templates) section for template tasks that can be run used to run `tudo` from `Termux:Tasker` plugin and `RUN_COMMAND Intent`.
+To use `tudo` with [Termux:Tasker] plugin and [RUN_COMMAND Intent], check [Termux:Tasker] `Setup Instructions` section for details on how to set them up. The [Tasker App] or your plugin host app must be granted `com.termux.permission.RUN_COMMAND` permission. The `tudo` script must be installed at `$PREFIX/bin/tudo`. The `allow-external-apps` property must also be set to `true` in `~/.termux/termux.properties` file since the `$PREFIX/bin/tudo` absolute path is outside the `~/.termux/tasker/` directory. For android `>= 10`, the [Termux App] should also be granted `Draw Over Apps` permission so that foreground commands automatically start executing without the user having to manually click the `Termux` notification in the status bar dropdown notifications list for the commands to start. Check [Templates](#Templates) section for template tasks that can be run used to run `tudo` from `Termux:Tasker` plugin and `RUN_COMMAND Intent`.
 
 If you want to run commands in `superuser (root)` user context, check [sudo].
 ##
@@ -145,127 +145,131 @@ Usage:
 
 
 Available command_options:
-  [ -h | --help ]    display this help screen
-  [ --help-extra ]   display more help about how tudo command works
-  [ --version ]      display version
-  [ -v | -vv ]       set verbose level to 1 or 2
-  [ -a ]             force set priority to android paths for path
-                     command type
-  [ -b ]             go back to last activity after running core_script
-  [ -B ]             run core_script in background
-  [ -c ]             clear shell after running core_script
-  [ -d ]             disable stdin for core_script
-  [ -e ]             exit early if core_script fails
-  [ -E ]             exec interactive shell or the path command
-  [ -f ]             force use temp script file for core_script
-  [ -F ]             consider core_script to be a path to script file
-                     instead of script text
-  [ -H ]             same tudo post shell home as tudo shell home
-  [ -i ]             run interactive tudo post shell after running
-                     core_script
-  [ -l ]             go to launcher activtiy after running core_script
-  [ -L ]             export all existing paths in '$LD_LIBRARY_PATH'
-                     variable
-  [ -n ]             redirect stderr to /dev/null for core_script
-  [ -N ]             redirect stdout and stderr to /dev/null for
-                     core_script
-  [ -o ]             redirect stderr to stdout for core_script
-  [ -O ]             redirect stdout to stderr for core_script
-  [ -p ]             set 'path' as command type [default]
-  [ -P ]             export all existing paths in '$PATH' variable
-  [ -r ]             parse commands as per RUN_COMMAND intent rules
-  [ -s ]             set 'script' as command type
-  [ -S ]             same tudo post shell as tudo shell
+  [ -h | --help ]    Display this help screen.
+  [ --help-extra ]   Display more help about how tudo command works.
+  [ -q | --quiet ]   Set log level to 'OFF'.
+  [ -v | -vv ]       Set log level to 'DEBUG', 'VERBOSE'.
+  [ --version ]      Display version.
+  [ -a ]             Force set priority to android paths for path
+                     command type.
+  [ -b ]             Go back to last activity after running core_script.
+  [ -B ]             Run core_script in background.
+  [ -c ]             Clear shell after running core_script.
+  [ -d ]             Disable stdin for core_script.
+  [ -e ]             Exit early if core_script fails.
+  [ -E ]             Exec interactive shell or the path command.
+  [ -f ]             Force use temp script file for core_script.
+  [ -F ]             Consider core_script to be a path to script file
+                     instead of script text.
+  [ -H ]             Same tudo post shell home as tudo shell home.
+  [ -i ]             Run interactive tudo post shell after running
+                     core_script.
+  [ -l ]             Go to launcher activtiy after running core_script.
+  [ -L ]             Export all existing paths in '$LD_LIBRARY_PATH'
+                     variable.
+  [ -n ]             Redirect stderr to /dev/null for core_script.
+  [ -N ]             Redirect stdout and stderr to /dev/null for
+                     core_script.
+  [ -o ]             Redirect stderr to stdout for core_script.
+  [ -O ]             Redirect stdout to stderr for core_script.
+  [ -p ]             Set 'path' as command type [default].
+  [ -P ]             Export all existing paths in '$PATH' variable.
+  [ -r ]             Parse commands as per RUN_COMMAND intent rules.
+  [ -s ]             Set 'script' as command type.
+  [ -S ]             Same tudo post shell as tudo shell.
   [ --comma-alternative=<alternative> ]
-                     comma alternative character to be used for
-                     the `-r` option instead of the default
+                     Comma alternative character to be used for
+                     the '-r' option instead of the default.
   [ --dry-run ]
-                     do not execute tudo commands
+                     Do not execute tudo commands.
   [ --export-paths=<paths> ]
-                     additional paths to export in PATH variable,
-                     separated with colons ':'
+                     Additional paths to export in PATH variable,
+                     separated with colons ':'.
   [ --export-ld-lib-paths=<paths> ]
-                     additional paths to export in LD_LIBRARY_PATH
-                     variable, separated with colons ':'
+                     Additional paths to export in LD_LIBRARY_PATH
+                     variable, separated with colons ':'.
   [ --hold[=<string>] ]
-                     hold tudo from exiting until string is entered,
-                     defaults to any character if string is not passed
+                     Hold tudo from exiting until string is entered,
+                     defaults to any character if string is not passed.
   [ --hold-if-fail ]
-                     if '--hold' option is passed, then only hold if
-                     exit code of tudo does not equal '0'
+                     If '--hold' option is passed, then only hold if
+                     exit code of tudo does not equal '0'.
   [ --list-interactive-shells ]
-                     display list of supported interactive shells
+                     Display list of supported interactive shells.
   [ --list-script-shells ]
-                     display list of supported script shells
+                     Display list of supported script shells.
   [ --no-create-rc ]
-                     do not create rc files automatically
+                     Do not create rc files automatically.
   [ --no-create-hist ]
-                     do not create history files automatically
+                     Do not create history files automatically.
   [ --no-hist ]
-                     do not save history for tudo shell and tudo post
-                     shell
+                     Do not save history for tudo shell and tudo post
+                     shell.
   [ --no-log-args ]
-                     do not log arguments and core_script content
-                     when verbose mode is enabled
+                     Do not log arguments and core_script content
+                     when log level is '>= DEBUG'.
   [ --keep-temp ]
-                     do not delete tudo temp directory on exit
+                     Do not delete tudo temp directory on exit.
   [ --post-shell=<shell> ]
-                     name or absolute path for tudo post shell
+                     Name or absolute path for tudo post shell.
   [ --post-shell-home=<path> ]
-                     absolute path for tudo post shell home
+                     Absolute path for tudo post shell home.
   [ --post-shell-options=<options> ]
-                     additional options to pass to tudo post shell
+                     Additional options to pass to tudo post shell.
   [ --post-shell-post-commands=<commands> ]
-                     bash commands to run after tudo post shell
+                     Bash commands to run after tudo post shell.
   [ --post-shell-pre-commands=<commands> ]
-                     bash commands to run before tudo post shell
+                     Bash commands to run before tudo post shell.
   [ --post-shell-stdin-string=<string> ]
-                     string to pass as stdin to tudo post shell
+                     String to pass as stdin to tudo post shell.
   [ --remove-prev-temp ]
-                     remove temp files and directories created on
-                     previous runs of tudo command
+                     Remove temp files and directories created on
+                     previous runs of tudo command.
   [ --script-decode ]
-                     consider the core_script as base64
-                     encoded that should be decoded before execution
+                     Consider the core_script as base64
+                     encoded that should be decoded before execution.
   [ --script-name=<name> ]
-                     filename to use for the core_script temp file
+                     Filename to use for the core_script temp file
                      created in '.tudo.temp.XXXXXX' directory instead
-                     of 'tudo_core_script'
+                     of 'tudo_core_script'.
   [ --script-redirect=<mode/string> ]
-                     core_script redirect mode for stdout and stderr
+                     Core_script redirect mode for stdout and stderr.
   [ --shell=<shell> ]
-                     name or absolute path for tudo shell
+                     Name or absolute path for tudo shell.
   [ --shell-home=<path> ]
-                     absolute path for tudo shell home
+                     Absolute path for tudo shell home.
   [ --shell-options=<options> ]
-                     additional options to pass to tudo shell
+                     Additional options to pass to tudo shell.
   [ --shell-post-commands=<commands> ]
-                     bash commands to run after tudo shell for script
-                     command type
+                     Bash commands to run after tudo shell for script
+                     command type.
   [ --shell-pre-commands=<commands> ]
-                     bash commands to run before tudo shell
+                     Bash commands to run before tudo shell.
   [ --shell-stdin-string=<string> ]
-                     string to pass as stdin to tudo shell for script
-                     command type
+                     String to pass as stdin to tudo shell for script
+                     command type.
   [ --sleep=<seconds> ]
-                     sleep for x seconds before exiting tudo
+                     Sleep for x seconds before exiting tudo.
   [ --sleep-if-fail ]
-                     if '--sleep' option is passed, then only sleep if
-                     exit code of tudo does not equal '0'
+                     If '--sleep' option is passed, then only sleep if
+                     exit code of tudo does not equal '0'.
   [ --title=<title> ]
-                     title for tudo shell terminal
+                     Title for tudo shell terminal.
   [ --work-dir=<path> ]
-                     absolute path for working directory
+                     Absolute path for working directory.
 
 
-Set verbose level to 1 or 2 to get more info when running tudo command.
+Set log level to '>= DEBUG' to get more info when running tudo command.
 
-Pass '--dry-run' option with verbose mode enabled to see the commands
+Pass '--dry-run' option with log level '>= DEBUG' to see the commands
 that will be run without actually executing them.
 
 Visit https://github.com/agnostic-apollo/tudo for more help on how
 tudo command works.
 
+Supported interactive shells: `bash zsh dash sh fish python ruby pry node perl lua5.2 lua5.3 lua5.4 php python2 ksh`
+
+Supported script shells: `bash zsh dash sh fish python ruby node perl lua5.2 lua5.3 lua5.4 php python2 ksh`
 
 
 The 'su' command type drops to a termux user interactive
@@ -419,7 +423,10 @@ It's the users responsibility to properly quote all arguments passed to command 
 Check [Arguments and Result Data Limits](#Arguments-and-Result-Data-Limits) for details on the max size of arguments that you can pass to `tudo` script, specifically the size of `core_script` and its arguments for the `script` command type.
 
 
-- `-v | -vv` options can be used to increase the verbose level of the `tudo` command. Useful to see script progress and what commands will actually be run. You can also use verbose mode with the `--dry-run` option to see what commands will be run without actually executing them.
+- `-v | -vv` options can be used to increase the log level of the `tudo` command. Useful to see script progress and what commands will actually be run. You can also use log level `>= DEBUG` with the `--dry-run` option to see what commands will be run without actually executing them. `tudo` uses log levels (`OFF=0`, `NORMAL=1`, `DEBUG=2`, `VERBOSE=3`) and defaults to `NORMAL=1`, but currently does not log anything at `OFF=0` or `NORMAL=1`. Log level can also be set by exporting an `int` in `$TUDO_LOG_LEVEL` between `0-3`, like `TUDO_LOG_LEVEL=3` to set log level to `VERBOSE=3`.
+
+
+- `-q | --quiet` options can be used to set the log level of the `tudo` command to `OFF=0`.
 
 
 - `-a` option can be used with the `path` command type to force setting priority to android bin and library paths in `$PATH` and `$LD_LIBRARY_PATH` variables. This can be useful for cases when the `command` is an absolute path but does not exist in the `/system` partition but still needs priority to be set to android paths or if the `command` is a just the basename and you want to run the binary in `/system` partition instead of the one in termux bin path since that will be found first during the search since the `$PATH` variable will be set to priority to android paths.
@@ -521,7 +528,7 @@ Check [Arguments and Result Data Limits](#Arguments-and-Result-Data-Limits) for 
 - `--no-hist` option will try to disable history loading and saving for `tudo shell` and `tudo post shell` depending on shell capabilities. Not all interactive shells have history support or of disabling it. The history files will also not be created automatically if they are missing.
 
 
-- `--no-log-args` option can be used with the `path` or `script` command type to disable logging of arguments and `core_script` content when verbose mode is enabled. This is useful in cases where the arguments or `core_script` content is too large and it "hides" the other useful log entries due to terminal session output buffer limitations.
+- `--no-log-args` option can be used with the `path` or `script` command type to disable logging of arguments and `core_script` content when log level is `>= DEBUG`. This is useful in cases where the arguments or `core_script` content is too large and it "hides" the other useful log entries due to terminal session output buffer limitations.
 
 
 - `--keep-temp` option will disable automatic deletion of the tudo temp directory `$TMPDIR/.tudo.temp.XXXXXX` on exit. This can be used to debug any temp script files created.
@@ -904,9 +911,9 @@ echo "Hi, $name."
 
 ```
 tudo -sie --shell=bash <(cat <<'TUDO_EOF'
-#if parameter count is not 2
+#if argument count is not 2
 if [ $# -ne 2 ]; then
-    echo "Invalid parameter count '$#' to 'termux_tasker_basic_bash_test'" 1>&2
+    echo "Invalid argument count '$#' to 'termux_tasker_basic_bash_test'" 1>&2
     echo "$*" 1>&2
     exit 1
 fi
