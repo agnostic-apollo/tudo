@@ -229,6 +229,7 @@ declare -ga TUDO_POST_SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS=()
 declare -ga TUDO_RLWRAP_ADDITIONAL_COMMAND_OPTIONS=()
 
 # Set regexes for validation
+VALID_NUMBER_REGEX='^[0-9]+$'
 VALID_ABSOLUTE_PATH_REGEX='^(/[^/]+)+$'
 VALID_PATH_IN_SYSTEM_PARTITION_REGEX='^/system/.*'
 VALID_PATH_UNDER_TERMUX_FILES_REGEX='^'"$TERMUX_FILES"'/.+'
@@ -744,6 +745,25 @@ tudo_set_required_variables() {
     fi
 
     tudo_log 3 "ARCH=\"$ARCH\""
+
+
+    # Find android sdk/os version
+    # Termux app exports ANDROID__BUILD_VERSION_SDK for `>= v0.119.0`
+    if [[ ! "$ANDROID__BUILD_VERSION_SDK" =~ $VALID_NUMBER_REGEX ]]; then
+        ANDROID__BUILD_VERSION_SDK="$(getprop "ro.build.version.sdk")"
+        return_value=$?
+        if [ $return_value -ne 0 ] || [[ ! "$ANDROID__BUILD_VERSION_SDK" =~ $VALID_NUMBER_REGEX ]]; then
+            tudo_log_errors "Failure while finding \"ro.build.version.sdk\" property"
+            tudo_log_errors "ANDROID__BUILD_VERSION_SDK = \"$ANDROID__BUILD_VERSION_SDK\""
+            if [ $return_value -eq 0 ]; then
+                return_value=1
+            fi
+            return $return_value
+        fi
+    fi
+
+    tudo_log 3 "ANDROID__BUILD_VERSION_SDK=\"$ANDROID__BUILD_VERSION_SDK\""
+
 
     # Set LD_LIBRARY_PATH
     # If ARCH is 64 bit

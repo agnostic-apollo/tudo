@@ -239,16 +239,20 @@ tudo_tests_run() {
         return $return_value
     fi
 
+
     # Find android sdk/os version
-    ANDROID_SDK_VERSION="$(getprop "ro.build.version.sdk")"
-    return_value=$?
-    if [ $return_value -ne 0 ] || [[ ! "$ANDROID_SDK_VERSION" =~ $VALID_NUMBER_REGEX ]]; then
-        tudo_tests_log_errors "Failure while finding \"ro.build.version.sdk\" property"
-        tudo_tests_log_errors "ANDROID_SDK_VERSION = \"$ANDROID_SDK_VERSION\""
-        if [ $return_value -eq 0 ]; then
-            return_value=1
+    # Termux app exports ANDROID__BUILD_VERSION_SDK for `>= v0.119.0`
+    if [[ ! "$ANDROID__BUILD_VERSION_SDK" =~ $VALID_NUMBER_REGEX ]]; then
+        ANDROID__BUILD_VERSION_SDK="$(getprop "ro.build.version.sdk")"
+        return_value=$?
+        if [ $return_value -ne 0 ] || [[ ! "$ANDROID__BUILD_VERSION_SDK" =~ $VALID_NUMBER_REGEX ]]; then
+            tudo_tests_log_errors "Failure while finding \"ro.build.version.sdk\" property"
+            tudo_tests_log_errors "ANDROID__BUILD_VERSION_SDK = \"$ANDROID__BUILD_VERSION_SDK\""
+            if [ $return_value -eq 0 ]; then
+                return_value=1
+            fi
+            return $return_value
         fi
-        return $return_value
     fi
 
 
@@ -452,7 +456,7 @@ tudo_tests_run_path_tests() {
 
     run_tudo_test 6 && \
     output="$(tudo getprop "ro.build.version.sdk")"
-    validate_tudo_test 0 $? "$output" "$ANDROID_SDK_VERSION"
+    validate_tudo_test 0 $? "$output" "$ANDROID__BUILD_VERSION_SDK"
 
 
 
