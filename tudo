@@ -135,11 +135,15 @@ TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES="${TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES
 # and tudo post shell if TUDO_POST_SHELL_HOME is same as TERMUX_HOME
 TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES="${TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES:-1}" # Default: `1`
 
-# Set to 1 if you want to add path for the su binary to the $PATH_TO_EXPORT, otherwise 0
-TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE="${TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE:-1}" # Default: `1`
+# Set to 1 to add path to su binary directory to end of $PATH exported for android paths, otherwise 0.
+TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE="${TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE:-0}" # Default: `0`
+
+# Set absolute path for su binary to use instead of searching for it in default search paths.
+# This can be used if path is not in search paths or all paths in it should not be checked.
+TUDO_SU_PATH="${TUDO_SU_PATH:-}" # Default: ``
 
 
-# for f in TUDO_SHELL_HOME TUDO_POST_SHELL_HOME TUDO_SHELL_PS1 TUDO_POST_SHELL_PS1 TUDO_ADDITIONAL_PATHS_TO_EXPORT TUDO_EXPORT_ALL_EXISTING_PATHS_IN_PATH_VARIABLE TUDO_ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT TUDO_EXPORT_ALL_EXISTING_PATHS_IN_LD_LIBRARY_PATH_VARIABLE TUDO_SHELLS_AUTOMATICALLY_CREATE_RC_FILES TUDO_SHELLS_AUTOMATICALLY_CREATE_HISTORY_FILES TUDO_SHELLS_HISTORY_ENABLED TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE; do echo "$f=\`${!f}\`"; done; echo $'\n'
+# for f in TUDO_SHELL_HOME TUDO_POST_SHELL_HOME TUDO_SHELL_PS1 TUDO_POST_SHELL_PS1 TUDO_ADDITIONAL_PATHS_TO_EXPORT TUDO_EXPORT_ALL_EXISTING_PATHS_IN_PATH_VARIABLE TUDO_ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT TUDO_EXPORT_ALL_EXISTING_PATHS_IN_LD_LIBRARY_PATH_VARIABLE TUDO_SHELLS_AUTOMATICALLY_CREATE_RC_FILES TUDO_SHELLS_AUTOMATICALLY_CREATE_HISTORY_FILES TUDO_SHELLS_HISTORY_ENABLED TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE TUDO_SU_PATH; do echo "$f=\`${!f}\`"; done; echo $'\n'
 
 ### Set User Modifiable Variables End
 
@@ -675,34 +679,67 @@ tudo_set_su_variables() {
 
     SU=""
     SU_BIN_PATH=""
+  
+    local -a su_search_paths=()
 
-    local -a su_search_paths=("/su/bin/su")
-
-    # If "/sbin" is accessible
-    if [ -x "/sbin" ]; then
-        su_search_paths+=("/sbin/su" "/sbin/bin/su")
+    # Check "`su` search paths" in README for more info.
+    # If TUDO_SU_PATH is not a valid absolute path
+    if [[ ! "$TUDO_SU_PATH" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
+        su_search_paths+=("/system/bin/su" "/debug_ramdisk/su" "/system/xbin/su" "/sbin/su" "/sbin/bin/su" "/system/sbin/su" "/su/xbin/su" "/su/bin/su" "/magisk/.core/bin/su")
+    else
+        su_search_paths+=("$TUDO_SU_PATH")
     fi
-
-    if [ -x "/dev/avd-magisk" ]; then
-        su_search_paths+=("/dev/avd-magisk")
-    fi
-
-    su_search_paths+=("/system/xbin/su" "/system/bin/su" "/su/xbin/su" "/magisk/.core/bin/su")
 
     local su
+    local su_found=0
+    local su_help=""
 
     for su in "${su_search_paths[@]}"; do
         if [ -x "$su" ]; then
             tudo_log 3 "A su binary found at \"$su\""
-            SU="$su"
-            SU_BIN_PATH="${su%/su}"
-            break
+            su_found=1
+
+            # If '-c' option is not supported, then continue searching
+            if [[ "$su_help" != *"-c,"* ]] && [[ "$su_help" != *"-c "* ]]; then
+                tudo_log 3 "The su binary found does not support '-c' option, continuing search"
+                continue
+            # If '--shell' option is not supported, then continue searching
+            elif [[ "$su_help" != *"--shell"* ]]; then
+                tudo_log 3 "The su binary found does not support '--shell' option, continuing search"
+                continue
+            # If '--preserve-environment' option is not supported, then continue searching
+            elif [[ "$su_help" != *"--preserve-environment"* ]]; then
+                tudo_log 3 "The su binary found does not support '--preserve-environment' option, continuing search"
+                continue
+            # If '--mount-master' option is not supported, then continue searching
+            elif [[ "$su_help" != *"--mount-master"* ]]; then
+                tudo_log 3 "The su binary found does not support '--mount-master' option, continuing search"
+                continue
+            # Else use the su
+            else
+                SU="$su"
+
+                SU_BIN_PATH_BASENAME="${SU##*/}" # Strip longest match of */ from start
+                SU_BIN_PATH="${SU:0:${#SU} - ${#SU_BIN_PATH_BASENAME}}" # Substring from 0 to position of basename
+                case $SU_BIN_PATH in *[!/]*/) SU_BIN_PATH=${SU_BIN_PATH%"${SU_BIN_PATH##*[!/]}"};; *[/]) SU_BIN_PATH="/";; esac # Remove trailing slashes if not root
+
+                break
+            fi
+
+            tudo_log 3 ""
         fi
     done
 
     # If SU is not set
     if [ -z "$SU" ]; then
-        tudo_log 3 "No su binary found"
+         # If su_found is not set to "1"
+        if [[ "$su_found" != "1" ]]; then
+            tudo_log 3 "No 'su' binary found"
+        else
+            tudo_log 3 "No 'su' binary found that supports the '-c', '--shell', '--preserve-environment' and '--mount-master' options"
+        fi
+
+        tudo_log 3 "SU_SEARCH_PATHS: ${su_search_paths[*]}"
     else
         tudo_log 3 "SU=\"$SU\""
         tudo_log 3 "SU_BIN_PATH=\"$SU_BIN_PATH\""
@@ -4449,6 +4486,29 @@ tudo_process_arguments() {
                         tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
                         tudo_exit_on_error || return $?
                         ;;
+                    su-bin-path-add=?*)
+                        val="$long_optargs"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        if [[ "$val" == "0" ]]; then
+                            TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE=0
+                        else
+                            TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE=1
+                        fi
+                        ;;
+                    su-bin-path-add | su-bin-path-add=)
+                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
+                        tudo_exit_on_error || return $?
+                        ;;
+                    su-path=?*)
+                        val="$long_optargs"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        tudo_trim_trailing_newlines "TUDO_SU_PATH" "$val"
+                        TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE=1
+                        ;;
+                    su-path | su-path=)
+                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
+                        tudo_exit_on_error || return $?
+                        ;;
                     title=?*)
                         val="$long_optargs"
                         tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
@@ -4820,6 +4880,12 @@ Available command_options:
   [ --sleep-if-fail ]
                      If '--sleep' option is passed, then only sleep if
                      exit code of tudo does not equal '0'.
+  [ --su-path=<path> ]
+                     Absolute path for su binary to use instead of
+                     searching for it in default search paths.
+  [ --su-bin-path-add=0|1 ]
+                     Whether to append path to su binary directory to
+                     '$PATH' exported for android priority.
   [ --title=<title> ]
                      Title for tudo shell terminal.
   [ --work-dir=<path> ]
