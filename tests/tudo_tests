@@ -418,49 +418,45 @@ tudo_tests_run_path_tests() {
         run_tudo_test 1 && \
         output="$(tudo "$TERMUX_HOME/.termux/tasker/termux_tasker_basic_bash_test" "$shell" "shell")"
         validate_tudo_test 0 $? "$output" "\$1=\`$shell\`"$'\n'"\$2=\`shell\`"
-    else
-        skip_tudo_test 1
-    fi
 
-    if [ -x "$TERMUX_HOME/.termux/tasker/termux_tasker_basic_bash_test" ]; then
         run_tudo_test 2 && \
         output="$(tudo '~/.termux/tasker/termux_tasker_basic_bash_test' "$shell" "shell")"
         validate_tudo_test 0 $? "$output" "\$1=\`$shell\`"$'\n'"\$2=\`shell\`"
-    else
-        skip_tudo_test 2
-    fi
 
-    if [ -x "$TERMUX_HOME/.termux/tasker/termux_tasker_basic_bash_test" ]; then
         run_tudo_test 3 && \
         output="$(cd "$TERMUX_HOME"; tudo './.termux/tasker/termux_tasker_basic_bash_test' "$shell" "shell")"
         validate_tudo_test 0 $? "$output" "\$1=\`$shell\`"$'\n'"\$2=\`shell\`"
-    else
-        skip_tudo_test 3
-    fi
 
-    if [ -x "$TERMUX_HOME/.termux/tasker/termux_tasker_basic_bash_test" ]; then
         run_tudo_test 4 && \
-        output="$(cd "$TERMUX_HOME/.termux/tasker"; tudo 'termux_tasker_basic_bash_test' "$shell" "shell")"
+        output="$(cd "$TERMUX_HOME/.termux/tasker"; tudo './termux_tasker_basic_bash_test' "$shell" "shell")"
+        validate_tudo_test 0 $? "$output" "\$1=\`$shell\`"$'\n'"\$2=\`shell\`"
+
+        run_tudo_test 5 && \
+        output="$(cd "$TERMUX_HOME/.termux/tasker"; tudo '../tasker/termux_tasker_basic_bash_test' "$shell" "shell")"
         validate_tudo_test 0 $? "$output" "\$1=\`$shell\`"$'\n'"\$2=\`shell\`"
     else
+        skip_tudo_test 1
+        skip_tudo_test 2
+        skip_tudo_test 3
         skip_tudo_test 4
+        skip_tudo_test 5
     fi
 
 
 
-    run_tudo_test 5 && \
+    run_tudo_test 6 && \
     output="$(tudo ps -e -o cmd | grep "$TERMUX_PREFIX/bin/ps")"
     validate_tudo_test 0 $? "$output" "*" "$TERMUX_PREFIX/bin/ps -e -o cmd" "*"
 
 
 
-    run_tudo_test 6 && \
+    run_tudo_test 7 && \
     output="$(tudo getprop "ro.build.version.sdk")"
     validate_tudo_test 0 $? "$output" "$ANDROID__BUILD_VERSION_SDK"
 
 
 
-    run_tudo_test 7 && \
+    run_tudo_test 8 && \
     output="$(tudo -r echo "$COMMA_ALTERNATIVE")"
     validate_tudo_test 0 $? "$output" ","
 
