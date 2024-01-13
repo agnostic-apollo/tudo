@@ -652,13 +652,23 @@ echo "VARIABLE_2=\`$VARIABLE_2\`"
     return_value=$?
     validate_tudo_test 0 $return_value "$output" "$tudo_test_temp_work_dir"
 
+    run_tudo_test 25 && \
+    output="$(tudo -s --work-dir="/" 'pwd' 2>&1)"
+    return_value=$?
+    validate_tudo_test 0 $return_value "$output" "/"
+
+    run_tudo_test 26 && \
+    output="$(tudo -s --work-dir="/system" 'pwd' 2>&1)"
+    return_value=$?
+    validate_tudo_test 0 $return_value "$output" "/system"
+
 
 
 
 
     # Redirect stderr to stdout, same as `--script-redirect=0`
     close_stdin
-    run_tudo_test 25 && \
+    run_tudo_test 27 && \
     tudo_tests_run_subshell_command stdout stderr tudo -so --shell="$shell" 'echo stdout; echo stderr 1>&2'
     return_value=$?
     reopen_stdin
@@ -667,7 +677,7 @@ echo "VARIABLE_2=\`$VARIABLE_2\`"
 
     # Redirect stdout to stderr, same as `--script-redirect=1`
     close_stdin
-    run_tudo_test 26 && \
+    run_tudo_test 28 && \
     tudo_tests_run_subshell_command stdout stderr tudo -sO --shell="$shell" 'echo stdout; echo stderr 1>&2'
     return_value=$?
     reopen_stdin
@@ -676,7 +686,7 @@ echo "VARIABLE_2=\`$VARIABLE_2\`"
 
     # Redirect redirect stdout to /dev/null
     close_stdin
-    run_tudo_test 27 && \
+    run_tudo_test 29 && \
     tudo_tests_run_subshell_command stdout stderr tudo -s --script-redirect=2 --shell="$shell" 'echo stdout; echo stderr 1>&2'
     return_value=$?
     reopen_stdin
@@ -685,7 +695,7 @@ echo "VARIABLE_2=\`$VARIABLE_2\`"
 
     # Redirect stderr to /dev/null for core_script, same as `--script-redirect=3`
     close_stdin
-    run_tudo_test 28 && \
+    run_tudo_test 30 && \
     tudo_tests_run_subshell_command stdout stderr tudo -sn --shell="$shell" 'echo stdout; echo stderr 1>&2'
     return_value=$?
     reopen_stdin
@@ -694,7 +704,7 @@ echo "VARIABLE_2=\`$VARIABLE_2\`"
 
     # Redirect both stdout and stderr to /dev/null, same as `--script-redirect=4`
     close_stdin
-    run_tudo_test 29 && \
+    run_tudo_test 31 && \
     tudo_tests_run_subshell_command stdout stderr tudo -sN --shell="$shell" 'echo stdout; echo stderr 1>&2'
     return_value=$?
     reopen_stdin
@@ -703,7 +713,7 @@ echo "VARIABLE_2=\`$VARIABLE_2\`"
 
     # Redirect stderr to stdout and redirect stdout to stderr
     close_stdin
-    run_tudo_test 30 && \
+    run_tudo_test 32 && \
     tudo_tests_run_subshell_command stdout stderr tudo -s --script-redirect=5 --shell="$shell" 'echo stdout; echo stderr 1>&2'
     return_value=$?
     reopen_stdin
@@ -712,7 +722,7 @@ echo "VARIABLE_2=\`$VARIABLE_2\`"
 
     # Redirect stderr to stdout and redirect stdout to /dev/null
     close_stdin
-    run_tudo_test 31 && \
+    run_tudo_test 33 && \
     tudo_tests_run_subshell_command stdout stderr tudo -s --script-redirect=6 --shell="$shell" 'echo stdout; echo stderr 1>&2'
     return_value=$?
     reopen_stdin
@@ -722,7 +732,7 @@ echo "VARIABLE_2=\`$VARIABLE_2\`"
 
 
     close_stdin
-    run_tudo_test 32 && \
+    run_tudo_test 34 && \
     tudo_tests_run_subshell_command stdout stderr tudo -sie --post-shell-stdin-string='exit' --shell="$shell" <(cat <<'TUDO_EOF'
 # If argument count is not 2
 if [ $# -ne 2 ]; then
@@ -746,61 +756,61 @@ TUDO_EOF
 
 
 
-    run_tudo_test 33 && \
+    run_tudo_test 35 && \
     output="$(tudo -s --shell=bas 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
     validate_tudo_test 1 $? "$output" "" "The TUDO_SHELL \"bas\" is not supported. It must be one of" "*"
 
 
 
-    run_tudo_test 34 && \
+    run_tudo_test 36 && \
     output="$(tudo -si --post-shell=bas 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
     validate_tudo_test 1 $? "$output" "" "The TUDO_POST_SHELL \"bas\" is not supported. It must be one of" "*"
 
 
 
-    run_tudo_test 35 && \
+    run_tudo_test 37 && \
     output="$(tudo -s --shell-home='~/.config' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
     validate_tudo_test 1 $? "$output" "" "The \"$TERMUX_HOME/.config\" cannot be used as TUDO_SHELL_HOME" "*"
 
 
 
-    run_tudo_test 36 && \
+    run_tudo_test 38 && \
     output="$(tudo -s --shell-home='$PREFIX/' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
     validate_tudo_test 1 $? "$output" "" "The \"$TERMUX_PREFIX\" cannot be used as TUDO_SHELL_HOME" "*"
 
 
 
-    run_tudo_test 37 && \
+    run_tudo_test 39 && \
     output="$(tudo -s --shell-home='$PREFIX/home' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
     validate_tudo_test 1 $? "$output" "" "The \"$TERMUX_PREFIX/home\" cannot be used as TUDO_SHELL_HOME" "*"
 
 
 
-    run_tudo_test 38 && \
+    run_tudo_test 40 && \
     output="$(tudo -s --shell-home='/data' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
     validate_tudo_test 1 $? "$output" "" "The TUDO_SHELL_HOME \"/data\" must be an absolute path under TERMUX_FILES \"$TERMUX_FILES\"" "*"
 
 
 
-    run_tudo_test 39 && \
+    run_tudo_test 41 && \
     output="$(tudo -si --post-shell-home='~/.config' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
     validate_tudo_test 1 $? "$output" "" "The \"$TERMUX_HOME/.config\" cannot be used as TUDO_POST_SHELL_HOME" "*"
 
 
 
-    run_tudo_test 40 && \
+    run_tudo_test 42 && \
     output="$(tudo -si --post-shell-home='$PREFIX/' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
     validate_tudo_test 1 $? "$output" "" "The \"$TERMUX_PREFIX\" cannot be used as TUDO_POST_SHELL_HOME" "*"
 
 
 
-    run_tudo_test 41 && \
+    run_tudo_test 43 && \
     output="$(tudo -si --post-shell-home='$PREFIX/home' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
     validate_tudo_test 1 $? "$output" "" "The \"$TERMUX_PREFIX/home\" cannot be used as TUDO_POST_SHELL_HOME" "*"
 
 
 
-    run_tudo_test 42 && \
+    run_tudo_test 44 && \
     output="$(tudo -si --post-shell-home='/data' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
     validate_tudo_test 1 $? "$output" "" "The TUDO_POST_SHELL_HOME \"/data\" must be an absolute path under TERMUX_FILES \"$TERMUX_FILES\"" "*"
 
@@ -808,13 +818,13 @@ TUDO_EOF
 
 
 
-    run_tudo_test 43 && \
+    run_tudo_test 45 && \
     output="$(tudo -sr "[[ \",\" == \"$COMMA_ALTERNATIVE\" ]] && [[ "\$1" == \"$COMMA_ALTERNATIVE\" ]] && echo \"arg1 equals simple comma\"" "$COMMA_ALTERNATIVE")"
     validate_tudo_test 0 $? "$output" "arg1 equals simple comma"
 
 
 
-    run_tudo_test 44 && \
+    run_tudo_test 46 && \
     output="$(tudo -si --post-shell="python" --post-shell-stdin-string='exit(0)' 2>&1)"
     validate_tudo_test 0 $? "$output" "*" "Python" "*"
 

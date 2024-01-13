@@ -1181,7 +1181,7 @@ tudo_set_pre_tudo_shell_commands_to_run() {
 
     # If TUDO_SHELL_WORKING_DIR is set, then append cd command to PRE_TUDO_SHELL_COMMANDS_TO_RUN
     if [ -n "$TUDO_SHELL_WORKING_DIR" ]; then
-        PRE_TUDO_SHELL_COMMANDS_TO_RUN+="cd '${TUDO_SHELL_WORKING_DIR//\'/\'\\\'\'}';"$'\n'
+        PRE_TUDO_SHELL_COMMANDS_TO_RUN+="cd -- '${TUDO_SHELL_WORKING_DIR//\'/\'\\\'\'}';"$'\n'
     fi
 
     # If COMMAND_TYPE equals "su", "asu" or "path"
@@ -2833,8 +2833,8 @@ tudo_setup_tudo_shell_home_and_working_environment() {
         fi
     fi
 
-    # If TUDO_SHELL_WORKING_DIR is set
-    if [ -n "$TUDO_SHELL_WORKING_DIR" ]; then
+    # If TUDO_SHELL_WORKING_DIR is set and does not equal rootfs
+    if [ -n "$TUDO_SHELL_WORKING_DIR" ] && [ "$TUDO_SHELL_WORKING_DIR" != "/" ]; then
         # Create TUDO_SHELL_WORKING_DIR if missing
         tudo_setup_tudo_shell_working_dir || return $?
     fi
@@ -3170,16 +3170,18 @@ tudo_set_tudo_shell_working_dir() {
 
     tudo_log_literal 3 "\nRunning tudo_set_tudo_shell_working_dir"
 
-    # Replace "$PREFIX/" or "~/" prefix with termux absolute paths in TUDO_SHELL_WORKING_DIR
-    tudo_expand_termux_path "TUDO_SHELL_WORKING_DIR" "TUDO_SHELL_WORKING_DIR" "$TUDO_SHELL_WORKING_DIR" "$TERMUX_PREFIX" "$TERMUX_HOME" 1
-    return_value=$?
-    if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failed to expand TUDO_SHELL_WORKING_DIR \"$TUDO_SHELL_WORKING_DIR\""
-        return $return_value
+    if [ "$TUDO_SHELL_WORKING_DIR" != "/" ]; then
+        # Replace "$PREFIX/" or "~/" prefix with termux absolute paths in TUDO_SHELL_WORKING_DIR
+        tudo_expand_termux_path "TUDO_SHELL_WORKING_DIR" "TUDO_SHELL_WORKING_DIR" "$TUDO_SHELL_WORKING_DIR" "$TERMUX_PREFIX" "$TERMUX_HOME" 1
+        return_value=$?
+        if [ $return_value -ne 0 ]; then
+            tudo_log_errors "Failed to expand TUDO_SHELL_WORKING_DIR \"$TUDO_SHELL_WORKING_DIR\""
+            return $return_value
+        fi
     fi
 
     # If TUDO_SHELL_WORKING_DIR is not a valid absolute path
-    if [[ ! "$TUDO_SHELL_WORKING_DIR" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
+    if [[ ! "$TUDO_SHELL_WORKING_DIR" =~ $VALID_ROOTFS_OR_ABSOLUTE_PATH_REGEX ]]; then
         tudo_log_errors "The TUDO_SHELL_WORKING_DIR \"$TUDO_SHELL_WORKING_DIR\" is not a valid absolute path"
         return 1
     fi
@@ -3224,7 +3226,7 @@ tudo_setup_tudo_shell_working_dir() {
     # If TUDO_SHELL_WORKING_DIR is the same as TERMUX_FILES or is under it
     if [[ "$TUDO_SHELL_WORKING_DIR" == "$TERMUX_FILES" ]] || [[ "$TUDO_SHELL_WORKING_DIR" == "$TERMUX_FILES"/* ]]; then
         shell_working_dir_file_type_tests="drwx"
-    # It might not be possible for the directory to be writable or executable in other paths like in storage
+    # It might not be possible for the directory to be writable or executable in other paths like in storage or rootfs/system partition
     else
         shell_working_dir_file_type_tests="dr"
     fi
