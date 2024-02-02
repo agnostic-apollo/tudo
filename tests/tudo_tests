@@ -291,6 +291,16 @@ tudo_tests_run() {
 
 
 
+    if [[ -z "$TERMUX_EXEC__PROC_SELF_EXE" ]]; then
+        PROC_SELF_EXE_COMMAND='readlink -f /proc/$$/exe'
+        PROC_SELF_EXE_COMMAND_FISH='readlink -f /proc/$fish_pid/exe'
+    else
+        PROC_SELF_EXE_COMMAND='echo "$TERMUX_EXEC__PROC_SELF_EXE"'
+        PROC_SELF_EXE_COMMAND_FISH='echo "$TERMUX_EXEC__PROC_SELF_EXE"'
+    fi
+
+
+
     # Set traps to run commands before exiting tudo_tests
     trap 'tudo_tests_cleanup' EXIT
     trap 'tudo_tests_cleanup TERM' TERM
