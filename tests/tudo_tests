@@ -24,6 +24,7 @@ Available command_options:
                      works.
   [ -q | --quiet ]   Set log level to 'OFF'.
   [ -v | -vv ]       Set log level to 'DEBUG', 'VERBOSE', `VVERBOSE'.
+  [ --only-bash-tests ] Run only bash shell tests.
 
 
 Setting log level '>= DEBUG' will fail test validation for tests that
@@ -139,6 +140,7 @@ TUDO_TESTS_LOG_ARGS=${TUDO_TESTS_LOG_ARGS:-0} # Default: `0` (Export or manually
 
 TUDO_TESTS_COMMAND_TYPE="" # Default: ``
 TUDO_TESTS_NOOP_COMMAND=0 # Default: `0`
+TUDO_TESTS_ONLY_BASH_TESTS=0 # Default: `0`
 TUDO_TESTS_PREVIOUS_TEMP_TEST_SHELL="" # Default: ``
 TUDO_TESTS_PREVIOUS_TEST_SHELL="" # Default: ``
 TUDO_TESTS_PREVIOUS_TEST_NUMBER="" # Default: ``
@@ -821,6 +823,12 @@ TUDO_EOF
     run_tudo_test 45 && \
     output="$(tudo -sr "[[ \",\" == \"$COMMA_ALTERNATIVE\" ]] && [[ "\$1" == \"$COMMA_ALTERNATIVE\" ]] && echo \"arg1 equals simple comma\"" "$COMMA_ALTERNATIVE")"
     validate_tudo_test 0 $? "$output" "arg1 equals simple comma"
+
+
+
+    if [[ "$TUDO_TESTS_ONLY_BASH_TESTS" == "1" ]]; then
+        return 0
+    fi
 
 
 
@@ -1583,6 +1591,14 @@ tudo_tests_process_arguments() {
                         TUDO_TESTS_NOOP_COMMAND=1; return 0
                         ;;
                     help*)
+                        tudo_tests_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
+                        tudo_tests_exit_on_error || return $?
+                        ;;
+                    only-bash-tests)
+                        tudo_tests_log_args "Parsing option: '--${OPTARG%=*}'"
+                        TUDO_TESTS_ONLY_BASH_TESTS=1
+                        ;;
+                    only-bash-tests*)
                         tudo_tests_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
                         tudo_tests_exit_on_error || return $?
                         ;;
