@@ -6,7 +6,7 @@ Make sure to read the [Worthy Of Note](#worthy-of-note) section, **specially the
 
 To use `tudo` with [Termux:Tasker] plugin and [RUN_COMMAND Intent], check [Termux:Tasker] `Setup Instructions` section for details on how to set them up. The [Tasker App] or your plugin host app must be granted `com.termux.permission.RUN_COMMAND` permission. The `tudo` script must be installed at `$PREFIX/bin/tudo`. The `allow-external-apps` property must also be set to `true` in `~/.termux/termux.properties` file since the `$PREFIX/bin/tudo` absolute path is outside the `~/.termux/tasker/` directory. For android `>= 10`, the [Termux App] should also be granted `Draw Over Apps` permission so that foreground commands automatically start executing without the user having to manually click the `Termux` notification in the status bar dropdown notifications list for the commands to start. Check [Templates](#templates) section for template tasks that can be run used to run `tudo` from `Termux:Tasker` plugin and `RUN_COMMAND Intent`.
 
-If you want to run commands in `superuser (root)` user context, check [sudo].
+If you want to run commands in `superuser (root)` user context, check [`sudo`].
 
 ### Contents
 - [Dependencies](#dependencies)
@@ -399,7 +399,7 @@ The `path` command type can be useful for running single commands in `/system` p
 
 You can also use `tudo <command>` even if you are inside of a `tudo su` shell and it will work without having to switch to `tudo asu` or exporting variables to change priority.
 
-You can also run the `tudo -p su [user]` or `tudo -p /path/to/su [user]` commands to call the `su` binary for dropping to a shell for a specific user or even run a command for a specific user, like `tudo -p su -c "logcat" system`. Note that if you do not provide an absolute path to the `su` binary and just run `tudo -p su`, then the termux `su` wrapper script will be called which is stored at `$PREFIX/bin/su` which automatically tries to find the `su` binary and unsets `LD_LIBRARY_PATH` and `LD_PRELOAD` variables. You can check its contents with `cat "$PREFIX/bin/su"`. The variables will be also be unset by the `tudo` script if it detects you are trying to run a `su` binary. The device must of course be rooted and ideally `Termux` must have been granted root permissions by your root manager app like [SuperSU] or [Magisk] for the `su` commands to work. However, it is highly advised that you use [sudo] instead of [tudo] for calling the `su` binary so that it sets a different home than the termux home used by `tudo` by default, among other things.
+You can also run the `tudo -p su [user]` or `tudo -p /path/to/su [user]` commands to call the `su` binary for dropping to a shell for a specific user or even run a command for a specific user, like `tudo -p su -c "logcat" system`. Note that if you do not provide an absolute path to the `su` binary and just run `tudo -p su`, then the termux `su` wrapper script will be called which is stored at `$PREFIX/bin/su` which automatically tries to find the `su` binary and unsets `LD_LIBRARY_PATH` and `LD_PRELOAD` variables. You can check its contents with `cat "$PREFIX/bin/su"`. The variables will be also be unset by the `tudo` script if it detects you are trying to run a `su` binary. The device must of course be rooted and ideally `Termux` must have been granted root permissions by your root manager app like [SuperSU] or [Magisk] for the `su` commands to work. However, it is highly advised that you use [`sudo`] instead of `tudo` for calling the `su` binary so that it sets a different home than the termux home used by `tudo` by default, among other things.
 
 Check the [`-a`](#-a) and [`-r`](#-r) command options that can be specifically used with the `path` command type.
 
@@ -2037,7 +2037,8 @@ Check [CHANGELOG.md](CHANGELOG.md) file for the **Changelog**.
 [SuperSU]: https://forum.xda-developers.com/t/beta-2017-10-01-supersu-v2-82-sr5.2868133/
 [Magisk]: https://github.com/topjohnwu/Magisk
 
-[sudo]: https://github.com/agnostic-apollo/sudo
+[`sudo`]: https://github.com/agnostic-apollo/sudo
+
 [RUN_COMMAND Intent]: https://github.com/termux/termux-app/blob/master/app/src/main/java/com/termux/app/RunCommandService.java
 
 [Process Substitution]: https://en.wikipedia.org/wiki/Process_substitution
