@@ -102,8 +102,8 @@ pkg intsall loksh
 
 
 # Follow instructions in `RC File Variables` section of README.md to fix `rc` files.
-sed -i'' -E 's/^(PS1=.*)$/\(\[ -z "\$PS1" \] \|\| \[\[ "\$PS1" == '\''\\s-\\v\\\$ '\'' \]\]\) \&\& \1/' "/data/data/com.termux/files/usr/etc/bash.bashrc"
-sed -i'' -E 's/^(PS1=.*)$/\(\[ -z "\$PS1" \] \|\| \[\[ "\$PS1" == '\''%m%# '\'' \]\]\) \&\& \1/' "/data/data/com.termux/files/usr/etc/zshrc"
+sed -i'' -E 's/^(PS1=.*)$/\(\[ -z "\$PS1" \] \|\| \[\[ "\$PS1" == '\''\\s-\\v\\\$ '\'' \]\]\) \&\& \1/' "${TERMUX__PREFIX:-$PREFIX}/etc/bash.bashrc"
+sed -i'' -E 's/^(PS1=.*)$/\(\[ -z "\$PS1" \] \|\| \[\[ "\$PS1" == '\''%m%# '\'' \]\]\) \&\& \1/' "${TERMUX__PREFIX:-$PREFIX}/etc/zshrc"
 
 
 
@@ -169,7 +169,7 @@ function tudo_tests_log_arg_errors() { echo "$@" 1>&2; }
 
 # stdin in closed for some tests as a patch to SuperSU automatic redirection of stderr to stdout when running in interactive mode
 function close_stdin () {  if [ -t 0 ]; then exec <&-; fi }
-function reopen_stdin () {  if [[ "$tty_path" == "/dev/"* ]]; then exec <$tty_path; fi }
+function reopen_stdin () {  if [[ "$TUDO_TESTS_TTY_PATH" == "/dev/"* ]]; then exec <$TUDO_TESTS_TTY_PATH; fi }
 
 
 
@@ -193,9 +193,7 @@ tudo_tests_main() {
         TERMUX_FILES
         TERMUX_PREFIX
         TERMUX_HOME
-        TERMUX_PATH
         TERMUX_LD_LIBRARY_PATH
-        ANDROID_PATH
     )
 
     local var
@@ -207,6 +205,10 @@ tudo_tests_main() {
             return 1
         fi
     done
+
+
+    # Set pre required variables to be used by this script
+    tudo_tests_set_pre_required_variables || return $?
 
 
     # Process the command arguments passed to tudo_tests
@@ -222,30 +224,44 @@ tudo_tests_run() {
 
     local return_value
 
-    # Set TUDO_TESTS_WORKING_DIR to use for tests
-    TUDO_TESTS_WORKING_DIR="$TERMUX_HOME"
+    # Set required variables to be used by this script
+    tudo_tests_set_required_variables || return $?
+
 
     cd "$TUDO_TESTS_WORKING_DIR"
 
 
-    if [ -t 0 ]; then
-        tty_path="$(tty 2>/dev/null)"
+    # Run tests
+    if [ -z "$TUDO_TESTS_COMMAND_TYPE" ]; then
+        tudo_tests_log 1 "Running 'tudo' tests"
+        tudo_tests_log 1 $'\n\n'; tudo_tests_run_su_tests || return $?
+        tudo_tests_log 1 $'\n\n'; tudo_tests_run_asu_tests || return $?
+        tudo_tests_log 1 $'\n\n'; tudo_tests_run_path_tests || return $?
+        tudo_tests_log 1 $'\n\n'; tudo_tests_run_script_tests || return $?
+    elif [[ "$TUDO_TESTS_COMMAND_TYPE" != *,* ]] && [[ ",su,asu,path,script," == *",$TUDO_TESTS_COMMAND_TYPE,"* ]]; then
+        tudo_tests_run_"${TUDO_TESTS_COMMAND_TYPE,,}"_tests || return $?
+    else
+        tudo_tests_log_errors "Unknown tests command type $TUDO_TESTS_COMMAND_TYPE"
+        tudo_tests_show_help
+        return 1
     fi
 
+    tudo_tests_log 1 $'\n\n'"All 'tudo' tests successful"
 
-    # Find machine arch
-    ARCH="$(dpkg --print-architecture)"
-    return_value=$?
-    if [ $return_value -ne 0 ]; then
-        tudo_tests_log_errors "Failed to find machine arch"
-        return $return_value
-    fi
+    return 0
 
+}
+
+
+
+tudo_tests_set_pre_required_variables() {
+
+    local return_value
 
     # Find android sdk/os version
     # Termux app exports ANDROID__BUILD_VERSION_SDK for `>= v0.119.0`
     if [[ ! "$ANDROID__BUILD_VERSION_SDK" =~ $VALID_NUMBER_REGEX ]]; then
-        ANDROID__BUILD_VERSION_SDK="$(getprop "ro.build.version.sdk")"
+        ANDROID__BUILD_VERSION_SDK="$(unset LD_LIBRARY_PATH; unset LD_PRELOAD; getprop "ro.build.version.sdk")"
         return_value=$?
         if [ $return_value -ne 0 ] || [[ ! "$ANDROID__BUILD_VERSION_SDK" =~ $VALID_NUMBER_REGEX ]]; then
             tudo_tests_log_errors "Failure while finding \"ro.build.version.sdk\" property"
@@ -257,16 +273,38 @@ tudo_tests_run() {
         fi
     fi
 
+    tudo_tests_log 3 "ANDROID__BUILD_VERSION_SDK=\"$ANDROID__BUILD_VERSION_SDK\""
 
-    if [[ -z "$TERMUX_EXEC__PROC_SELF_EXE" ]]; then
-        PROC_SELF_EXE_COMMAND='readlink -f /proc/$$/exe'
-        PROC_SELF_EXE_COMMAND_FISH='readlink -f /proc/$fish_pid/exe'
+
+
+    # Set LD_LIBRARY_PATH for all external commands that may be run
+    # If on Android `< 7`
+    if [ "$ANDROID__BUILD_VERSION_SDK" -lt 24 ]; then
+        # Set only termux library paths
+        LD_LIBRARY_PATH="$TERMUX_LD_LIBRARY_PATH"
     else
-        PROC_SELF_EXE_COMMAND='echo "$TERMUX_EXEC__PROC_SELF_EXE"'
-        PROC_SELF_EXE_COMMAND_FISH='echo "$TERMUX_EXEC__PROC_SELF_EXE"'
+        # Do not set termux or android library paths
+        LD_LIBRARY_PATH=""
+    fi
+
+    tudo_tests_log 3 "LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\""
+
+    return 0
+
+}
+
+tudo_tests_set_required_variables() {
+
+    local return_value
+
+    if [ -t 0 ]; then
+        TUDO_TESTS_TTY_PATH="$(tty 2>/dev/null)"
     fi
 
 
+
+    # Set TUDO_TESTS_WORKING_DIR to use for tests
+    TUDO_TESTS_WORKING_DIR="$TERMUX_HOME"
 
     # Generate unique suffix to use for tudo_tests directories
     TUDO_TESTS_TEMP_DIRECTORY_SUFFIX="$(mktemp -d --dry-run tudo.XXXXXX)"
@@ -308,28 +346,11 @@ tudo_tests_run() {
     trap 'tudo_tests_cleanup HUP' HUP
     trap 'tudo_tests_cleanup QUIT' QUIT
 
-
-
-    # Run tests
-    if [ -z "$TUDO_TESTS_COMMAND_TYPE" ]; then
-        tudo_tests_log 1 "Running 'tudo' tests"
-        tudo_tests_log 1 $'\n\n'; tudo_tests_run_su_tests || return $?
-        tudo_tests_log 1 $'\n\n'; tudo_tests_run_asu_tests || return $?
-        tudo_tests_log 1 $'\n\n'; tudo_tests_run_path_tests || return $?
-        tudo_tests_log 1 $'\n\n'; tudo_tests_run_script_tests || return $?
-    elif [[ "$TUDO_TESTS_COMMAND_TYPE" != *,* ]] && [[ ",su,asu,path,script," == *",$TUDO_TESTS_COMMAND_TYPE,"* ]]; then
-        tudo_tests_run_"${TUDO_TESTS_COMMAND_TYPE,,}"_tests || return $?
-    else
-        tudo_tests_log_errors "Unknown tests command type $TUDO_TESTS_COMMAND_TYPE"
-        tudo_tests_show_help
-        return 1
-    fi
-
-    tudo_tests_log 1 $'\n\n'"All 'tudo' tests successful"
-
     return 0
 
 }
+
+
 
 tudo_tests_run_su_tests() {
 
@@ -353,14 +374,39 @@ tudo_tests_run_su_tests() {
     output="$(tudo --shell-stdin-string='cd "$HOME"; pwd; exit;' su)"
     validate_tudo_test 0 $? "$output" "*" "$TUDO_SHELL_HOME" "*"
 
-    run_tudo_test 3 && \
-    output="$(tudo --shell-stdin-string='echo "$PATH"; exit;' su)"
-    validate_tudo_test 0 $? "$output" "*" "$TERMUX_PATH" "*"
 
-    run_tudo_test 4 && \
-    output="$(tudo --shell-stdin-string='echo "$LD_LIBRARY_PATH"; exit;' su)"
-    validate_tudo_test 0 $? "$output" "*" "$TERMUX_LD_LIBRARY_PATH" "*"
+    # If on Android `< 7`
+    if [ "$ANDROID__BUILD_VERSION_SDK" -lt 24 ]; then
+        tudo_set_path_priority_variables "1"
+        run_tudo_test 3 && \
+        output="$(tudo --shell-stdin-string='echo "PATH=$PATH; LD_LIBRARY_PATH=$LD_LIBRARY_PATH; LD_PRELOAD=$LD_PRELOAD;"; exit;' su)"
+        validate_tudo_test 0 $? "$output" "*" "PATH=$TERMUX_BIN:$TERMUX_BIN_APPLETS:$ANDROID_PATH; LD_LIBRARY_PATH=$TERMUX_LD_LIBRARY_PATH; LD_PRELOAD=$TERMUX_LD_PRELOAD;" "*"
 
+        tudo_set_path_priority_variables "0"
+        run_tudo_test 4 && \
+        output="$(tudo -T --shell-stdin-string='echo "PATH=$PATH; LD_LIBRARY_PATH=$LD_LIBRARY_PATH; LD_PRELOAD=$LD_PRELOAD;"; exit;' su)"
+        validate_tudo_test 0 $? "$output" "*" "PATH=$TERMUX_BIN; LD_LIBRARY_PATH=$TERMUX_LD_LIBRARY_PATH; LD_PRELOAD=$TERMUX_LD_PRELOAD;" "*"
+
+        tudo_set_path_priority_variables "1"
+        run_tudo_test 5 && \
+        output="$(tudo -TT --shell-stdin-string='echo "PATH=$PATH; LD_LIBRARY_PATH=$LD_LIBRARY_PATH; LD_PRELOAD=$LD_PRELOAD;"; exit;' su)"
+        validate_tudo_test 0 $? "$output" "*" "PATH=$TERMUX_BIN:$TERMUX_BIN_APPLETS; LD_LIBRARY_PATH=$TERMUX_LD_LIBRARY_PATH; LD_PRELOAD=$TERMUX_LD_PRELOAD;" "*"
+    else
+        tudo_set_path_priority_variables "1"
+        run_tudo_test 3 && \
+        output="$(tudo --shell-stdin-string='echo "PATH=$PATH; LD_LIBRARY_PATH=$LD_LIBRARY_PATH; LD_PRELOAD=$LD_PRELOAD;"; exit;' su)"
+        validate_tudo_test 0 $? "$output" "*" "PATH=$TERMUX_BIN:$TERMUX_BIN_APPLETS:$ANDROID_PATH; LD_LIBRARY_PATH=; LD_PRELOAD=$TERMUX_LD_PRELOAD;" "*"
+
+        tudo_set_path_priority_variables "0"
+        run_tudo_test 4 && \
+        output="$(tudo -T --shell-stdin-string='echo "PATH=$PATH; LD_LIBRARY_PATH=$LD_LIBRARY_PATH; LD_PRELOAD=$LD_PRELOAD;"; exit;' su)"
+        validate_tudo_test 0 $? "$output" "*" "PATH=$TERMUX_BIN; LD_LIBRARY_PATH=; LD_PRELOAD=$TERMUX_LD_PRELOAD;" "*"
+
+        tudo_set_path_priority_variables "1"
+        run_tudo_test 5 && \
+        output="$(tudo -TT --shell-stdin-string='echo "PATH=$PATH; LD_LIBRARY_PATH=$LD_LIBRARY_PATH; LD_PRELOAD=$LD_PRELOAD;"; exit;' su)"
+        validate_tudo_test 0 $? "$output" "*" "PATH=$TERMUX_BIN:$TERMUX_BIN_APPLETS; LD_LIBRARY_PATH=; LD_PRELOAD=$TERMUX_LD_PRELOAD;" "*"
+    fi
 
 
     tudo_tests_log 1 $'\n\n'"All 'su' command type tests successful"
@@ -391,20 +437,39 @@ tudo_tests_run_asu_tests() {
     output="$(tudo --shell-stdin-string='cd "$HOME"; pwd; exit;' asu)"
     validate_tudo_test 0 $? "$output" "*" "$TUDO_SHELL_HOME" "*"
 
-    run_tudo_test 3 && \
-    output="$(tudo --shell-stdin-string='echo "$PATH"; exit;' asu)"
-    validate_tudo_test 0 $? "$output" "*" "$ANDROID_PATH" "*"
 
-    run_tudo_test 4 && \
-    output="$(tudo --shell-stdin-string='echo "$LD_LIBRARY_PATH"; exit;' asu)"
-    return_value=$?
-    # If ARCH is 64 bit
-    if [[ "$ARCH" == *64 ]]; then
-        validate_tudo_test 0 $return_value "$output" "*" "/system/lib64:/system/lib:" "*"
+    # If on Android `< 7`
+    if [ "$ANDROID__BUILD_VERSION_SDK" -lt 24 ]; then
+        tudo_set_path_priority_variables "1"
+        run_tudo_test 3 && \
+        output="$(tudo --shell-stdin-string='echo "PATH=$PATH; LD_LIBRARY_PATH=$LD_LIBRARY_PATH; LD_PRELOAD=$LD_PRELOAD;"; exit;' asu)"
+        validate_tudo_test 0 $? "$output" "*" "PATH=$ANDROID_PATH:$TERMUX_BIN:$TERMUX_BIN_APPLETS; LD_LIBRARY_PATH=$TERMUX_LD_LIBRARY_PATH; LD_PRELOAD=;" "*"
+
+        tudo_set_path_priority_variables "0"
+        run_tudo_test 4 && \
+        output="$(tudo -A --shell-stdin-string='echo "PATH=$PATH; LD_LIBRARY_PATH=$LD_LIBRARY_PATH; LD_PRELOAD=$LD_PRELOAD;"; exit;' asu)"
+        validate_tudo_test 0 $? "$output" "*" "PATH=$SYS_BIN; LD_LIBRARY_PATH=; LD_PRELOAD=;" "*"
+
+        tudo_set_path_priority_variables "1"
+        run_tudo_test 5 && \
+        output="$(tudo -AA --shell-stdin-string='echo "PATH=$PATH; LD_LIBRARY_PATH=$LD_LIBRARY_PATH; LD_PRELOAD=$LD_PRELOAD;"; exit;' asu)"
+        validate_tudo_test 0 $? "$output" "*" "PATH=$ANDROID_PATH; LD_LIBRARY_PATH=; LD_PRELOAD=;" "*"
     else
-        validate_tudo_test 0 $return_value "$output" "*" "/system/lib:" "*"
-    fi
+        tudo_set_path_priority_variables "1"
+        run_tudo_test 3 && \
+        output="$(tudo --shell-stdin-string='echo "PATH=$PATH; LD_LIBRARY_PATH=$LD_LIBRARY_PATH; LD_PRELOAD=$LD_PRELOAD;"; exit;' asu)"
+        validate_tudo_test 0 $? "$output" "*" "PATH=$ANDROID_PATH:$TERMUX_BIN:$TERMUX_BIN_APPLETS; LD_LIBRARY_PATH=; LD_PRELOAD=;" "*"
 
+        tudo_set_path_priority_variables "0"
+        run_tudo_test 4 && \
+        output="$(tudo -A --shell-stdin-string='echo "PATH=$PATH; LD_LIBRARY_PATH=$LD_LIBRARY_PATH; LD_PRELOAD=$LD_PRELOAD;"; exit;' asu)"
+        validate_tudo_test 0 $? "$output" "*" "PATH=$SYS_BIN; LD_LIBRARY_PATH=; LD_PRELOAD=;" "*"
+
+        tudo_set_path_priority_variables "1"
+        run_tudo_test 5 && \
+        output="$(tudo -AA --shell-stdin-string='echo "PATH=$PATH; LD_LIBRARY_PATH=$LD_LIBRARY_PATH; LD_PRELOAD=$LD_PRELOAD;"; exit;' asu)"
+        validate_tudo_test 0 $? "$output" "*" "PATH=$ANDROID_PATH; LD_LIBRARY_PATH=; LD_PRELOAD=;" "*"
+    fi
 
 
     tudo_tests_log 1 $'\n\n'"All 'asu' command type tests successful"

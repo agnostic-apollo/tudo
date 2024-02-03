@@ -65,13 +65,11 @@ TERMUX_PREFIX_BASENAME="usr"
 TERMUX_PREFIX="$TERMUX_FILES/$TERMUX_PREFIX_BASENAME"
 TERMUX_BIN="$TERMUX_PREFIX/bin"
 TERMUX_BIN_APPLETS="$TERMUX_PREFIX/bin/applets"
-TERMUX_PATH="$TERMUX_BIN:$TERMUX_BIN_APPLETS"
 TERMUX_LD_LIBRARY_PATH="$TERMUX_PREFIX/lib"
+TERMUX_LD_PRELOAD="$TERMUX_LD_LIBRARY_PATH/libtermux-exec.so"
 TMPDIR="$TERMUX_PREFIX/tmp"
 SYS_XBIN="/system/xbin"
 SYS_BIN="/system/bin"
-ANDROID_PATH="$SYS_XBIN:$SYS_BIN"
-ANDROID_OTHER_BIN_PATHS="/sbin:/vendor/bin:/system/sbin"
 BASH_SHELL_PATH="$TERMUX_BIN/bash"
 TERM="xterm-256color"
 
@@ -136,6 +134,7 @@ TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES="${TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES
 TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES="${TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES:-1}" # Default: `1`
 
 # Set to 1 to add path to su binary directory to end of $PATH exported for android paths, otherwise 0.
+# It is not added for `-A`, `-T` and `-TT` flags.
 TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE="${TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE:-0}" # Default: `0`
 
 # Set absolute path for su binary to use instead of searching for it in default search paths.
@@ -160,6 +159,8 @@ TUDO_NOOP_COMMAND=0 # Default: `0`
 TUDO_DRY_RUN=0 # Default: `0`
 COMMAND_TYPE="path" # Default: `path`
 COMMAND_TYPE_PATH_FORCED=0 # Default: `0`
+A_FLAG_PASSED=0 # Default: `0`
+T_FLAG_PASSED=0 # Default: `0`
 
 SAME_TUDO_POST_SHELL_AS_TUDO_SHELL=0 # Default: `0`
 SAME_TUDO_POST_SHELL_HOME_AS_TUDO_SHELL_HOME=0 # Default: `0`
@@ -183,7 +184,9 @@ SLEEP_AFTER_TUDO=0 # Default: `0`
 SLEEP_ONLY_ON_FAILURE=0 # Default: `0`
 DISABLE_ARGUMENTS_LOGGING=0 # Default: `0`
 SET_TUDO_SHELL_TERMINAL_TITLE=0 # Default: `0`
-FORCE_SET_PRIORITY_TO_ANDROID_PATHS=0 # Default: `0`
+PATH_PRIORITY="default" # Default: `default`
+SET_SECONDARY_PRIORITY_PATHS=1 # Default: `1`
+SET_SECONDARY_PATHS=1 # Default: `1`
 
 TUDO_SHELL="" # Default: ``
 TUDO_SHELL_BASENAME="" # Default: ``
@@ -236,7 +239,6 @@ declare -ga TUDO_RLWRAP_ADDITIONAL_COMMAND_OPTIONS=()
 VALID_NUMBER_REGEX='^[0-9]+$'
 VALID_ABSOLUTE_PATH_REGEX='^(/[^/]+)+$'
 VALID_ROOTFS_OR_ABSOLUTE_PATH_REGEX='^((/)|((/[^/]+)+))$'
-VALID_PATH_IN_SYSTEM_PARTITION_REGEX='^/system/.*'
 VALID_PATH_UNDER_TERMUX_FILES_REGEX='^'"$TERMUX_FILES"'/.+'
 VALID_PATH_UNDER_TERMUX_HOME_REGEX='^'"$TERMUX_HOME"'/.+'
 
@@ -276,6 +278,11 @@ tudo_main() {
     # User modifiable variables will only be set if the tudo_config_file didn't set them or
     # if they were not already exported
     tudo_set_default_variables || return $?
+
+
+    # Set pre required variables to be used by this script
+    tudo_set_pre_required_variables || return $?
+
 
     # Process the command arguments passed to tudo
     tudo_process_arguments "$@" || return $?
@@ -750,45 +757,14 @@ tudo_set_su_variables() {
 
 }
 
-tudo_set_required_variables() {
+tudo_set_pre_required_variables() {
 
     local return_value
-
-    # Do not modify unless you known what you are doing
-
-    tudo_log_literal 3 "\nRunning tudo_set_required_variables"
-
-    # Set LD_PRELOAD
-    export LD_PRELOAD="$TERMUX_PREFIX/lib/libtermux-exec.so"
-
-    local remove_duplicates_in_path_variable=0
-    local remove_duplicates_in_ld_library_path_variable=0
-
-    # Store PATH and LD_LIBRARY_PATH
-    OLD_PATH="$PATH"
-    OLD_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
-
-
-    # Set PATH
-    PATH="$TERMUX_PATH:$SYS_XBIN:$SYS_BIN"
-
-    tudo_log 3 "PATH=\"$PATH\""
-
-    # Find machine arch
-    ARCH="$(dpkg --print-architecture)"
-    return_value=$?
-    if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failed to find machine arch"
-        return $return_value
-    fi
-
-    tudo_log 3 "ARCH=\"$ARCH\""
-
 
     # Find android sdk/os version
     # Termux app exports ANDROID__BUILD_VERSION_SDK for `>= v0.119.0`
     if [[ ! "$ANDROID__BUILD_VERSION_SDK" =~ $VALID_NUMBER_REGEX ]]; then
-        ANDROID__BUILD_VERSION_SDK="$(getprop "ro.build.version.sdk")"
+        ANDROID__BUILD_VERSION_SDK="$(unset LD_LIBRARY_PATH; unset LD_PRELOAD; getprop "ro.build.version.sdk")"
         return_value=$?
         if [ $return_value -ne 0 ] || [[ ! "$ANDROID__BUILD_VERSION_SDK" =~ $VALID_NUMBER_REGEX ]]; then
             tudo_log_errors "Failure while finding \"ro.build.version.sdk\" property"
@@ -801,6 +777,48 @@ tudo_set_required_variables() {
     fi
 
     tudo_log 3 "ANDROID__BUILD_VERSION_SDK=\"$ANDROID__BUILD_VERSION_SDK\""
+
+
+
+    # Set LD_LIBRARY_PATH for all external commands that may be run
+    # If on Android `< 7`
+    if [ "$ANDROID__BUILD_VERSION_SDK" -lt 24 ]; then
+        # Set only termux library paths
+        LD_LIBRARY_PATH="$TERMUX_LD_LIBRARY_PATH"
+    else
+        # Do not set termux or android library paths
+        LD_LIBRARY_PATH=""
+    fi
+
+    tudo_log 3 "LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\""
+
+    return 0
+
+}
+
+tudo_set_required_variables() {
+
+    local return_value
+
+    # Do not modify unless you known what you are doing
+
+    tudo_log_literal 3 "\nRunning tudo_set_required_variables"
+
+    # Set LD_PRELOAD
+    export LD_PRELOAD="$TERMUX_LD_PRELOAD"
+
+    local remove_duplicates_in_path_variable=0
+    local remove_duplicates_in_ld_library_path_variable=0
+
+    # Store PATH and LD_LIBRARY_PATH
+    OLD_PATH="$PATH"
+    OLD_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+
+
+    # Set PATH
+    PATH="$TERMUX_BIN:$TERMUX_BIN_APPLETS:$SYS_XBIN:$SYS_BIN"
+
+    tudo_log 3 "PATH=\"$PATH\""
 
 
     # Set current working directory
@@ -827,33 +845,28 @@ tudo_set_required_variables() {
     tudo_log 3 "CURRENT_WORKING_DIR=\"$CURRENT_WORKING_DIR\""
 
 
-    # Set LD_LIBRARY_PATH
-    # If ARCH is 64 bit
-    if [[ "$ARCH" == *64 ]]; then
-        LD_LIBRARY_PATH="$TERMUX_LD_LIBRARY_PATH:/system/lib64:/system/lib"
+
+    # Set path priority variables to use depending on android or termux priority
+    tudo_set_path_priority_variables "$SET_SECONDARY_PATHS"
+
+
+
+    # Set variables for PATH_TO_EXPORT
+    if [[ "$SET_SECONDARY_PRIORITY_PATHS" == "1" ]]; then
+        # Set termux followed by android paths to give termux paths priority for `-t` flag
+        TERMUX_PRIORITY_PATH="$TERMUX_PATH:$ANDROID_PATH"
+
+        # Set android followed by termux paths to give android paths priority for `-a` flag
+        ANDROID_PRIORITY_PATH="$ANDROID_PATH:$TERMUX_PATH"
     else
-        LD_LIBRARY_PATH="$TERMUX_LD_LIBRARY_PATH:/system/lib"
+        # Set only termux paths for `-T` and `-TT` flag
+        # No need to add SU_BIN_PATH as termux su wrapper in TERMUX_BIN would override it
+        TERMUX_PRIORITY_PATH="$TERMUX_PATH"
+
+        # Set only android paths for `-A` and `-AA` flag
+        ANDROID_PRIORITY_PATH="$ANDROID_PATH"
     fi
 
-    tudo_log 3 "LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\""
-
-    # Set ANDROID_PATH
-
-    # If SU_BIN_PATH is not empty, then append it to ANDROID_PATH
-    if [ -n "$SU_BIN_PATH" ]; then
-        ANDROID_PATH+=":$SU_BIN_PATH"
-    fi
-
-    # If ANDROID_OTHER_BIN_PATHS is not empty, then append it to ANDROID_PATH
-    if [ -n "$ANDROID_OTHER_BIN_PATHS" ]; then
-        ANDROID_PATH+=":$ANDROID_OTHER_BIN_PATHS"
-    fi
-
-    # Set TERMUX_PRIORITY_PATH with priority to termux binary and executable paths
-    TERMUX_PRIORITY_PATH="$TERMUX_PATH:$ANDROID_PATH"
-
-    # Set ANDROID_PRIORITY_PATH with priority to android binary and executable paths
-    ANDROID_PRIORITY_PATH="$ANDROID_PATH:$TERMUX_PATH"
 
     # If TUDO_EXPORT_ALL_EXISTING_PATHS_IN_PATH_VARIABLE is enabled and OLD_PATH is not empty, then append it to PATH variables
     if [[ "$TUDO_EXPORT_ALL_EXISTING_PATHS_IN_PATH_VARIABLE" == "1" ]] && [ -n "$OLD_PATH" ]; then
@@ -868,6 +881,7 @@ tudo_set_required_variables() {
         ANDROID_PRIORITY_PATH+=":$TUDO_ADDITIONAL_PATHS_TO_EXPORT"
         remove_duplicates_in_path_variable=1
     fi
+
 
     # Remove_duplicates_in_path_variable is only enabled if custom paths are added to the PATH variables
     # This will reduce execution time since an external call to awk with a subshell will be made
@@ -890,20 +904,24 @@ tudo_set_required_variables() {
     fi
 
 
-    # Set LD_LIBRARY_PATH_TO_EXPORT
-    # If ARCH is 64 bit
-    if [[ "$ARCH" == *64 ]]; then
-        ANDROID_LD_LIBRARY_PATH="/system/lib64:/system/lib"
-    # If ARCH is 32 bit
+
+    # If on Android `< 7`
+    if [ "$ANDROID__BUILD_VERSION_SDK" -lt 24 ]; then
+        # Set only termux library path for all `-t`, `-T` and `-TT` flags
+        TERMUX_PRIORITY_LD_LIBRARY_PATH="$TERMUX_LD_LIBRARY_PATH"
+
+        # Set only termux library path for `-a` flag but not for `-A` and `-AA` flags
+        if [[ "$SET_SECONDARY_PRIORITY_PATHS" == "1" ]]; then
+            ANDROID_PRIORITY_LD_LIBRARY_PATH="$TERMUX_LD_LIBRARY_PATH"
+        else
+            ANDROID_PRIORITY_LD_LIBRARY_PATH=""
+        fi
     else
-        ANDROID_LD_LIBRARY_PATH="/system/lib"
+        # Do not set termux or android library paths for any flags
+        TERMUX_PRIORITY_LD_LIBRARY_PATH=""
+        ANDROID_PRIORITY_LD_LIBRARY_PATH=""
     fi
 
-    # Set TERMUX_PRIORITY_LD_LIBRARY_PATH with priority to termux library paths
-    TERMUX_PRIORITY_LD_LIBRARY_PATH="$TERMUX_LD_LIBRARY_PATH:$ANDROID_LD_LIBRARY_PATH"
-
-    # Set ANDROID_PRIORITY_LD_LIBRARY_PATH with priority to android library paths
-    ANDROID_PRIORITY_LD_LIBRARY_PATH="$ANDROID_LD_LIBRARY_PATH:$TERMUX_LD_LIBRARY_PATH"
 
     # If TUDO_EXPORT_ALL_EXISTING_PATHS_IN_LD_LIBRARY_PATH_VARIABLE is enabled and OLD_LD_LIBRARY_PATH is not empty, then append it to LD_LIBRARY_PATH variables
     if [[ "$TUDO_EXPORT_ALL_EXISTING_PATHS_IN_LD_LIBRARY_PATH_VARIABLE" == "1" ]] && [ -n "$OLD_LD_LIBRARY_PATH" ]; then
@@ -918,6 +936,7 @@ tudo_set_required_variables() {
         ANDROID_PRIORITY_LD_LIBRARY_PATH+=":$TUDO_ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT"
         remove_duplicates_in_ld_library_path_variable=1
     fi
+
 
     # Remove_duplicates_in_path_variable is only enabled if custom paths are added to the LD_LIBRARY_PATH variables
     # This will reduce execution time since an external call to awk with a subshell will be made
@@ -940,8 +959,9 @@ tudo_set_required_variables() {
     fi
 
 
+
     # Set TERMUX_PRIORITY_LD_PRELOAD_COMMAND to set LD_PRELOAD to libtermux-exec.so
-    TERMUX_PRIORITY_LD_PRELOAD_COMMAND="export LD_PRELOAD='$TERMUX_PREFIX/lib/libtermux-exec.so';"
+    TERMUX_PRIORITY_LD_PRELOAD_COMMAND="export LD_PRELOAD='$LD_PRELOAD';"
 
     # Set ANDROID_PRIORITY_LD_PRELOAD_COMMAND to unset LD_PRELOAD
     ANDROID_PRIORITY_LD_PRELOAD_COMMAND="unset LD_PRELOAD;"
@@ -1039,6 +1059,62 @@ tudo_set_required_variables() {
 }
 
 ##
+# Set termux and android path priority variables that should be used
+# depending on required priority.
+# .
+# The `ARCH` variable must be set.
+# .
+# tudo_set_path_priority_variables `set_secondary_paths`
+tudo_set_path_priority_variables() {
+
+    local set_secondary_paths="$1"
+
+    # Set TERMUX_PATH
+    if [[ "$set_secondary_paths" == "1" ]]; then
+        TERMUX_PATH="$TERMUX_BIN:$TERMUX_BIN_APPLETS"
+    else
+        TERMUX_PATH="$TERMUX_BIN"
+    fi
+
+
+    # Set ANDROID_PATH
+    if [[ "$set_secondary_paths" == "1" ]]; then
+        # If android >= 11
+        if [ "$ANDROID__BUILD_VERSION_SDK" -ge 30 ]; then
+            # - https://cs.android.com/android/platform/superproject/+/android-11.0.0_r1:bionic/libc/include/paths.h;l=50
+            # - https://cs.android.com/android/platform/superproject/+/android-14.0.0_r1:bionic/libc/include/paths.h;l=50
+            ANDROID_PATH="/product/bin:/apex/com.android.runtime/bin:/apex/com.android.art/bin:/system_ext/bin:/system/bin:/system/xbin:/odm/bin:/vendor/bin:/vendor/xbin"
+        # If android >= 10
+        elif [ "$ANDROID__BUILD_VERSION_SDK" -ge 29 ]; then
+            # - https://cs.android.com/android/platform/superproject/+/android-10.0.0_r1:bionic/libc/include/paths.h;l=50
+            ANDROID_PATH="/sbin:/system/sbin:/product/bin:/apex/com.android.runtime/bin:/system/bin:/system/xbin:/odm/bin:/vendor/bin:/vendor/xbin"
+        # If android >= 9
+        elif [ "$ANDROID__BUILD_VERSION_SDK" -ge 28 ]; then
+            # - https://cs.android.com/android/platform/superproject/+/android-9.0.0_r1:bionic/libc/include/paths.h;l=41
+            ANDROID_PATH="/sbin:/system/sbin:/system/bin:/system/xbin:/odm/bin:/vendor/bin:/vendor/xbin"
+        # If android >= 8
+        elif [ "$ANDROID__BUILD_VERSION_SDK" -ge 26 ]; then
+            # - https://cs.android.com/android/platform/superproject/+/android-8.0.0_r1:bionic/libc/include/paths.h;l=39
+            ANDROID_PATH="/sbin:/system/sbin:/system/bin:/system/xbin:/vendor/bin:/vendor/xbin"
+        # If android < 8   
+        # - https://cs.android.com/android/platform/superproject/+/android-7.0.0_r1:bionic/libc/include/paths.h;l=37    
+        else
+            ANDROID_PATH="/sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin"
+        fi
+
+        # If SU_BIN_PATH is not empty and if it does not already exist in ANDROID_PATH, then append it to ANDROID_PATH
+        if [ -n "$SU_BIN_PATH" ] && [[ "$SU_BIN_PATH" != *:* ]] && [[ ":$ANDROID_PATH:" != *":$SU_BIN_PATH:"* ]]; then
+            ANDROID_PATH+=":$SU_BIN_PATH"
+        fi
+    else
+        ANDROID_PATH="$SYS_BIN"
+    fi
+
+    return 0
+
+}
+
+##
 # Set variables to export with priority to termux or android bin and library paths.
 # .
 # `priority` must be one of `termux` or `android`.
@@ -1109,6 +1185,22 @@ tudo_set_priority_dependent_variables() {
 
 }
 
+tudo_add_export_or_unset_var_command() {
+
+    local var_to_update="$1"
+    local var_to_export="$2"
+    local var_value="$3"
+
+    if [ -n "$var_value" ]; then
+        printf -v "$var_to_update" "%s" "${!var_to_update}export $var_to_export='${var_value//\'/\'\\\'\'}';"$'\n'
+    else
+        # Do not export empty variable as it will appear in environ
+        # And unset it if it already exists
+        printf -v "$var_to_update" "%s" "${!var_to_update}unset $var_to_export;"$'\n'
+    fi
+
+}
+
 tudo_set_pre_tudo_shell_commands_to_run() {
 
     local return_value
@@ -1117,20 +1209,46 @@ tudo_set_pre_tudo_shell_commands_to_run() {
 
     local priority
 
-    # If COMMAND_TYPE equals "asu"
-    if [[ "$COMMAND_TYPE" == "asu" ]]; then
-        # Set PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to android bin and library paths
-        tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to android bin and library paths since COMMAND_TYPE is \"asu\""
-        priority="android"
-    # If COMMAND_TYPE equals "path" and (TUDO_PATH_COMMAND is in /system partition or FORCE_SET_PRIORITY_TO_ANDROID_PATHS is enabled)
-    elif [[ "$COMMAND_TYPE" == "path" ]] && { [[ "$TUDO_PATH_COMMAND" =~ $VALID_PATH_IN_SYSTEM_PARTITION_REGEX ]] || [[ "$FORCE_SET_PRIORITY_TO_ANDROID_PATHS" == "1" ]]; }; then
-        # Set PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to android bin and library paths
-        tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to android bin and library paths since COMMAND_TYPE is \"path\" and TUDO_PATH_COMMAND is in \"/system\" partition or FORCE_SET_PRIORITY_TO_ANDROID_PATHS is enabled"
-        priority="android"
-    else
-        # Set PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to termux bin and library paths
-        tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to termux bin and library paths"
+    # Set PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to required bin and library paths
+
+    # If COMMAND_TYPE equals "su"
+    if [[ "$COMMAND_TYPE" == "su" ]]; then
         priority="termux"
+        tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to \"termux\" bin and library paths for COMMAND_TYPE \"su\""
+
+    # If COMMAND_TYPE equals "asu"
+    elif [[ "$COMMAND_TYPE" == "asu" ]]; then
+        priority="android"
+        tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to \"android\" bin and library paths for COMMAND_TYPE \"asu\""
+
+    # If COMMAND_TYPE equals "path"
+    elif [[ "$COMMAND_TYPE" == "path" ]]; then
+        # If PATH_PRIORITY is android or termux
+        if [[ "$PATH_PRIORITY" == "android" ]] || [[ "$PATH_PRIORITY" == "termux" ]]; then
+            priority="$PATH_PRIORITY"
+            tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to \"$priority\" bin and library paths for COMMAND_TYPE \"path\" since PATH_PRIORITY is \"$PATH_PRIORITY\""
+        # If PATH_PRIORITY is default
+        else
+            # If TUDO_CANONICAL_PATH_COMMAND is under termux rootfs
+            if [[ "$TUDO_CANONICAL_PATH_COMMAND" == "$TERMUX_FILES"/* ]]; then
+                priority="termux"
+                tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to \"termux\" bin and library paths for COMMAND_TYPE \"path\" since TUDO_PATH_COMMAND is under termux rootfs"
+            else
+                priority="android"
+                tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to \"android\" bin and library paths for COMMAND_TYPE \"path\" since TUDO_PATH_COMMAND is not under termux rootfs"
+            fi
+        fi
+
+    # If COMMAND_TYPE equals "script"
+    else
+        # If PATH_PRIORITY is android
+        if [[ "$PATH_PRIORITY" == "android" ]]; then
+            priority="android"
+        # If PATH_PRIORITY is default or termux
+        else
+            priority="termux"
+        fi
+        tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to $priority bin and library paths for COMMAND_TYPE \"script\" since PATH_PRIORITY is \"$PATH_PRIORITY\""
     fi
 
     # Set priority_dependent_variables with new priority if needed
@@ -1139,12 +1257,15 @@ tudo_set_pre_tudo_shell_commands_to_run() {
     # Set PRE_TUDO_SHELL_COMMANDS_TO_RUN
     # Set variables that need to be exported when running the tudo shell
     PRE_TUDO_SHELL_COMMANDS_TO_RUN=""
-    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export TERMUX_PRIORITY_PATH='${TERMUX_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
-    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export TERMUX_PRIORITY_LD_LIBRARY_PATH='${TERMUX_PRIORITY_LD_LIBRARY_PATH//\'/\'\\\'\'}';"$'\n'
-    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ANDROID_PRIORITY_PATH='${ANDROID_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
-    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ANDROID_PRIORITY_LD_LIBRARY_PATH='${ANDROID_PRIORITY_LD_LIBRARY_PATH//\'/\'\\\'\'}';"$'\n'
+
     PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export PATH='${PATH_TO_EXPORT//\'/\'\\\'\'}';"$'\n'
-    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export LD_LIBRARY_PATH='${LD_LIBRARY_PATH_TO_EXPORT//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export TERMUX_PRIORITY_PATH='${TERMUX_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ANDROID_PRIORITY_PATH='${ANDROID_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
+
+    tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "LD_LIBRARY_PATH" "$LD_LIBRARY_PATH_TO_EXPORT" || return $?
+    tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "TERMUX_PRIORITY_LD_LIBRARY_PATH" "$TERMUX_PRIORITY_LD_LIBRARY_PATH" || return $?
+    tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "ANDROID_PRIORITY_LD_LIBRARY_PATH" "$ANDROID_PRIORITY_LD_LIBRARY_PATH" || return $?
+
     PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export PREFIX='$TERMUX_PREFIX';"$'\n'
     PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export TMPDIR='$TMPDIR';"$'\n'
     PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export HOME='${TUDO_SHELL_HOME//\'/\'\\\'\'}';"$'\n'
@@ -1214,12 +1335,15 @@ tudo_set_pre_tudo_post_shell_commands_to_run() {
     # Set PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN
     # Set variables that need to be exported when running the tudo post shell
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN=""
-    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export TERMUX_PRIORITY_PATH='${TERMUX_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
-    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export TERMUX_PRIORITY_LD_LIBRARY_PATH='${TERMUX_PRIORITY_LD_LIBRARY_PATH//\'/\'\\\'\'}';"$'\n'
-    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ANDROID_PRIORITY_PATH='${ANDROID_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
-    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ANDROID_PRIORITY_LD_LIBRARY_PATH='${ANDROID_PRIORITY_LD_LIBRARY_PATH//\'/\'\\\'\'}';"$'\n'
+
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export PATH='${PATH_TO_EXPORT//\'/\'\\\'\'}';"$'\n'
-    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export LD_LIBRARY_PATH='${LD_LIBRARY_PATH_TO_EXPORT//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export TERMUX_PRIORITY_PATH='${TERMUX_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ANDROID_PRIORITY_PATH='${ANDROID_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
+
+    tudo_add_export_or_unset_var_command "PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN" "LD_LIBRARY_PATH" "$LD_LIBRARY_PATH_TO_EXPORT" || return $?
+    tudo_add_export_or_unset_var_command "PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN" "TERMUX_PRIORITY_LD_LIBRARY_PATH" "$TERMUX_PRIORITY_LD_LIBRARY_PATH" || return $?
+    tudo_add_export_or_unset_var_command "PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN" "ANDROID_PRIORITY_LD_LIBRARY_PATH" "$ANDROID_PRIORITY_LD_LIBRARY_PATH" || return $?
+
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export PREFIX='$TERMUX_PREFIX';"$'\n'
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export TMPDIR='$TMPDIR';"$'\n'
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export HOME='${TUDO_POST_SHELL_HOME//\'/\'\\\'\'}';"$'\n'
@@ -1264,8 +1388,8 @@ tudo_set_tudo_command_path() {
         return 1
     fi
 
-    # If FORCE_SET_PRIORITY_TO_ANDROID_PATHS is enabled
-    if [[ "$FORCE_SET_PRIORITY_TO_ANDROID_PATHS" == "1" ]]; then
+    # If PATH_PRIORITY is android
+    if [[ "$PATH_PRIORITY" == "android" ]]; then
         # Set priority_dependent_variables to android for PATH_TO_EXPORT used by the tudo_find_absolute_path_for_executable_and_validate function
         # We do this now and later in the tudo_set_pre_tudo_shell_commands_to_run function as well once the final TUDO_PATH_COMMAND has been set
         tudo_set_priority_dependent_variables "android" || return $?
@@ -1295,20 +1419,23 @@ tudo_set_tudo_command_path() {
     fi
 
 
-    # Find canonical path to be used for setting priority in tudo_set_pre_tudo_shell_commands_to_run
-    TUDO_CANONICAL_PATH_COMMAND="$(readlink -m -- "$TUDO_ABSOLUTE_PATH_COMMAND")"
-    return_value=$?
-    if [ $return_value -ne 0 ] || [[ ! "$TUDO_CANONICAL_PATH_COMMAND" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
-        tudo_log_errors "Failure while finding canonical path to tudo path commmand"
-        tudo_log_errors "TUDO_CANONICAL_PATH_COMMAND = \"$TUDO_CANONICAL_PATH_COMMAND\""
-        if [ $return_value -eq 0 ]; then
-            return_value=1
+    # If PATH_PRIORITY is default
+    if [[ "$PATH_PRIORITY" != "android" ]] && [[ "$PATH_PRIORITY" != "termux" ]]; then
+        # Find canonical path to be used for setting priority in tudo_set_pre_tudo_shell_commands_to_run
+        TUDO_CANONICAL_PATH_COMMAND="$(readlink -m -- "$TUDO_ABSOLUTE_PATH_COMMAND")"
+        return_value=$?
+        if [ $return_value -ne 0 ] || [[ ! "$TUDO_CANONICAL_PATH_COMMAND" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
+            tudo_log_errors "Failure while finding canonical path to tudo path commmand"
+            tudo_log_errors "TUDO_CANONICAL_PATH_COMMAND = \"$TUDO_CANONICAL_PATH_COMMAND\""
+            if [ $return_value -eq 0 ]; then
+                return_value=1
+            fi
+            return $return_value
         fi
-        return $return_value
-    fi
 
-    if [[ "$TUDO_CANONICAL_PATH_COMMAND" != "$TUDO_ABSOLUTE_PATH_COMMAND" ]]; then
-        tudo_log 2 "TUDO_CANONICAL_PATH_COMMAND=\"$TUDO_CANONICAL_PATH_COMMAND\""
+        if [[ "$TUDO_CANONICAL_PATH_COMMAND" != "$TUDO_ABSOLUTE_PATH_COMMAND" ]]; then
+            tudo_log 2 "TUDO_CANONICAL_PATH_COMMAND=\"$TUDO_CANONICAL_PATH_COMMAND\""
+        fi
     fi
 
     return 0
@@ -2120,7 +2247,7 @@ tudo_set_shell_rcfile() {
     # RCFILE are usually unique for different shells
     # If shell_home equals TERMUX_HOME, then termux shells and tudo shells
     # will share rc files by default unless shell_share_rcfiles is
-    # enabled and the shell supports --rc param or an environmental
+    # enabled and the shell supports --rc param or an environment
     # variable.
 
     # Was going to add support for tcsh but decided not to after reading the following and having a chuckle
@@ -2165,7 +2292,7 @@ tudo_set_shell_rcfile() {
     elif [[ " bash dash sh ksh python php python2 " == *" $shell_basename "* ]]; then
         # If shell_home equals TERMUX_HOME and shell_share_rcfiles is not enabled, then set the RCFILE with "tudo_" appended to it
         # so that termux shell and tudo shell rc files are not shared since --rc params or
-        # environmental variables can be used to define the path to the rc file
+        # environment variables can be used to define the path to the rc file
         local shell_rcfile_subname
         if [[ "$shell_home" == "$TERMUX_HOME" ]] && [[ "$shell_share_rcfiles" != "1" ]]; then
             shell_rcfile_subname="tudo_${shell_basename}"
@@ -2181,7 +2308,7 @@ tudo_set_shell_rcfile() {
 
         # If shell is python, python2
         elif [[ " python python2 " == *" $shell_basename "* ]]; then
-            # Use the PYTHONSTARTUP environmental variable to pass the path to rcfile
+            # Use the PYTHONSTARTUP environment variable to pass the path to rcfile
             SHELL_RCFILE="$shell_home/.${shell_rcfile_subname}rc"
             SHELL_RCFILE_COMMANDS="export PYTHONSTARTUP='${SHELL_RCFILE//\'/\'\\\'\'}';"
 
@@ -2193,7 +2320,7 @@ tudo_set_shell_rcfile() {
 
         # If shell is dash, sh, ksh
         else
-            # Use the PYTHONSTARTUP environmental variable to pass the path to rcfile
+            # Use the PYTHONSTARTUP environment variable to pass the path to rcfile
             SHELL_RCFILE="$shell_home/.${shell_rcfile_subname}rc"
             SHELL_RCFILE_COMMANDS="export ENV='${SHELL_RCFILE//\'/\'\\\'\'}';"
         fi
@@ -2476,7 +2603,7 @@ tudo_set_shell_histfile() {
         elif [[ "$shell_basename" == "ruby" ]]; then
             # irb uses "~/.irb_history" file to store history by default
             # If rvm is used, then its "~/.irb-history"
-            # There are no params or environmental variables that can be used to set history settings
+            # There are no params or environment variables that can be used to set history settings
             # History settings can be changed by defining following config options in "~/.irbrc" file
             # IRB.conf[:HISTORY_FILE] = "~/.irb_history"
             # IRB.conf[:SAVE_HISTORY] = 1000
@@ -2485,7 +2612,7 @@ tudo_set_shell_histfile() {
         # If shell is pry
         elif [[ "$shell_basename" == "pry" ]]; then
             # pry uses "~/.pry_history" file to store history by default
-            # There are no params or environmental variables that can be used to set history settings
+            # There are no params or environment variables that can be used to set history settings
             # History settings can be changed by defining following config options in "~/.pryrc" file
             # Pry.config.history_file = "~/.pry_history"
             # Pry.config.history_load = true
@@ -2620,8 +2747,8 @@ tudo_set_shell_histfile() {
 
         # If shell is ruby, lua5.2, lua5.3, lua5.4, php, python2
         elif [[ " ruby lua5.2 lua5.3 lua5.4 php python2 " == *" $shell_basename "* ]]; then
-            # The shell does not have a history file or does not use it or cannot be disabled using any params or environmental variables
-            tudo_log 3 "The \"$shell_basename\" shell does not have a history file or does not use it or cannot be disabled using any params or environmental variables"
+            # The shell does not have a history file or does not use it or cannot be disabled using any params or environment variables
+            tudo_log 3 "The \"$shell_basename\" shell does not have a history file or does not use it or cannot be disabled using any params or environment variables"
 
         else
             tudo_log_errors "shell_basename \"$shell_basename\" not handled while running \"tudo_set_shell_histfile\""
@@ -4186,7 +4313,7 @@ tudo_process_arguments() {
     local OPTIND
 
     # Parse options to tudo command
-    while getopts ":hqvabBcdeEfFHilLnNoOpPrsS-:" opt; do
+    while getopts ":hqvaAbBcdeEfFHilLnNoOpPrsStT-:" opt; do
         case ${opt} in
             -)
                 long_optargs="${OPTARG#*=}"
@@ -4641,7 +4768,22 @@ tudo_process_arguments() {
                 ;;
             a)
                 tudo_log_args "Parsing option: '-${opt}'"
-                FORCE_SET_PRIORITY_TO_ANDROID_PATHS=1
+                A_FLAG_PASSED=1
+                PATH_PRIORITY="android"
+                ;;
+            A)
+                tudo_log_args "Parsing option: '-${opt}'"
+                A_FLAG_PASSED=1
+                PATH_PRIORITY="android"
+
+                if [ "$SET_SECONDARY_PRIORITY_PATHS" == "1" ]; then
+                    # If first '-A' option passed
+                    SET_SECONDARY_PATHS=0
+                else
+                    # If '-AA' passed
+                    SET_SECONDARY_PATHS=1
+                fi
+                SET_SECONDARY_PRIORITY_PATHS=0
                 ;;
             b)
                 tudo_log_args "Parsing option: '-${opt}'"
@@ -4728,6 +4870,25 @@ tudo_process_arguments() {
                 tudo_log_args "Parsing option: '-${opt}'"
                 SAME_TUDO_POST_SHELL_AS_TUDO_SHELL=1
                 ;;
+            t)
+                tudo_log_args "Parsing option: '-${opt}'"
+                T_FLAG_PASSED=1
+                PATH_PRIORITY="termux"
+                ;;
+            T)
+                tudo_log_args "Parsing option: '-${opt}'"
+                T_FLAG_PASSED=1
+                PATH_PRIORITY="termux"
+
+                if [ "$SET_SECONDARY_PRIORITY_PATHS" == "1" ]; then
+                    # If first '-T' option passed
+                    SET_SECONDARY_PATHS=0
+                else
+                    # If '-TT' passed
+                    SET_SECONDARY_PATHS=1
+                fi
+                SET_SECONDARY_PRIORITY_PATHS=0
+                ;;
             \?)
                 tudo_log_arg_errors "Unknown option: '-${OPTARG}'"
                 tudo_exit_on_error || return $?
@@ -4748,6 +4909,17 @@ tudo_process_arguments() {
                 tudo_log_arg_errors "Unknown arguments to \"$COMMAND_TYPE\": '$*'"
                 tudo_exit_on_error || return $?
             fi
+
+            if [[ "$COMMAND_TYPE" == "su" ]] && [[ "$A_FLAG_PASSED" == "1" ]]; then
+                tudo_log_arg_errors "Cannot pass '-a|-A' flags to 'su' command, use '-t|-T' flags instead"
+                tudo_exit_on_error || return $?
+            fi
+
+            if [[ "$COMMAND_TYPE" == "asu" ]] && [[ "$T_FLAG_PASSED" == "1" ]]; then
+                tudo_log_arg_errors "Cannot pass '-t|-T' flags to 'asu' command, use '-a|-A' flags instead"
+                tudo_exit_on_error || return $?
+            fi
+
         # If COMMAND_TYPE equals "path" or "script"
         elif [[ "$COMMAND_TYPE" == "path" ]] || [[ "$COMMAND_TYPE" == "script" ]]; then
             # Set rest of the arguments to the tudo script as TUDO_COMMAND
@@ -4819,6 +4991,7 @@ tudo_process_arguments() {
             done
             shift $# # Remove all remaining arguments from arguments array
         fi
+
     # Else show help
     else
         if [[ "$COMMAND_TYPE" == "script" ]]; then
@@ -4852,8 +5025,19 @@ Available command_options:
   [ -q | --quiet ]   Set log level to 'OFF'.
   [ -v | -vv ]       Set log level to 'DEBUG', 'VERBOSE'.
   [ --version ]      Display version.
-  [ -a ]             Force set priority to android paths for path
-                     command type.
+  [ -a ]             Set priority to android paths for 'path' and
+                     'script' command types. The '$PATH' variable will
+                     contain all android bin paths followed all termux
+                     bin paths. The `$LD_PRELOAD` variable will not be
+                     set.
+  [ -A ]             Set priority to android paths for 'asu', 'path'
+                     and 'script' command types. The '$PATH' variable
+                     will contain only `/system/bin` path. The
+                     `$LD_PRELOAD` variable will not be set.
+  [ -AA ]            Set priority to android paths for 'asu', 'path'
+                     and 'script' command types. The '$PATH' variable
+                     will contain all android bin paths. The
+                     `$LD_PRELOAD` variable will not be set.
   [ -b ]             Go back to last activity after running core_script.
   [ -B ]             Run core_script in background.
   [ -c ]             Clear shell after running core_script.
@@ -4879,16 +5063,31 @@ Available command_options:
   [ -r ]             Parse commands as per RUN_COMMAND intent rules.
   [ -s ]             Set 'script' as command type.
   [ -S ]             Same tudo post shell as tudo shell.
+  [ -t ]             Set priority to termux paths for 'path' and
+                     'script' command types. The '$PATH' variable will
+                     contain all termux bin paths followed all android
+                     bin paths. The `$LD_PRELOAD` variable will
+                     contain `$TERMUX__PREFIX/lib/libtermux-exec.so`.
+  [ -T ]             Set priority to termux paths for 'su', 'path'
+                     and 'script' command types. The '$PATH' variable
+                     will contain only '$TERMUX__PREFIX/bin' path.
+                     The `$LD_PRELOAD` variable will contain
+                     `$TERMUX__PREFIX/lib/libtermux-exec.so`.
+  [ -TT ]            Set priority to termux paths for 'su', 'path'
+                     and 'script' command types. The '$PATH' variable
+                     will contain all termux bin paths. The
+                     `$LD_PRELOAD` variable will contain
+                     `$TERMUX__PREFIX/lib/libtermux-exec.so`.
   [ --comma-alternative=<alternative> ]
                      Comma alternative character to be used for
                      the '-r' option instead of the default.
   [ --dry-run ]
                      Do not execute tudo commands.
   [ --export-paths=<paths> ]
-                     Additional paths to export in PATH variable,
+                     Additional paths to export in '$PATH' variable,
                      separated with colons ':'.
   [ --export-ld-lib-paths=<paths> ]
-                     Additional paths to export in LD_LIBRARY_PATH
+                     Additional paths to export in '$LD_LIBRARY_PATH'
                      variable, separated with colons ':'.
   [ --hold[=<string>] ]
                      Hold tudo from exiting until string is entered,
@@ -5012,7 +5211,11 @@ starting starting with './' or '../' (like './script.sh') or the
 executable 'basename' in a directory listed in the final '$PATH'
 variable that is to be exported by the 'tudo' command depending on
 priority set.
-exists in '/system' partition.
+The priority is set based on '-a|-A|-AA' or '-t|-T|-TT' flags, and
+if flags are not passed, then the priority for bin paths in `$PATH`
+variable is given to termux paths followed by android paths if
+executable canonical path is under '$TERMUX__ROOTFS' directory,
+otherwise to android paths followed by termux paths.
 
 
 The 'script' command type takes any script text or path to a script
@@ -5034,6 +5237,8 @@ is considered as a path to script file that should be passed to
 Use the '--shell' option to set the script shell to use.
 Use the '--post-shell' option to set the interactive shell to use if
 '-i' option is passed.
+The priority is given to termux paths unless '-a|-A|-AA' or
+'-t|-T|-TT' flags are passed.
 
 
 Run "exit" command of your shell to exit interactive shells and return
