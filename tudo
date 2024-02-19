@@ -1328,9 +1328,15 @@ tudo_set_pre_tudo_shell_commands_to_run() {
     tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "LD_LIBRARY_PATH" "$LD_LIBRARY_PATH_TO_EXPORT" || return $?
     tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "TERMUX_PRIORITY_LD_LIBRARY_PATH" "$TERMUX_PRIORITY_LD_LIBRARY_PATH" || return $?
     tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "ANDROID_PRIORITY_LD_LIBRARY_PATH" "$ANDROID_PRIORITY_LD_LIBRARY_PATH" || return $?
+   
+    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}ROOTFS='${TERMUX_ROOTFS//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}HOME='${TERMUX_HOME//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}PREFIX='${TERMUX_PREFIX//\'/\'\\\'\'}';"$'\n'
+    # If `$PREFIX` already exported when running `tudo`, only then export it
+    [[ ! "$PREFIX" =~ $VALID_ROOTFS_OR_ABSOLUTE_PATH_REGEX ]] && \
+        PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export PREFIX='${TERMUX_PREFIX//\'/\'\\\'\'}';"$'\n'
 
-    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export PREFIX='$TERMUX_PREFIX';"$'\n'
-    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export TMPDIR='$TMPDIR';"$'\n'
+    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export TMPDIR='${TMPDIR//\'/\'\\\'\'}';"$'\n'
     PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export HOME='${TUDO_SHELL_HOME//\'/\'\\\'\'}';"$'\n'
     PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export TERM='${TERM//\'/\'\\\'\'}';"$'\n'
     PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export LANG='${LANG//\'/\'\\\'\'}';"$'\n'
@@ -1407,8 +1413,14 @@ tudo_set_pre_tudo_post_shell_commands_to_run() {
     tudo_add_export_or_unset_var_command "PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN" "TERMUX_PRIORITY_LD_LIBRARY_PATH" "$TERMUX_PRIORITY_LD_LIBRARY_PATH" || return $?
     tudo_add_export_or_unset_var_command "PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN" "ANDROID_PRIORITY_LD_LIBRARY_PATH" "$ANDROID_PRIORITY_LD_LIBRARY_PATH" || return $?
 
-    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export PREFIX='$TERMUX_PREFIX';"$'\n'
-    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export TMPDIR='$TMPDIR';"$'\n'
+    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}ROOTFS='${TERMUX_ROOTFS//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}HOME='${TERMUX_HOME//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}PREFIX='${TERMUX_PREFIX//\'/\'\\\'\'}';"$'\n'
+    # If `$PREFIX` already exported when running `tudo`, only then export it
+    [[ ! "$PREFIX" =~ $VALID_ROOTFS_OR_ABSOLUTE_PATH_REGEX ]] && \
+        PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export PREFIX='${TERMUX_PREFIX//\'/\'\\\'\'}';"$'\n'
+
+    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export TMPDIR='${TMPDIR//\'/\'\\\'\'}';"$'\n'
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export HOME='${TUDO_POST_SHELL_HOME//\'/\'\\\'\'}';"$'\n'
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export TERM='${TERM//\'/\'\\\'\'}';"$'\n'
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export LANG='${LANG//\'/\'\\\'\'}';"$'\n'
