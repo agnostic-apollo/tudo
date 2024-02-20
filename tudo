@@ -2504,7 +2504,7 @@ funcsave -q unset
 function tpath
     export PATH="$TERMUX_PRIORITY_PATH";
     export LD_LIBRARY_PATH="$TERMUX_PRIORITY_LD_LIBRARY_PATH";
-    '"$TERMUX_PRIORITY_LD_PRELOAD_COMMAND"'
+    export LD_PRELOAD="$TERMUX__PREFIX/lib/libtermux-exec.so";
 end
 '
 
@@ -2536,7 +2536,7 @@ end
 tpath() {
     export PATH="$TERMUX_PRIORITY_PATH";
     export LD_LIBRARY_PATH="$TERMUX_PRIORITY_LD_LIBRARY_PATH";
-    '"$TERMUX_PRIORITY_LD_PRELOAD_COMMAND"'
+    export LD_PRELOAD="$TERMUX__PREFIX/lib/libtermux-exec.so";
 }
 '
 
