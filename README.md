@@ -1095,11 +1095,21 @@ Check the [tudo.config](tudo.config) file to see the environment variables that 
 
 You can download it from the `master` branch and set it up by running the following commands. If you are on an older version, you may want to extract it from its [release](https://github.com/agnostic-apollo/tudo/releases) instead.
 
-```
+```shell
 config_directory=~/.config/tudo
 mkdir -p "$config_directory" && \
 chmod 700 -R "$config_directory" && \
 curl -L 'https://github.com/agnostic-apollo/tudo/raw/master/tudo.config' -o "$config_directory/tudo.config" && \
+chmod 600 "$config_directory/tudo.config"
+```
+
+If you installed `tudo` with a Termux package manager, like with the `apt`/`pkg` command, then you can also copy it from the on-device examples directory for `tudo`.
+
+```shell
+config_directory=~/.config/tudo
+mkdir -p "$config_directory" && \
+chmod 700 -R "$config_directory" && \
+cp "${TERMUX__PREFIX:-$PREFIX}/share/doc/tudo/examples/tudo.config" "$config_directory/tudo.config" && \
 chmod 600 "$config_directory/tudo.config"
 ```
 
@@ -1111,10 +1121,19 @@ You can also use `GUI` based text editor android apps that support `SAF`. Termux
 
 Note that the android default `SAF` `Document` file picker may not support hidden file or directories like `~/.config` which start with a dot `.`, so if you try to use it to open files for a text editor app, then that directory will not show. You can instead create a symlink for  `~/.config` at `~/config_sym` so that it is shown. Use `ln -s ~/.config ~/config_sym` to create it.
 
+&nbsp;
 
 If you use the `bash` shell in termux terminal session, you can optionally export the environment variables like `$TUDO_SHELL_HOME` and `$TUDO_POST_SHELL_HOME` in the `~/.bashrc` file by adding `export TUDO_SHELL_HOME="/path/to/home"` and `export TUDO_POST_SHELL_HOME="/path/to/home"` lines to it so that they are automatically set whenever you start a terminal session. However, the `~/.bashrc` and `rc` files of other shells will not be sourced if you are running commands from `Termux:Tasker` or `RUN_COMMAND Intent`, and so it is advisable to use the `tudo.config` file instead, which will be sourced in all cases, regardless of how `tudo` is run.
 
 Note that `$TUDO_SHELL_PS1` and `$TUDO_POST_SHELL_PS1` values will not work if `$PS1` variable is overridden in `rc` files in `$PREFIX/etc/` or in `tudo shell` and `tudo post shell` homes. Check [RC File Variables](#rc-file-variables) section for more details.
+
+&nbsp;
+
+The following variables will be available when the `tudo-config` file is sourced.
+
+- `$TUDO__TERMUX_ROOTFS` for the Termux rootfs (`$TERMUX__ROOTFS`).
+- `$TUDO__TERMUX_HOME` for the Termux home (`$TERMUX__HOME`), not the `tudo` shell home.
+- `$TUDO__TERMUX_PREFIX` for the Termux prefix (`$TERMUX__PREFIX`).
 
 ---
 

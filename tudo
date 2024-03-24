@@ -331,7 +331,12 @@ tudo_main() {
     tudo_config_file="$TERMUX_HOME/.config/tudo/tudo.config"
     tudo_config_file_sourced=0
     if [ -f "$tudo_config_file" ] && [ -r "$tudo_config_file" ]; then
-        source "$tudo_config_file"
+        # Set variables provided for tudo.config
+        TUDO__TERMUX_ROOTFS="$TERMUX_ROOTFS"
+        TUDO__TERMUX_HOME="$TERMUX_HOME"
+        TUDO__TERMUX_PREFIX="$TERMUX_PREFIX"
+
+        source "$tudo_config_file" || return $?
         tudo_config_file_sourced=1
     fi
 
