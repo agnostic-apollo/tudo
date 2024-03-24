@@ -1322,12 +1322,12 @@ tudo_set_pre_tudo_shell_commands_to_run() {
     PRE_TUDO_SHELL_COMMANDS_TO_RUN=""
 
     PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export PATH='${PATH_TO_EXPORT//\'/\'\\\'\'}';"$'\n'
-    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export TERMUX_PRIORITY_PATH='${TERMUX_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
-    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ANDROID_PRIORITY_PATH='${ANDROID_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export TUDO__TERMUX_PRIORITY_PATH='${TERMUX_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export TUDO__ANDROID_PRIORITY_PATH='${ANDROID_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
 
     tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "LD_LIBRARY_PATH" "$LD_LIBRARY_PATH_TO_EXPORT" || return $?
-    tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "TERMUX_PRIORITY_LD_LIBRARY_PATH" "$TERMUX_PRIORITY_LD_LIBRARY_PATH" || return $?
-    tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "ANDROID_PRIORITY_LD_LIBRARY_PATH" "$ANDROID_PRIORITY_LD_LIBRARY_PATH" || return $?
+    tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "TUDO__TERMUX_PRIORITY_LD_LIBRARY_PATH" "$TERMUX_PRIORITY_LD_LIBRARY_PATH" || return $?
+    tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "TUDO__ANDROID_PRIORITY_LD_LIBRARY_PATH" "$ANDROID_PRIORITY_LD_LIBRARY_PATH" || return $?
    
     PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}ROOTFS='${TERMUX_ROOTFS//\'/\'\\\'\'}';"$'\n'
     PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}HOME='${TERMUX_HOME//\'/\'\\\'\'}';"$'\n'
@@ -1353,6 +1353,7 @@ tudo_set_pre_tudo_shell_commands_to_run() {
     if [ -n "$LD_PRELOAD_COMMAND" ]; then
         PRE_TUDO_SHELL_COMMANDS_TO_RUN+="$LD_PRELOAD_COMMAND"$'\n'
     fi
+    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export TUDO__TERMUX_LD_PRELOAD='${TERMUX_LD_PRELOAD//\'/\'\\\'\'}';"$'\n'
 
     # If TUDO_SHELL_RCFILE_COMMANDS is not empty, then append it to PRE_TUDO_SHELL_COMMANDS_TO_RUN
     if [ -n "$TUDO_SHELL_RCFILE_COMMANDS" ]; then
@@ -1406,12 +1407,12 @@ tudo_set_pre_tudo_post_shell_commands_to_run() {
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN=""
 
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export PATH='${PATH_TO_EXPORT//\'/\'\\\'\'}';"$'\n'
-    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export TERMUX_PRIORITY_PATH='${TERMUX_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
-    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ANDROID_PRIORITY_PATH='${ANDROID_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export TUDO__TERMUX_PRIORITY_PATH='${TERMUX_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export TUDO__ANDROID_PRIORITY_PATH='${ANDROID_PRIORITY_PATH//\'/\'\\\'\'}';"$'\n'
 
     tudo_add_export_or_unset_var_command "PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN" "LD_LIBRARY_PATH" "$LD_LIBRARY_PATH_TO_EXPORT" || return $?
-    tudo_add_export_or_unset_var_command "PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN" "TERMUX_PRIORITY_LD_LIBRARY_PATH" "$TERMUX_PRIORITY_LD_LIBRARY_PATH" || return $?
-    tudo_add_export_or_unset_var_command "PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN" "ANDROID_PRIORITY_LD_LIBRARY_PATH" "$ANDROID_PRIORITY_LD_LIBRARY_PATH" || return $?
+    tudo_add_export_or_unset_var_command "PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN" "TUDO__TERMUX_PRIORITY_LD_LIBRARY_PATH" "$TERMUX_PRIORITY_LD_LIBRARY_PATH" || return $?
+    tudo_add_export_or_unset_var_command "PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN" "TUDO__ANDROID_PRIORITY_LD_LIBRARY_PATH" "$ANDROID_PRIORITY_LD_LIBRARY_PATH" || return $?
 
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}ROOTFS='${TERMUX_ROOTFS//\'/\'\\\'\'}';"$'\n'
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}HOME='${TERMUX_HOME//\'/\'\\\'\'}';"$'\n'
@@ -1430,6 +1431,7 @@ tudo_set_pre_tudo_post_shell_commands_to_run() {
     if [ -n "$LD_PRELOAD_COMMAND" ]; then
         PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="$LD_PRELOAD_COMMAND"$'\n'
     fi
+    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export TUDO__TERMUX_LD_PRELOAD='${TERMUX_LD_PRELOAD//\'/\'\\\'\'}';"$'\n'
 
     # If TUDO_POST_SHELL_RCFILE_COMMANDS is not empty, then append it to PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN
     if [ -n "$TUDO_POST_SHELL_RCFILE_COMMANDS" ]; then
@@ -2502,9 +2504,9 @@ funcsave -q unset
     # shellcheck disable=SC2016
     FISH_SHELL_TPATH_FUNCTION='
 function tpath
-    export PATH="$TERMUX_PRIORITY_PATH";
-    export LD_LIBRARY_PATH="$TERMUX_PRIORITY_LD_LIBRARY_PATH";
-    export LD_PRELOAD="$TERMUX__PREFIX/lib/libtermux-exec.so";
+    export PATH="$TUDO__TERMUX_PRIORITY_PATH";
+    export LD_LIBRARY_PATH="$TUDO__TERMUX_PRIORITY_LD_LIBRARY_PATH";
+    export LD_PRELOAD="$TUDO__TERMUX_LD_PRELOAD";
 end
 '
 
@@ -2512,8 +2514,8 @@ end
     # shellcheck disable=SC2016
     FISH_SHELL_APATH_FUNCTION='
 function apath
-    export PATH="$ANDROID_PRIORITY_PATH";
-    export LD_LIBRARY_PATH="$ANDROID_PRIORITY_LD_LIBRARY_PATH";
+    export PATH="$TUDO__ANDROID_PRIORITY_PATH";
+    export LD_LIBRARY_PATH="$TUDO__ANDROID_PRIORITY_LD_LIBRARY_PATH";
     '"$ANDROID_PRIORITY_LD_PRELOAD_COMMAND"'
 end
 '
@@ -2534,9 +2536,9 @@ end
         # shellcheck disable=SC2016
         GENERAL_SHELL_TPATH_FUNCTION='
 tpath() {
-    export PATH="$TERMUX_PRIORITY_PATH";
-    export LD_LIBRARY_PATH="$TERMUX_PRIORITY_LD_LIBRARY_PATH";
-    export LD_PRELOAD="$TERMUX__PREFIX/lib/libtermux-exec.so";
+    export PATH="$TUDO__TERMUX_PRIORITY_PATH";
+    export LD_LIBRARY_PATH="$TUDO__TERMUX_PRIORITY_LD_LIBRARY_PATH";
+    export LD_PRELOAD="$TUDO__TERMUX_LD_PRELOAD";
 }
 '
 
@@ -2545,8 +2547,8 @@ tpath() {
         # shellcheck disable=SC2016
         GENERAL_SHELL_APATH_FUNCTION='
 apath() {
-    export PATH="$ANDROID_PRIORITY_PATH";
-    export LD_LIBRARY_PATH="$ANDROID_PRIORITY_LD_LIBRARY_PATH";
+    export PATH="$TUDO__ANDROID_PRIORITY_PATH";
+    export LD_LIBRARY_PATH="$TUDO__ANDROID_PRIORITY_LD_LIBRARY_PATH";
     '"$ANDROID_PRIORITY_LD_PRELOAD_COMMAND"'
 }
 '
