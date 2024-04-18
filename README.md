@@ -44,14 +44,15 @@ If you want to run commands in `superuser (root)` user context, check [`sudo`].
 
 ### Dependencies
 
-- [Termux App]
+Using `tudo` in Termux shells only has the following dependencies.
 
-Using `tudo` directly from inside `termux` terminal session does not have any specific version requirements, other than `bash` version `>= 4.1`.
-However, to use `tudo` with [Termux:Tasker] plugin and [RUN_COMMAND Intent] requires the following versions to be installed. Check [Passing Arguments](#passing-arguments) section and [Termux:Tasker] `Setup Instructions` section for details.
+- [Termux App] version: minimum `>= 0.100`, **recommended `>= 0.119.0`**.
+- [`bash`](https://www.gnu.org/software/bash/manual/bash.html) version: `>= 4.1`.
 
-- [Termux App] version `>= 0.100`
-- [Tasker App] version `>= 5.9.4.beta`
-- [Termux:Tasker] version `>= 0.5`
+However, to use `tudo` with [Termux:Tasker] plugin and [RUN_COMMAND Intent] requires the following app versions to be installed. Check [Passing Arguments](#passing-arguments) section and [Termux:Tasker `Setup Instructions`](https://github.com/termux/termux-tasker#setup-instructions) section for details.
+
+- [Tasker App] version: `>= 5.9.4.beta`
+- [Termux:Tasker] version: `>= 0.5`
 
 ---
 
@@ -2216,7 +2217,7 @@ Check [CHANGELOG.md](CHANGELOG.md) file for the **Changelog**.
 
 [`sudo`]: https://github.com/agnostic-apollo/sudo
 
-[RUN_COMMAND Intent]: https://github.com/termux/termux-app/blob/master/app/src/main/java/com/termux/app/RunCommandService.java
+[RUN_COMMAND Intent]: https://github.com/termux/termux-app/wiki/RUN_COMMAND-Intent
 
 [Process Substitution]: https://en.wikipedia.org/wiki/Process_substitution
 [Here Document]: https://en.wikipedia.org/wiki/Here_document
