@@ -1,20 +1,24 @@
-# tudo
+---
+page_ref: "@ARK_PROJECT__VARIANT@/agnostic-apollo/tudo/docs/@ARK_DOC__VERSION@/usage/index.md"
+---
 
-`tudo` is a wrapper script to drop to any [supported shell](#supported-shells) or execute shell script files or their text passed as an argument with `termux` user context in [Termux App]. Check the [Usage](#usage) and [Command Types](#command-types) sections for more info on what type of commands can be run. `tudo` stands for *termux user do*.
+# tudo Usage Docs
+
+<!-- @ARK_DOCS__HEADER_PLACEHOLDER@ -->
+
+[`tudo`](https://github.com/agnostic-apollo/tudo) stands for *Termux app user do*. It is a wrapper script to execute commands as the `Termux app (u<userid>_a<appid>)` user (like `u0_a100`) in the [Termux] app, like to drop to an interactive shell for any of the [supported shells](#supported-shells), or to execute shell script files or their text passed as an argument. Check the [Help](#help) and [Command Types](#command-types) sections for more info on what type of commands can be run.
 
 Make sure to read the [Worthy Of Note](#worthy-of-note) section, **specially the [RC File Variables](#rc-file-variables) section. This is very important.**
 
-To use `tudo` with [Termux:Tasker] plugin and [RUN_COMMAND Intent], check [Termux:Tasker] `Setup Instructions` section for details on how to set them up. The [Tasker App] or your plugin host app must be granted `com.termux.permission.RUN_COMMAND` permission. The `tudo` script must be installed at `$PREFIX/bin/tudo`. The `allow-external-apps` property must also be set to `true` in `~/.termux/termux.properties` file since the `$PREFIX/bin/tudo` absolute path is outside the `~/.termux/tasker/` directory. For android `>= 10`, the [Termux App] should also be granted `Draw Over Apps` permission so that foreground commands automatically start executing without the user having to manually click the `Termux` notification in the status bar dropdown notifications list for the commands to start. Check [Templates](#templates) section for template tasks that can be run used to run `tudo` from `Termux:Tasker` plugin and `RUN_COMMAND Intent`.
+To use `tudo` with [Termux:Tasker] plugin and [RUN_COMMAND Intent], check [Termux:Tasker] `Setup Instructions` section for details on how to set them up. The [Tasker] app or your plugin host app must be granted `com.termux.permission.RUN_COMMAND` permission. The `tudo` script must be installed at `$PREFIX/bin/tudo`. The `allow-external-apps` property must also be set to `true` in `~/.termux/termux.properties` file since the `$PREFIX/bin/tudo` absolute path is outside the `~/.termux/tasker/` directory. For android `>= 10`, the [Termux] app should also be granted `Draw Over Apps` permission so that foreground commands automatically start executing without the user having to manually click the `Termux` notification in the status bar dropdown notifications list for the commands to start. Check [Templates](#templates) section for template tasks that can be run used to run `tudo` from `Termux:Tasker` plugin app and `RUN_COMMAND Intent`.
 
-If you want to run commands in `superuser (root)` user context, check [`sudo`].
+If you want to run commands as the `root (superuser)` user, check [`sudo`].
 
 ### Contents
-- [Dependencies](#dependencies)
-- [Downloads](#downloads)
+
 - [Install](#install)
 - [Current Features](#current-features)
-- [Planned Features](#planned-features)
-- [Usage](#usage)
+- [Help](#help)
 - [Command Types](#command-types)
 - [Supported Shells](#supported-shells)
 - [Command Options](#command-options)
@@ -28,45 +32,6 @@ If you want to run commands in `superuser (root)` user context, check [`sudo`].
 - [Issues](#issues)
 - [Worthy Of Note](#worthy-of-note)
 - [Tests](#tests)
-- [FAQs And FUQs](#faqs-and-fuqs)
-- [Changelog](#changelog)
-- [Contributions](#contributions)
-- [Credits](#credits)
-- [Donations](#donations)
-
----
-
-&nbsp;
-
-
-
-
-
-### Dependencies
-
-Using `tudo` in Termux shells only has the following dependencies.
-
-- [Termux App] version: minimum `>= 0.100`, **recommended `>= 0.119.0`**.
-- [`bash`](https://www.gnu.org/software/bash/manual/bash.html) version: `>= 4.1`.
-
-However, to use `tudo` with [Termux:Tasker] plugin and [RUN_COMMAND Intent] requires the following app versions to be installed. Check [Passing Arguments](#passing-arguments) section and [Termux:Tasker `Setup Instructions`](https://github.com/termux/termux-tasker#setup-instructions) section for details.
-
-- [Tasker App] version: `>= 5.9.4.beta`
-- [Termux:Tasker] version: `>= 0.5`
-
----
-
-&nbsp;
-
-
-
-
-
-### Downloads
-
-Latest version is `v0.2.0`.
-
-- [GitHub releases](https://github.com/agnostic-apollo/tudo/releases).
 
 ---
 
@@ -128,11 +93,11 @@ It should have `termux` `uid:gid` ownership and have executable `700` permission
 
 
 
-### Current Features
+## Current Features
 
-- Allows dropping to an interactive shell in `termux` user context for any of the supported [Interactive Shells](#interactive-shells) with priority to either termux or android bin and library paths.
-- Allows running single commands in `termux` user context without having to start an interactive shell including commands in `/system` partition.
-- Allows passing of script file paths or script text as arguments for any of the supported [Script Shells](#script-shells) to have them executed in `termux` user context without having to create physical script files first for the later case, like in `~/.termux/tasker/` directory for [Termux:Tasker].
+- Allows dropping to an interactive shell as the `Termux app` user for any of the supported [Interactive Shells](#interactive-shells) with priority to either termux or android bin and library paths.
+- Allows running single commands as the `Termux app` user without having to start an interactive shell including commands in `/system` partition.
+- Allows passing of script file paths or script text as arguments for any of the supported [Script Shells](#script-shells) to have them executed as the `Termux app` user without having to create physical script files first for the later case, like in `~/.termux/tasker/` directory for [Termux:Tasker].
 - Automatic setup of home directories, `rc` files, `history` files and working directories with proper ownership and permissions.
 - Automatic setup of the shell environment and exporting of all required variables including `LD_PRELOAD` so that termux commands work properly, specifically if being run from [Termux:Tasker] or [RUN_COMMAND Intent].
 - Provides a lot of [Command Options](#command-options) that are specifically designed for usage with [Termux:Tasker] and the [RUN_COMMAND Intent].
@@ -145,24 +110,13 @@ It should have `termux` `uid:gid` ownership and have executable `700` permission
 
 
 
-### Planned Features
-
-`-`
-
----
-
-&nbsp;
-
-
-
-
-
-### Usage
+## Help
 
 ```
-tudo is a wrapper script to drop to the supported shells or execute
-shell script files or their text passed as an argument with termux
-user context in termux.
+tudo is a wrapper script to execute commands as the 'termux' user in
+the Termux App, like to drop to an interactive shell for any of the
+supported shells, or to execute shell script files or their text
+passed as an argument.
 
 
 Usage:
@@ -332,8 +286,8 @@ Supported interactive shells: `bash zsh dash sh fish python ruby pry node perl l
 Supported script shells: `bash zsh dash sh fish python ruby node perl lua5.2 lua5.3 lua5.4 php python2 ksh`
 
 
-The 'su' command type drops to a termux user interactive
-shell for any of the supported interactive shells. To drop to a
+The 'su' command type drops to an interactive shell as the 'termux'
+user for any of the supported interactive shells. To drop to a
 'bash' shell, just run 'tudo su'. The priority will be set to termux
 bin and library paths in '$PATH' and '$LD_LIBRARY_PATH' variables.
 Use the '--shell' option to set the interactive shell to use.
@@ -345,8 +299,8 @@ instead the priority will be set to android bin and library paths in
 Use the '--shell' option to set the interactive shell to use.
 
 
-The 'path' command type runs a single command in termux user
-context. You can use it just by running 'tudo <command> [command_args]'
+The 'path' command type runs a single command as the 'termux' user.
+You can use it just by running 'tudo <command> [command_args]'
 where 'command' is the executable you want to run and 'command_args'
 are any optional arguments to it. The 'command' will be run within a
 'bash' shell.
@@ -398,15 +352,15 @@ to the termux shell.
 
 
 
-### Command Types
+## Command Types
 
 ### `su`
 
-The `su` command type drops to an interactive shell with `termux` user context for any of the supported [Interactive Shells](#interactive-shells). `su` stands for *substitute user* which in this case will be the `termux` user. To drop to a `bash` shell, just run `tudo su`.
+The `su` command type drops to an interactive shell as the `Termux app` user for any of the supported [Interactive Shells](#interactive-shells). `su` stands for *substitute user* which in this case will be the `Termux app` user. To drop to a `bash` shell, just run `tudo su`.
 
 The priority for bin paths in `$PATH` variable is set to `termux` paths followed `android` paths, the same as if [`-t`](#-t) flag was passed. The [`-T`](#-t-1) or [`-TT`](#-tt) flags can be used to change priority. **To have consistent behaviour with shells starts by the Termux app, pass the [`-T`](#-t-1) flag.** Check the [`$PATH` and `$LD_LIBRARY_PATH` Priorities](#path-and-ld_library_path-priorities) section for more info.
 
-If you just use start the [Termux App] to start a foreground terminal session to run `termux` commands, then this command type may not be too useful, especially for usage with `bash` since `termux` user being used would be the same as the default. However, you can use this command type to start an interactive shell session for different shells from plugins. `tudo` will also automatically create the `rc` and `history` files for the shell.
+If you just use start the [Termux] app to start a foreground terminal session to run `termux` commands, then this command type may not be too useful, especially for usage with `bash` since `Termux app` user being used would be the same as the default. However, you can use this command type to start an interactive shell session for different shells from plugins. `tudo` will also automatically create the `rc` and `history` files for the shell.
 
 Note that `su` is just a command type and does not represent the `su` binary itself. Use the [`path`](#path) command type to run the `tudo -p su [user]` command instead for calling the `su` binary.
 
@@ -430,9 +384,9 @@ This can also be useful to run commands in `/system` partition since termux does
 
 ### `path`
 
-The `path` command type runs a single command in `termux` user context within a `bash` shell. You can use it just by running `tudo <command> [command_args]` where `command` is the executable you want to run and `command_args` are any optional arguments you want to pass to it.
+The `path` command type runs a single command as the `Termux app` user within a `bash` shell. You can use it just by running `tudo <command> [command_args]` where `command` is the executable you want to run and `command_args` are any optional arguments you want to pass to it.
 
-The `tudo <command>` will not work if executable to be run does not have proper ownership or executable permissions which allow the `termux` user to read or execute it if `tudo` command itself is being run from the `termux` context.
+The `tudo <command>` will not work if executable to be run does not have proper ownership or executable permissions which allow the `Termux app` user to read or execute it if `tudo` command itself is being run as the `Termux app` user.
 
 The `command` must be an `absolute` path to an executable, or `relative` path from the current working directory to an executable starting with `./` or `../` (like `./script.sh`) or the executable `basename` in a directory listed in the final `$PATH` variable that is to be exported by the `tudo` command depending on priority set. If it is not found, `tudo` will exit with an error.
 
@@ -508,9 +462,9 @@ Check the [`-b`](#-b), [`-B`](#-b-1), [`-c`](#-c), [`-d`](#-d), [`-e`](#-e), [`-
 
 
 
-### Supported Shells
+## Supported Shells
 
-The `bash` shell is the default interactive and script shell and must exist at `$PREFIX/bin/bash` with ownership and permissions allowing `termux` user to read and execute it. The [`--shell`](#--shell) and [`--post-shell`](#--post-shell) options can be used to change the default shells. The `path` command type always uses the `bash` shell and command options are ignored. The shells must have proper ownership or executable permissions set that allows `termux` user to read and execute them.
+The `bash` shell is the default interactive and script shell and must exist at `$PREFIX/bin/bash` with ownership and permissions allowing `Termux app` user to read and execute it. The [`--shell`](#--shell) and [`--post-shell`](#--post-shell) options can be used to change the default shells. The `path` command type always uses the `bash` shell and command options are ignored. The shells must have proper ownership or executable permissions set that allows `Termux app` user to read and execute them.
 
 The exported environment variables `$TUDO_SHELL_PS1` and `$TUDO_POST_SHELL_PS1` can be used to change the default `$PS1` values of the shell, provided that the shell uses it. Check the [Modifying Default Values](#modifying-default-values) section for more info on `tudo` environment variables and modifying default values.
 
@@ -551,7 +505,7 @@ The `bash` shell is automatically chosen as the default script shell if the [`--
 
 
 
-### Command Options
+## Command Options
 
 The `$PREFIX/` and `~/` prefixes are supported for all command options that take in absolute paths as arguments. The `$PREFIX/` is a shortcut for the termux prefix directory `/data/data/com.termux/files/usr/`. The `~/` is a shortcut for the termux home directory `/data/data/com.termux/files/home/`. Note that if the paths with shortcuts are not surrounded with single quotes, they will expanded by the local shell before being passed to the `tudo` script instead of the `tudo` script manually expanding them. Note that `~/` will expand to the shell or post shell home and not the necessarily the termux home if used inside scripts or the `*-commands` options.
 
@@ -873,9 +827,9 @@ Can be used with the `script` command type to set the filename to use for the `c
 
 The `--script-redirect=<mode/string>` option can be used with the `script` command type to set the redirect mode or string for `stdout` and `stderr` for the `core_script`. The following modes are supported:  
 
-- `0` redirect `stderr` to `stdout`. This can be used to receive both `stdout` and `stderr` in a synchronized way as `stdout`, like in `%stdout` variable for `Termux:Tasker` plugin for easier processing of result of commands.  
+- `0` redirect `stderr` to `stdout`. This can be used to receive both `stdout` and `stderr` in a synchronized way as `stdout`, like in `%stdout` variable for `Termux:Tasker` plugin app for easier processing of result of commands.  
 
-- `1` redirect `stdout` to `stderr`. This can be used to receive both `stdout` and `stderr` in a synchronized way as `stderr`, like in `%stderr` variable for `Termux:Tasker` plugin for easier processing of result of commands.  
+- `1` redirect `stdout` to `stderr`. This can be used to receive both `stdout` and `stderr` in a synchronized way as `stderr`, like in `%stderr` variable for `Termux:Tasker` plugin app for easier processing of result of commands.  
 
 - `2` redirect `stdout` to `/dev/null`. This can be used to ignore `stdout` output of the `core_script`.  
 
@@ -889,7 +843,7 @@ The `--script-redirect=<mode/string>` option can be used with the `script` comma
 
 - `*` else it is considered a string that's appended after the `core_script` and its arguments. This can be used for custom redirection, like redirection to a file and possibly used along with the [`--shell-pre-commands`](#--shell-pre-commands) option if some prep is required.
 
-Note that anything sent to `stdout` and `stderr` outside the `core_script` shell will still be sent to `stdout` and `stderr` and will be received in the `%stdout` and `%stderr` variables for `Termux:Tasker` plugin, so do not ignore them completely while checking for failures.
+Note that anything sent to `stdout` and `stderr` outside the `core_script` shell will still be sent to `stdout` and `stderr` and will be received in the `%stdout` and `%stderr` variables for `Termux:Tasker` plugin app, so do not ignore them completely while checking for failures.
 
 
 
@@ -971,7 +925,7 @@ The `--work-dir=<path>` option can be used to set the absolute path for working 
 
 
 
-### Shell Home
+## Shell Home
 
 The default `$HOME` directory for `tudo shell` and `tudo post shell` is termux home `/data/data/com.termux/files/home`. The [`--shell-home`](#--shell-home) and [`--post-shell-home`](#--post-shell-home) options or the exported environment variables `$TUDO_SHELL_HOME` and `$TUDO_POST_SHELL_HOME` can be used to change the default directory. The home directory is the same as termux home directory by default to keep `config`, `rc` and `history` files the same for the `termux` user. The home directory should also be owned by the `termux` user and have `0700` permission.
 
@@ -979,7 +933,7 @@ Check the [Modifying Default Values](#modifying-default-values) section for more
 
 The home directory must be under the termux files directory `/data/data/com.termux/files/`, and it must not be one of the following directories: `~/.{cache,config,local,termux}` and `$PREFIX/*`.
 
-The home directory is automatically created when `tudo` command is run if it does not exist. The `termux` user ownership and `700` permission is also set to it.
+The home directory is automatically created when `tudo` command is run if it does not exist. The `Termux app` user ownership and `700` permission is also set to it.
 
 ---
 
@@ -989,7 +943,7 @@ The home directory is automatically created when `tudo` command is run if it doe
 
 
 
-### Shell RC Files
+## Shell RC Files
 
 The following shell `rc` files are used for different shells depending on if `tudo shell` or `tudo post shell` home is different from termux home or shared. The `rc` files are usually unique for different shells. 
 
@@ -997,7 +951,7 @@ The following shell `rc` files are used for different shells depending on if `tu
 
 - If the homes are shared, then the `tudo` shells and `termux` shells and will share the `rc` files by default, stored in termux home.
 
-- If the homes are shared, you can set the environment variables `$tudo_shell_share_rcfiles_and_histfiles` and `$tudo_post_shell_share_rcfiles_and_histfiles` to `0` so that if the shell supports it, then different `rc` files will be used, stored in termux home. This will only work if the shell has a [`--rc`](#--rc) param or environment variable for `rc` files, otherwise `tudo` shells and `termux` shells will have to share the same `RCFILE`, implied by `(shared)` and `(hard-coded)` (by the shell) columns.
+- If the homes are shared, you can set the environment variables `$TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES` and `$TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES` to `0` so that if the shell supports it, then different `rc` files will be used, stored in termux home. This will only work if the shell has a [`--rc`](#--rc) param or environment variable for `rc` files, otherwise `tudo` shells and `termux` shells will have to share the same `RCFILE`, implied by `(shared)` and `(hard-coded)` (by the shell) columns.
 
 For shells that do not have `rc` files have their columns set to `-`.
 
@@ -1022,13 +976,13 @@ For shells that do not have `rc` files have their columns set to `-`.
 | ksh     | .kshrc                  | .tudo_kshrc             | $ENV             |
 
 
-The `rc` file parent directory is automatically created when `tudo` command is run if it does not exist. The `termux` user ownership and `700` permission is also set to it.
+The `rc` file parent directory is automatically created when `tudo` command is run if it does not exist. The `Termux app` user ownership and `700` permission is also set to it.
 
-The `rc` file is automatically created when `tudo` command is run if it does not exist. The `termux` user ownership and `600` permission is also set to it.
+The `rc` file is automatically created when `tudo` command is run if it does not exist. The `Termux app` user ownership and `600` permission is also set to it.
 
 The `rc` file parent directory and `rc` file will not be created automatically if [`-no-create-rc`](#-no-create-rc) is passed.
 
-Check the [Modifying Default Values](#modifying-default-values) section for more info on how do modify the `$tudo_shell_share_rcfiles_and_histfiles` and `$tudo_post_shell_share_rcfiles_and_histfiles` default values.
+Check the [Modifying Default Values](#modifying-default-values) section for more info on how do modify the `$TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES` and `$TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES` default values.
 
 ---
 
@@ -1038,7 +992,7 @@ Check the [Modifying Default Values](#modifying-default-values) section for more
 
 
 
-### Shell History Files
+## Shell History Files
 
 
 The following shell `history` files are used for different shells depending on if `tudo shell` or `tudo post shell` home is different from termux home or shared. The `history` files are usually unique for different shells.
@@ -1047,7 +1001,7 @@ The following shell `history` files are used for different shells depending on i
 
 - If the homes are shared, then the `tudo` shells and `termux` shells and will share the `history` files by default, stored in termux home.
 
-- If the homes are shared, you can set the environment variables `$tudo_shell_share_rcfiles_and_histfiles` and `$tudo_post_shell_share_rcfiles_and_histfiles` to `0` so that if the shell supports it, then different `history` files will be used, stored in termux home. This will only work if the shell has an environment variable for `history` files, otherwise `tudo` shells and `termux` shells will have to share the same `HISTFILE`, implied by `(shared)` and `(hard-coded)` (by the shell) columns.
+- If the homes are shared, you can set the environment variables `$TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES` and `$TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES` to `0` so that if the shell supports it, then different `history` files will be used, stored in termux home. This will only work if the shell has an environment variable for `history` files, otherwise `tudo` shells and `termux` shells will have to share the same `HISTFILE`, implied by `(shared)` and `(hard-coded)` (by the shell) columns.
 
 For shells that do not have `history` files have their columns set to `-`. For shells whose history cannot be disabled have their `Disable Method` column set to `(not possible)`.
 
@@ -1074,13 +1028,13 @@ For `pry` shell, the existing history will still be loaded, but new history will
 | ksh     | .ksh_history                  | .tudo_ksh_history                  | $HISTFILE                   | HISTFILE="/dev/null"                |
 
 
-The `history` file parent directory is automatically created when `tudo` command is run if it does not exist. The `termux` user ownership and `700` permission is also set to it.
+The `history` file parent directory is automatically created when `tudo` command is run if it does not exist. The `Termux app` user ownership and `700` permission is also set to it.
 
-The `history` file is automatically created when `tudo` command is run if it does not exist. The `termux` user ownership and `600` permission is also set to it.
+The `history` file is automatically created when `tudo` command is run if it does not exist. The `Termux app` user ownership and `600` permission is also set to it.
 
 The `history` file parent directory and `history` file will not be created automatically if [`-no-create-hist`](#-no-create-hist) or [`--no-hist`](#--no-hist) is passed.
 
-Check the [Modifying Default Values](#modifying-default-values) section for more info on how do modify the `$tudo_shell_share_rcfiles_and_histfiles` and `$tudo_post_shell_share_rcfiles_and_histfiles` default values.
+Check the [Modifying Default Values](#modifying-default-values) section for more info on how do modify the `$TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES` and `$TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES` default values.
 
 ---
 
@@ -1090,9 +1044,9 @@ Check the [Modifying Default Values](#modifying-default-values) section for more
 
 
 
-### Modifying Default Values
+## Modifying Default Values
 
-Check the [tudo.config](tudo.config) file to see the environment variables that can be used to change the default values. If the `tudo.config` file exits at `~/.config/tudo/tudo.config`, then `tudo` will automatically source it whenever it is run. It must have `termux` user ownership or be readable by it.
+Check the [tudo.config](https://github.com/agnostic-apollo/tudo/blob/master/tudo.config) file to see the environment variables that can be used to change the default values. If the `tudo.config` file exits at `~/.config/tudo/tudo.config`, then `tudo` will automatically source it whenever it is run. It must have `Termux app` user ownership or be readable by it.
 
 You can download it from the `master` branch and set it up by running the following commands. If you are on an older version, you may want to extract it from its [release](https://github.com/agnostic-apollo/tudo/releases) instead.
 
@@ -1144,7 +1098,7 @@ The following variables will be available when the `tudo-config` file is sourced
 
 
 
-### Examples
+## Examples
 
 If you are using a foreground terminal session, then you must disable the `bash` command completion and history expansion for the current terminal session before running `tudo` commands to pass multi-line arguments by running `bind 'set disable-completion on'; set +H`. Otherwise `bash` will try to auto complete commands and search the history, and you will get prompts like `Display all x possibilities? (y or n)`.
 
@@ -1154,27 +1108,27 @@ If you are using a foreground terminal session, then you must disable the `bash`
 
 ### `su`
 
-- Drop to an interactive `bash` shell in `termux` user context with priority set to termux bin and library paths with the default configuration.  
+- Drop to an interactive `bash` shell as the `Termux app` user with priority set to termux bin and library paths with the default configuration.  
 
 `tudo su`  
 
 
-- Drop to an interactive `python` shell in `termux` user context with priority set to termux bin and library paths.  
+- Drop to an interactive `python` shell as the `Termux app` user with priority set to termux bin and library paths.  
 
 `tudo --shell=python --work-dir="~/" su`  
 
 
-- Drop to an interactive `bash` shell in `termux` user context with priority set to termux bin and library paths with `/.tudo` directory as `tudo shell` home.
+- Drop to an interactive `bash` shell as the `Termux app` user with priority set to termux bin and library paths with `/.tudo` directory as `tudo shell` home.
 
 `tudo --shell-home="/.tudo" su`  
 
 
-- Drop to an interactive `bash` shell in `termux` user context with priority set to termux bin and library paths with `/.tudo` as the shell home and termux home as the working directory. All paths currently in `$PATH` and `$LD_LIBRARY_PATH` are also exported.  
+- Drop to an interactive `bash` shell as the `Termux app` user with priority set to termux bin and library paths with `/.tudo` as the shell home and termux home as the working directory. All paths currently in `$PATH` and `$LD_LIBRARY_PATH` are also exported.  
 
 `tudo -LP --shell-home="/.tudo" --work-dir='~/' su`  
 
 
-- Drop to an interactive `bash` shell in `termux` user context with priority set to termux bin and library paths, do not store history, export some additional paths in `$PATH` variable, pass additional options to the bash interactive shell starting including a different rc/init file and run some commands before running the bash shell like exporting some variables and running a script. The value of the [`--shell-options`](#--shell-options) option is surrounded with double quotes and the [`--init-file`](#--init-file) option value passed in it has double quotes escaped to prevent whitespace splitting when its passed to `bash`. The [`--shell-pre-commands`](#--shell-pre-commands) option is instead surrounded with single quotes as an example and so doesn't need double quotes escaped but will require single quotes in commands to be escaped.
+- Drop to an interactive `bash` shell as the `Termux app` user with priority set to termux bin and library paths, do not store history, export some additional paths in `$PATH` variable, pass additional options to the bash interactive shell starting including a different rc/init file and run some commands before running the bash shell like exporting some variables and running a script. The value of the [`--shell-options`](#--shell-options) option is surrounded with double quotes and the [`--init-file`](#--init-file) option value passed in it has double quotes escaped to prevent whitespace splitting when its passed to `bash`. The [`--shell-pre-commands`](#--shell-pre-commands) option is instead surrounded with single quotes as an example and so doesn't need double quotes escaped but will require single quotes in commands to be escaped.
 
 `tudo --no-hist --export-paths="/path/to/dir1:/path/to/dir2" --shell-options="--noprofile --init-file \"path/to/file\"" --shell-pre-commands='export VARIABLE_1="VARIABLE_VALUE_1"; export VARIABLE_2="VARIABLE_VALUE_2"; /path/to/script;' su`  
 
@@ -1186,7 +1140,7 @@ If you are using a foreground terminal session, then you must disable the `bash`
 
 ### `asu`
 
-- Drop to an interactive `bash` shell in `termux` user context with priority set to android bin and library paths with the default configuration.  
+- Drop to an interactive `bash` shell as the `Termux app` user with priority set to android bin and library paths with the default configuration.  
 
 `tudo asu`  
 
@@ -1336,7 +1290,7 @@ TUDO_EOF
 
 
 
-- Pass a `bash` script text surrounded with single quotes that redirects `stderr` of the `core_script` to `stdout` so that both `stdout` and `stderr` can be received in a synchronized way as `stdout`, like in `%stdout` variable for `Termux:Tasker` plugin for easier processing of result of commands.  
+- Pass a `bash` script text surrounded with single quotes that redirects `stderr` of the `core_script` to `stdout` so that both `stdout` and `stderr` can be received in a synchronized way as `stdout`, like in `%stdout` variable for `Termux:Tasker` plugin app for easier processing of result of commands.  
 
 ```
 tudo -so 'echo stdout; echo stderr 1>&2'
@@ -1344,7 +1298,7 @@ tudo -so 'echo stdout; echo stderr 1>&2'
 
 
 
-- Pass a `bash` script to start the `sshd` server and automatically go to launcher activity. The script will also automatically start an interactive `bash` shell after starting the `sshd` server so that `termux` service and `sshd` service keep running in the background because of the permanent `termux` notification, You can run the script from `Termux:Tasker` plugin on device boot, make sure `Execute in a terminal session` toggle is enabled. It can also be run with the `RUN_COMMAND` intent. *(This is how this whole tudo and sudo shit started)*  
+- Pass a `bash` script to start the `sshd` server and automatically go to launcher activity. The script will also automatically start an interactive `bash` shell after starting the `sshd` server so that `termux` service and `sshd` service keep running in the background because of the permanent `termux` notification, You can run the script from `Termux:Tasker` plugin app on device boot, make sure `Execute in a terminal session` toggle is enabled. It can also be run with the `RUN_COMMAND` intent. *(This is how this whole tudo and sudo shit started)*  
 
 ```
 tudo -seli -v --hold --hold-if-fail --title='sshd' '
@@ -1711,13 +1665,13 @@ TUDO_EOF
 
 
 
-### Templates
+## Templates
 
-#### Tasker
+### Tasker
 
 - `Tasks`  
     - `XML`  
-        Download the [Termux Tasker Plugin Tudo Templates Task XML](templates/plugin_hosts/tasker/Termux_Tasker_Plugin_Tudo_Templates.tsk.xml) and [Termux RUN_COMMAND Intent Tudo Templates Task XML](templates/plugin_hosts/tasker/Termux_RUN_COMMAND_Intent_Tudo_Templates.tsk.xml) files to the android download directory. To download, right-click or hold the `Raw` button at the top after opening a file link and select `Download/Save link` or use `curl` from a termux shell. Then import the downloaded task files into Tasker by long pressing the `Task` tab button in Tasker home and selecting `Import Task`.  
+        Download the [Termux Tasker Plugin Tudo Templates Task XML](https://github.com/agnostic-apollo/tudo/tree/master/templates/plugin_hosts/tasker/Termux_Tasker_Plugin_Tudo_Templates.tsk.xml) and [Termux RUN_COMMAND Intent Tudo Templates Task XML](templates/plugin_hosts/tasker/Termux_RUN_COMMAND_Intent_Tudo_Templates.tsk.xml) files to the android download directory. To download, right-click or hold the `Raw` button at the top after opening a file link and select `Download/Save link` or use `curl` from a termux shell. Then import the downloaded task files into Tasker by long pressing the `Task` tab button in Tasker home and selecting `Import Task`.  
 
         `curl -L 'https://github.com/agnostic-apollo/tudo/raw/master/templates/plugin_hosts/tasker/Termux_Tasker_Plugin_Tudo_Templates.tsk.xml' -o "/sdcard/Download/Termux_Tasker_Plugin_Tudo_Templates.tsk.xml"`  
 
@@ -1727,7 +1681,7 @@ TUDO_EOF
         Import `Termux Tasker Plugin Tudo Templates Task` from `Taskernet` from [here](https://taskernet.com/shares/?user=AS35m8mXdvaT1Vj8TwkSaCaoMUv220IIGtHe3pG4MymrCUhpgzrat6njEOnDVVulhAIHLi6BPUt1&id=Task%3ATermux+Tasker+Plugin+Tudo+Templates).  
         Import `Termux RUN_COMMAND Intent Tudo Templates Task` from `Taskernet` from [here](https://taskernet.com/shares/?user=AS35m8mXdvaT1Vj8TwkSaCaoMUv220IIGtHe3pG4MymrCUhpgzrat6njEOnDVVulhAIHLi6BPUt1&id=Task%3ATermux+RUN_COMMAND+Intent+Tudo+Templates).  
 
-    Check [Termux Tasker Plugin Tudo Templates Task Info](templates/plugin_hosts/tasker/Termux_Tasker_Plugin_Tudo_Templates.tsk.md) and [Termux RUN_COMMAND Intent Tudo Templates Task Info](templates/plugin_hosts/tasker/Termux_RUN_COMMAND_Intent_Tudo_Templates.tsk.md) files for more info on the tasks.  
+    Check [Termux Tasker Plugin Tudo Templates Task Info](https://github.com/agnostic-apollo/tudo/tree/master/templates/plugin_hosts/tasker/Termux_Tasker_Plugin_Tudo_Templates.tsk.md) and [Termux RUN_COMMAND Intent Tudo Templates Task Info](https://github.com/agnostic-apollo/tudo/tree/master/templates/plugin_hosts/tasker/Termux_RUN_COMMAND_Intent_Tudo_Templates.tsk.md) files for more info on the tasks.  
 
 
 Termux needs to be granted `Storage` permission to allow it to access `/sdcard/Download` directory, otherwise you will get permission denied errors while running commands.
@@ -1740,7 +1694,7 @@ Termux needs to be granted `Storage` permission to allow it to access `/sdcard/D
 
 
 
-### Passing Arguments
+## Passing Arguments
 
 The `core_script` or any other arguments passed for all the command types must be preserved in their original form and must be passed as is to `tudo` without any variable expansion or history expansion, etc.
 
@@ -1764,13 +1718,13 @@ If you are using [RUN_COMMAND Intent] to run `tudo` commands with Tasker or othe
 
 &nbsp;
 
-Note that for [RUN_COMMAND Intent], any arguments passed to any command options or the main arguments to `tudo` should also **not** be surrounded with single or double quotes to prevent whitespace splitting in the intent action, like done for usage with `Termux:Tasker` plugin since splitting will occur on simple comma characters instead. Check the `Template 4` of the [Termux RUN_COMMAND Intent Tudo Templates Task](#templates) task for a template for this.
+Note that for [RUN_COMMAND Intent], any arguments passed to any command options or the main arguments to `tudo` should also **not** be surrounded with single or double quotes to prevent whitespace splitting in the intent action, like done for usage with `Termux:Tasker` plugin app since splitting will occur on simple comma characters instead. Check the `Template 4` of the [Termux RUN_COMMAND Intent Tudo Templates Task](#templates) task for a template for this.
 
 &nbsp;
 
 
 
-#### Passing Arguments Surrounded With Single Quotes
+### Passing Arguments Surrounded With Single Quotes
 
 Any argument surrounded with single quotes is considered a literal string and variable expansion is not done. However, if an argument itself contains single quotes, then they will need to be escaped properly. You can escape them by replacing all single quotes `'` in an argument value with `'\''` **before** passing the argument surrounded with single quotes. So an argument surrounded with single quotes that would have been passed like `'some arg with single quote ' in it'` will be passed as `'some arg with single quote '\'' in it'`. This is basically 3 parts `'some arg with single quote '`, `\'` and `' in it'` but when processed, it will be considered as one single argument with the value `some arg with single quote ' in it` that is passed to `tudo`.
 
@@ -1792,7 +1746,7 @@ tudo -s '
 
 
 
-#### Passing Arguments Using Process Substitution
+### Passing Arguments Using Process Substitution
 
 [Process Substitution] can be used to pass the `core_script` and `core_script_args` for the `script` command type and to pass the `command_args` for the `path` command type when running `tudo` from a foreground terminal session or from a script.
 
@@ -1835,7 +1789,7 @@ tudo -s <(cat "~/some-script")
 
 
 
-#### Passing Arguments Using RUN_COMMAND Intent
+### Passing Arguments Using RUN_COMMAND Intent
 
 To use [RUN_COMMAND Intent] that has arguments working properly, you need to install Termux version `>= 0.100` and Tasker version `>= 5.9.4.beta`. However, leading and trailing whitespaces from arguments will be removed for Tasker version `< 5.11.1.beta` if you are using `TermuxCommand()` function, so its advisable to use a higher version or use `am` command instead.
 
@@ -1887,7 +1841,7 @@ For `Tasker` use the `Variable Search Replace` action on an `%argument` variable
 
 ## Worthy Of Note
 
-- [RC File Variables](#r-c-file-variables)
+- [RC File Variables](#rc-file-variables)
 - [Arguments and Result Data Limits](#arguments-and-result-data-limits)
 - [`$PATH` and `$LD_LIBRARY_PATH` Priorities](#path-and-ld_library_path-priorities)
 - [`tpath` and `apath` functions](#tpath-and-apath-functions)
@@ -1957,7 +1911,7 @@ There are limits on the arguments size you can pass to commands or the full comm
 
 Moreover, exchanging data between `Tasker` and `Termux:Tasker` is done using [Intents](https://developer.android.com/guide/components/activities/parcelables-and-bundles), like sending the command and receiving result of commands in `%stdout` and `%stderr`. However, android has limits on the size of *actual* data that can be sent through intents, it is roughly `500KB` on android `7` but may be different for different android versions.
 
-Basically, make sure any data/arguments you pass to `tudo` script directly on the shell or through scripts or using the `Termux:Tasker` plugin or [RUN_COMMAND Intent] intent is less than `120KB` (or whatever you found) and any expected result sent back if using the `Termux:Tasker` plugin is less than `500KB`, but best keep it as low as possible for greater portability. If you want to exchange an even larger data between tasker and termux, use physical files instead.
+Basically, make sure any data/arguments you pass to `tudo` script directly on the shell or through scripts or using the `Termux:Tasker` plugin app or [RUN_COMMAND Intent] intent is less than `120KB` (or whatever you found) and any expected result sent back if using the `Termux:Tasker` plugin app is less than `500KB`, but best keep it as low as possible for greater portability. If you want to exchange an even larger data between tasker and termux, use physical files instead.
 
 The argument data limits also apply for the [RUN_COMMAND Intent] intent.
 
@@ -2030,7 +1984,7 @@ The same priority rules would apply for `$LD_LIBRARY_PATH`. If a library exists 
 - To ensure only binaries under any `termux` directory (`$TERMUX__PREFIX/bin` or `$TERMUX__PREFIX/bin/applets`) are executed, pass the [`-TT`](#-tt) flag.  
 - To ensure only binaries under `/system/bin` directory are executed, pass the [`-A`](#-a-1) flag.  
 - To ensure only binaries under any `android` bin directory are executed, pass the [`-AA`](#-aa) flag. **This will have consistent behaviour with shells starts by android [`adb`](https://developer.android.com/tools/adb).**  
-- While running in a shell as the `termux` user, to run a single `android` system command as the `termux` user, use the [`path`](#path) command with the [`-A`](#-a-1) or [`-AA`](#-aa) flag as `tudo -A <command>`, like `tudo -A ls -lhdZ .` to execute `/system/bin/ls`.  
+- While running in a shell as the `Termux app` user, to run a single `android` system command as the `Termux app` user, use the [`path`](#path) command with the [`-A`](#-a-1) or [`-AA`](#-aa) flag as `tudo -A <command>`, like `tudo -A ls -lhdZ .` to execute `/system/bin/ls`.  
 - You can also use the [`tpath` and `apath` functions](#tpath-and-apath-functions) if they are defined in the `rc` file of your interactive shell to shift priorities without starting a new shell.  
 
 &nbsp;
@@ -2132,21 +2086,9 @@ If a `su` binary is not found at any of the paths or if no `su` found contains t
 
 
 
-### Tests
+## Tests
 
-Check the [tudo_tests](tests/tudo_tests) script to run automated tests for the `tudo` script command types, options and shells. Usage instructions are inside the script. There are more examples for running `tudo` inside the `tudo_tests` script that can be used by users, although may not be too user friendly to view or understand.
-
----
-
-&nbsp;
-
-
-
-
-
-### FAQs And FUQs
-
-Check [FAQs_And_FUQs.md](FAQs_And_FUQs.md) file for the **Frequently Asked Questions(FAQs)** and **Frequently Unasked Questions(FUQs)**.
+Check the [tudo_tests](https://github.com/agnostic-apollo/tudo/tree/master/tests/tudo_tests) script to run automated tests for the `tudo` script command types, options and shells. Usage instructions are inside the script. There are more examples for running `tudo` inside the `tudo_tests` script that can be used by users, although may not be too user friendly to view or understand.
 
 ---
 
@@ -2156,56 +2098,8 @@ Check [FAQs_And_FUQs.md](FAQs_And_FUQs.md) file for the **Frequently Asked Quest
 
 
 
-### Changelog
-
-Check [CHANGELOG.md](CHANGELOG.md) file for the **Changelog**.
-
----
-
-&nbsp;
-
-
-
-
-
-### Contributions
-
-`-`
-
----
-
-&nbsp;
-
-
-
-
-
-### Credits
-
-`-`
-
----
-
-&nbsp;
-
-
-
-
-
-### Donations
-
-- To donate money to support me, you can visit [here](https://github.com/agnostic-apollo/agnostic-apollo/blob/main/Donations.md) for more info.
-
----
-
-&nbsp;
-
-
-
-
-
-[Tasker App]: https://play.google.com/store/apps/details?id=net.dinglisch.android.taskerm
-[Termux App]: https://github.com/termux/termux-app
+[Tasker]: https://play.google.com/store/apps/details?id=net.dinglisch.android.taskerm
+[Termux]: https://github.com/termux/termux-app
 [Termux:Tasker]: https://github.com/termux/termux-tasker
 [QuickEdit]: https://play.google.com/store/apps/details?id=com.rhmsoft.edit
 [QuickEdit Pro]: https://play.google.com/store/apps/details?id=com.rhmsoft.edit.pro

@@ -1,9 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 # Title:         tudo
-# Description:   A wrapper script to drop to the supported shells or
-#                execute shell script files or their text passed as
-#                an argument with termux user context in termux.
+# Description:   A wrapper script to execute commands as the
+#                'Termux app (u<userid>_a<appid>)' user in the Termux
+#                app, like to drop to an interactive shell for any of
+#                the supported shells, or to execute shell script
+#                files or their text passed as an argument.
 # Usage:         Run "tudo --help" for detailed list of usages.
 # Bash version:  4.1 or higher
 TUDO__VERSION="@TUDO_PKG__VERSION@"
@@ -3521,7 +3523,7 @@ tudo_setup_tudo_temp_directory() {
     # TMPDIR is used since obv thats what its for, duh!
     # Moreover termux will automatically remove the temp directory when its sessions are closed if it was not
     # automatically removed at the end of tudo execution and left there
-    # The temp directory must be under TERMUX_ROOTFS so that it can be created by the termux user
+    # The temp directory must be under TERMUX_ROOTFS so that it can be created by the 'Termux app' user
     # The temp directory must not be under TERMUX_HOME since other apps with SAF access can access it
     # A directory is created to store script files since if '--script-name' is passed, then there may
     # be conflicts between executions since temp files will share the same parent directory and have the same name
@@ -5383,9 +5385,10 @@ tudo_process_arguments() {
 tudo_show_help() {
 
     cat <<'TUDO_HELP_EOF'
-tudo is a wrapper script to drop to the supported shells or execute
-shell script files or their text passed as an argument with termux
-user context in termux.
+tudo is a wrapper script to execute commands as the 'termux' user in
+the Termux App, like to drop to an interactive shell for any of the
+supported shells, or to execute shell script files or their text
+passed as an argument.
 
 
 Usage:
@@ -5563,8 +5566,8 @@ tudo_show_help_extra() {
     cat <<'TUDO_HELP_EOF'
 
 
-The 'su' command type drops to a termux user interactive
-shell for any of the supported interactive shells. To drop to a
+The 'su' command type drops to an interactive shell as the 'termux'
+user for any of the supported interactive shells. To drop to a
 'bash' shell, just run 'tudo su'. The priority will be set to termux
 bin and library paths in '$PATH' and '$LD_LIBRARY_PATH' variables.
 Use the '--shell' option to set the interactive shell to use.
@@ -5576,8 +5579,8 @@ instead the priority will be set to android bin and library paths in
 Use the '--shell' option to set the interactive shell to use.
 
 
-The 'path' command type runs a single command in termux user
-context. You can use it just by running 'tudo <command> [command_args]'
+The 'path' command type runs a single command as the 'termux' user.
+You can use it just by running 'tudo <command> [command_args]'
 where 'command' is the executable you want to run and 'command_args'
 are any optional arguments to it. The 'command' will be run within a
 'bash' shell.
