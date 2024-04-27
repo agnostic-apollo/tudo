@@ -83,65 +83,65 @@ tudo_set_tudo_default_variables() {
 ### It is highly advisable to use the tudo.config file instead to modify the default values
 
 # Set TUDO_SHELL_HOME which will be used as tudo shell home directory
-[ -n "$TUDO_SHELL_HOME" ] && custom_tudo_shell_home_set=1
-TUDO_SHELL_HOME="${TUDO_SHELL_HOME:-$TERMUX_HOME}" # Default: `$TERMUX_HOME`
+[ -n "$TUDO__SHELL_HOME" ] && CUSTOM_TUDO_SHELL_HOME_SET=1
+TUDO_SHELL_HOME="${TUDO__SHELL_HOME:-$TERMUX_HOME}" # Default: `$TERMUX_HOME`
 
 # Set TUDO_POST_SHELL_HOME which will be used as tudo post shell home directory
-[ -n "$TUDO_POST_SHELL_HOME" ] && custom_tudo_post_shell_home_set=1
-TUDO_POST_SHELL_HOME="${TUDO_POST_SHELL_HOME:-$TERMUX_HOME}" # Default: `$TERMUX_HOME`
+[ -n "$TUDO__POST_SHELL_HOME" ] && CUSTOM_TUDO_POST_SHELL_HOME_SET=1
+TUDO_POST_SHELL_HOME="${TUDO__POST_SHELL_HOME:-$TERMUX_HOME}" # Default: `$TERMUX_HOME`
 
 # Set the prompt string 1 for the tudo shell
-TUDO_SHELL_PS1="${TUDO_SHELL_PS1:-Ⲧ }" # Default: `Ⲧ ` (U+2CA6, &#x2CA6;, coptic capital letter tau)
+TUDO_SHELL_PS1="${TUDO__SHELL_PS1:-Ⲧ }" # Default: `Ⲧ ` (U+2CA6, &#x2CA6;, coptic capital letter tau)
 
 # Set the prompt string 1 for the tudo post shell
-TUDO_POST_SHELL_PS1="${TUDO_POST_SHELL_PS1:-Ⲧ }" # Default: `Ⲧ ` (U+2CA6, &#x2CA6;, coptic capital letter tau)
+TUDO_POST_SHELL_PS1="${TUDO__POST_SHELL_PS1:-Ⲧ }" # Default: `Ⲧ ` (U+2CA6, &#x2CA6;, coptic capital letter tau)
 
 # Set any additional paths you want to export other than termux bin, android bin and su bin paths,
 # separated with colons `:`
 # The string must not start or end with or contain two consecutive colons ':'
 # The `--export-paths` option will override this value
-TUDO_ADDITIONAL_PATHS_TO_EXPORT="${TUDO_ADDITIONAL_PATHS_TO_EXPORT:-}" # Default: ``
+TUDO_ADDITIONAL_PATHS_TO_EXPORT="${TUDO__ADDITIONAL_PATHS_TO_EXPORT:-}" # Default: ``
 
 # Set to "1" or pass "-L" as argument if you want to automatically export all the paths that already exist
 # in the PATH variable at the moment the tudo command is run
 # The default paths mentioned above and any path in TUDO_ADDITIONAL_PATHS_TO_EXPORT are always exported
-TUDO_EXPORT_ALL_EXISTING_PATHS_IN_PATH_VARIABLE="${TUDO_EXPORT_ALL_EXISTING_PATHS_IN_PATH_VARIABLE:-0}" # Default: `0`
+TUDO_EXPORT_ALL_EXISTING_PATHS_IN_PATH_VARIABLE="${TUDO__EXPORT_ALL_EXISTING_PATHS_IN_PATH_VARIABLE:-0}" # Default: `0`
 
 # Set any additional ld library paths you want to export other than termux lib and android lib paths,
 # separated with colons `:`
 # The string must not start or end with or contain two consecutive colons ':'
 # The `--export-ld-lib-paths` option will override this value
-TUDO_ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT="${TUDO_ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT:-}" # Default: ``
+TUDO_ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT="${TUDO__ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT:-}" # Default: ``
 
 # Set to "1" or pass "-P" as argument if you want to automatically export all the paths that already exist
 # in the LD_LIBRARY_PATH variable at the moment the tudo command is run
 # The default paths mentioned above and any path in TUDO_ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT are always exported
-TUDO_EXPORT_ALL_EXISTING_PATHS_IN_LD_LIBRARY_PATH_VARIABLE="${TUDO_EXPORT_ALL_EXISTING_PATHS_IN_LD_LIBRARY_PATH_VARIABLE:-0}" # Default: `0`
+TUDO_EXPORT_ALL_EXISTING_PATHS_IN_LD_LIBRARY_PATH_VARIABLE="${TUDO__EXPORT_ALL_EXISTING_PATHS_IN_LD_LIBRARY_PATH_VARIABLE:-0}" # Default: `0`
 
 # Set to 1 if you want to automatically create rc files for interactive shells, otherwise 0
-TUDO_SHELLS_AUTOMATICALLY_CREATE_RC_FILES="${TUDO_SHELLS_AUTOMATICALLY_CREATE_RC_FILES:-1}" # Default: `1`
+TUDO_SHELLS_AUTOMATICALLY_CREATE_RC_FILES="${TUDO__SHELLS_AUTOMATICALLY_CREATE_RC_FILES:-1}" # Default: `1`
 
 # Set to 1 if you want to automatically create history files for interactive shells, otherwise 0
-TUDO_SHELLS_AUTOMATICALLY_CREATE_HISTORY_FILES="${TUDO_SHELLS_AUTOMATICALLY_CREATE_HISTORY_FILES:-1}" # Default: `1`
+TUDO_SHELLS_AUTOMATICALLY_CREATE_HISTORY_FILES="${TUDO__SHELLS_AUTOMATICALLY_CREATE_HISTORY_FILES:-1}" # Default: `1`
 
 # Set to 1 if you want to store command history for interactive shells, otherwise 0
-TUDO_SHELLS_HISTORY_ENABLED="${TUDO_SHELLS_HISTORY_ENABLED:-1}" # Default: `1`
+TUDO_SHELLS_HISTORY_ENABLED="${TUDO__SHELLS_HISTORY_ENABLED:-1}" # Default: `1`
 
 # Set to "1" if you want to share rc files and history files between normal termux shell
 # and tudo shell if TUDO_SHELL_HOME is same as TERMUX_HOME
-TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES="${TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES:-1}" # Default: `1`
+TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES="${TUDO__SHELL_SHARE_RCFILES_AND_HISTFILES:-1}" # Default: `1`
 
 # Set to "1" if you want to share rc files and history files between normal termux shell
 # and tudo post shell if TUDO_POST_SHELL_HOME is same as TERMUX_HOME
-TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES="${TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES:-1}" # Default: `1`
+TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES="${TUDO__POST_SHELL_SHARE_RCFILES_AND_HISTFILES:-1}" # Default: `1`
 
 # Set to 1 to add path to su binary directory to end of $PATH exported for android paths, otherwise 0.
 # It is not added for `-A`, `-T` and `-TT` flags.
-TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE="${TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE:-0}" # Default: `0`
+TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE="${TUDO__ADD_SU_BIN_PATH_TO_PATH_VARIABLE:-0}" # Default: `0`
 
 # Set absolute path for su binary to use instead of searching for it in default search paths.
 # This can be used if path is not in search paths or all paths in it should not be checked.
-TUDO_SU_PATH="${TUDO_SU_PATH:-}" # Default: ``
+TUDO_SU_PATH="${TUDO__SU_PATH:-}" # Default: ``
 
 
 # for f in TUDO_SHELL_HOME TUDO_POST_SHELL_HOME TUDO_SHELL_PS1 TUDO_POST_SHELL_PS1 TUDO_ADDITIONAL_PATHS_TO_EXPORT TUDO_EXPORT_ALL_EXISTING_PATHS_IN_PATH_VARIABLE TUDO_ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT TUDO_EXPORT_ALL_EXISTING_PATHS_IN_LD_LIBRARY_PATH_VARIABLE TUDO_SHELLS_AUTOMATICALLY_CREATE_RC_FILES TUDO_SHELLS_AUTOMATICALLY_CREATE_HISTORY_FILES TUDO_SHELLS_HISTORY_ENABLED TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE TUDO_SU_PATH; do echo "$f=\`${!f}\`"; done; echo $'\n'
@@ -153,9 +153,11 @@ TUDO_SU_PATH="${TUDO_SU_PATH:-}" # Default: ``
 # The following variables must not be modified unless you know what you are doing
 
 TUDO_MAX_LOG_LEVEL=3 # Default: `3` (VERBOSE=3)
+# shellcheck disable=SC2153
+TUDO_LOG_LEVEL="$TUDO__LOG_LEVEL"
 { [[ ! "${TUDO_LOG_LEVEL:-}" =~ ^[0-9]+$ ]] || [[ "$TUDO_LOG_LEVEL" -gt "$TUDO_MAX_LOG_LEVEL" ]]; } && \
 TUDO_LOG_LEVEL=1 # Default: `1` (OFF=0, NORMAL=1, DEBUG=2, VERBOSE=3)
-TUDO_LOG_ARGS=${TUDO_LOG_ARGS:-0} # Default: `0` (Export or manually set to `1` if you want to debug arguments received)
+TUDO_LOG_ARGS="${TUDO__LOG_ARGS:-0}" # Default: `0` (Export or manually set to `1` if you want to debug arguments received)
 
 TUDO_NOOP_COMMAND=0 # Default: `0`
 TUDO_DRY_RUN=0 # Default: `0`
@@ -999,7 +1001,7 @@ tudo_set_required_variables() {
     # Replace "$PREFIX/" or "~/" prefix with termux absolute paths in TUDO_SHELL_HOME
     # Canonicalize_path is only enabled if a custom path was passed for TUDO_SHELL_HOME by the user
     # This will reduce execution time since an external call to readlink with a subshell will be made
-    tudo_expand_termux_path "TUDO_SHELL_HOME" "TUDO_SHELL_HOME" "$TUDO_SHELL_HOME" "$TERMUX_PREFIX" "$TERMUX_HOME" "$custom_tudo_shell_home_set"
+    tudo_expand_termux_path "TUDO_SHELL_HOME" "TUDO_SHELL_HOME" "$TUDO_SHELL_HOME" "$TERMUX_PREFIX" "$TERMUX_HOME" "$CUSTOM_TUDO_SHELL_HOME_SET"
     return_value=$?
     if [ $return_value -ne 0 ]; then
         tudo_log_errors "Failed to expand TUDO_SHELL_HOME \"$TUDO_SHELL_HOME\""
@@ -1035,7 +1037,7 @@ tudo_set_required_variables() {
         # Replace "$PREFIX/" or "~/" prefix with termux absolute paths in TUDO_POST_SHELL_HOME
         # Canonicalize_path is only enabled if a custom path was passed for TUDO_POST_SHELL_HOME by the user
         # This will reduce execution time since an external call to readlink with a subshell will be made
-        tudo_expand_termux_path "TUDO_POST_SHELL_HOME" "TUDO_POST_SHELL_HOME" "$TUDO_POST_SHELL_HOME" "$TERMUX_PREFIX" "$TERMUX_HOME" "$custom_tudo_post_shell_home_set"
+        tudo_expand_termux_path "TUDO_POST_SHELL_HOME" "TUDO_POST_SHELL_HOME" "$TUDO_POST_SHELL_HOME" "$TERMUX_PREFIX" "$TERMUX_HOME" "$CUSTOM_TUDO_POST_SHELL_HOME_SET"
         return_value=$?
         if [ $return_value -ne 0 ]; then
             tudo_log_errors "Failed to expand \"TUDO_POST_SHELL_HOME\""
@@ -1635,20 +1637,20 @@ tudo_set_tudo_script_command() {
 
         # If TUDO_CORE_SCRIPT_TEMP_FILENAME is empty, then use default
         if [ -z "$TUDO_CORE_SCRIPT_TEMP_FILENAME" ]; then
-            TUDO_CORE_SCRIPT_TEMP_FILENAME="tudo_core_script"
+            TUDO_CORE_SCRIPT_TEMP_FILENAME="tudo_script__core_script"
         else
             # Else if user passed the filename with --script-name' option, then
             # strip longest match of */ from start, to remove any directory path passed and keep only the basename
             TUDO_CORE_SCRIPT_TEMP_FILENAME="${TUDO_CORE_SCRIPT_TEMP_FILENAME##*/}"
             # If empty, then use default
-            TUDO_CORE_SCRIPT_TEMP_FILENAME="${TUDO_CORE_SCRIPT_TEMP_FILENAME:-tudo_core_script}"
+            TUDO_CORE_SCRIPT_TEMP_FILENAME="${TUDO_CORE_SCRIPT_TEMP_FILENAME:-tudo_script__core_script}"
         fi
 
         # Start a new TUDO_SHELL script shell and pass TUDO_CORE_SCRIPT to it
         # The SCRIPT_ARGUMENT_FOR_SCRIPT_SHELL will contain the TUDO_CORE_SCRIPT argument that will be passed to the TUDO_SHELL
         # The way the TUDO_CORE_SCRIPT argument will be passed will depend on script shell capabilities and the options set
         # tudo_set_script_argument_for_script_shell shell_basename heredoc_word heredoc_word_quote script_is_path_to_script_file force_use_temp_script_file decode_script_content script_file_label script_file_name script_file_path/script_content
-        tudo_set_script_argument_for_script_shell "$TUDO_SHELL_BASENAME" "TUDO_CORE_SCRIPT_EOF" "'" "$CORE_SCRIPT_IS_PATH_TO_SCRIPT_FILE" "$FORCE_USE_TEMP_SCRIPT_FILE_FOR_CORE_SCRIPT" "$DECODE_CORE_SCRIPT_CONTENT" "TUDO_CORE_SCRIPT" "$TUDO_CORE_SCRIPT_TEMP_FILENAME" "$TUDO_CORE_SCRIPT"
+        tudo_set_script_argument_for_script_shell "$TUDO_SHELL_BASENAME" "TUDO_SCRIPT__CORE_SCRIPT_EOF" "'" "$CORE_SCRIPT_IS_PATH_TO_SCRIPT_FILE" "$FORCE_USE_TEMP_SCRIPT_FILE_FOR_CORE_SCRIPT" "$DECODE_CORE_SCRIPT_CONTENT" "TUDO_CORE_SCRIPT" "$TUDO_CORE_SCRIPT_TEMP_FILENAME" "$TUDO_CORE_SCRIPT"
         return_value=$?
         if [ $return_value -ne 0 ]; then
             tudo_log_errors "Failed to create TUDO_CORE_SCRIPT argument commands to pass them to TUDO_SHELL \"$TUDO_SHELL\""
@@ -1749,8 +1751,8 @@ tudo_set_tudo_script_command() {
             # If RUN_CORE_SCRIPT_IN_BACKGROUND is enabled, then start TUDO_CORE_SCRIPT in background
             if [[ "$RUN_CORE_SCRIPT_IN_BACKGROUND" == "1" ]]; then
                 TUDO_CORE_SCRIPT_COMMAND_TO_RUN+=' &'
-                TUDO_CORE_SCRIPT_COMMAND_TO_RUN+=$'\n''export TUDO_SCRIPT_PID=$!;'
-                TUDO_CORE_SCRIPT_COMMAND_TO_RUN+=$'\n''export TUDO_SCRIPT_EXIT_CODE=0;'
+                TUDO_CORE_SCRIPT_COMMAND_TO_RUN+=$'\n''export TUDO_SCRIPT__CORE_SCRIPT_PID=$!;'
+                TUDO_CORE_SCRIPT_COMMAND_TO_RUN+=$'\n''export TUDO_SCRIPT__CORE_SCRIPT_EXIT_CODE=0;'
             fi
 
             TUDO_CORE_SCRIPT_COMMAND_TO_RUN+=$'\n\n'
@@ -1758,11 +1760,11 @@ tudo_set_tudo_script_command() {
 
         # If RUN_CORE_SCRIPT_IN_BACKGROUND is not enabled
         if [[ "$RUN_CORE_SCRIPT_IN_BACKGROUND" != "1" ]]; then
-            TUDO_CORE_SCRIPT_COMMAND_TO_RUN+=$'\n''export TUDO_SCRIPT_EXIT_CODE=$?;'$'\n\n'
+            TUDO_CORE_SCRIPT_COMMAND_TO_RUN+=$'\n''export TUDO_SCRIPT__CORE_SCRIPT_EXIT_CODE=$?;'$'\n\n'
 
-            # If EXIT_EARLY_IF_CORE_SCRIPT_FAILS is enabled, then exit if TUDO_SCRIPT_EXIT_CODE does not equal 0
+            # If EXIT_EARLY_IF_CORE_SCRIPT_FAILS is enabled, then exit if TUDO_SCRIPT__CORE_SCRIPT_EXIT_CODE does not equal 0
             if [[ "$EXIT_EARLY_IF_CORE_SCRIPT_FAILS" == "1" ]]; then
-                TUDO_CORE_SCRIPT_COMMAND_TO_RUN+='[ $TUDO_SCRIPT_EXIT_CODE -ne 0 ] && exit $TUDO_SCRIPT_EXIT_CODE'$'\n\n'
+                TUDO_CORE_SCRIPT_COMMAND_TO_RUN+='[ $TUDO_SCRIPT__CORE_SCRIPT_EXIT_CODE -ne 0 ] && exit $TUDO_SCRIPT__CORE_SCRIPT_EXIT_CODE'$'\n\n'
             fi
         fi
 
@@ -1770,8 +1772,8 @@ tudo_set_tudo_script_command() {
         TUDO_SCRIPT_COMMAND_TO_RUN+="$TUDO_CORE_SCRIPT_COMMAND_TO_RUN"
 
     else
-        # Append dummy TUDO_SCRIPT_EXIT_CODE to TUDO_SCRIPT_COMMAND_TO_RUN
-        TUDO_SCRIPT_COMMAND_TO_RUN+='export TUDO_SCRIPT_EXIT_CODE=0;'$'\n\n'
+        # Append dummy TUDO_SCRIPT__CORE_SCRIPT_EXIT_CODE to TUDO_SCRIPT_COMMAND_TO_RUN
+        TUDO_SCRIPT_COMMAND_TO_RUN+='export TUDO_SCRIPT__CORE_SCRIPT_EXIT_CODE=0;'$'\n\n'
     fi
 
     # If ADDITIONAL_TUDO_SHELL_POST_COMMANDS_TO_RUN is not empty, then append it to TUDO_SCRIPT_COMMAND_TO_RUN
@@ -1830,7 +1832,7 @@ tudo_set_tudo_script_command() {
         fi
     else
         # Exit with exit code of TUDO_CORE_SCRIPT
-        TUDO_SCRIPT_COMMAND_TO_RUN+='exit $TUDO_SCRIPT_EXIT_CODE'$'\n'
+        TUDO_SCRIPT_COMMAND_TO_RUN+='exit $TUDO_SCRIPT__CORE_SCRIPT_EXIT_CODE'$'\n'
     fi
 
 
@@ -3551,9 +3553,9 @@ tudo_create_script_command_traps() {
 
     tudo_log_literal 3 "\nRunning tudo_create_script_command_traps"
 
-    # The tudo_script_trap will do the following:
-    # Store the original trap signal in $tudo_script_exit_code.
-    # Call the tudo_script_custom_trap function.
+    # The tudo_script__trap will do the following:
+    # Store the original trap signal in $tudo_script__exit_code.
+    # Call the tudo_script__custom_trap function.
     # If it exits with 0, then continue normally.
     # If it exits with 125 'ECANCELED', then do not continue and just return.
     # If it exits with any other exit code, store it so that we exit
@@ -3563,7 +3565,7 @@ tudo_create_script_command_traps() {
     # If a signal argument was passed, then remove its trap.
     # Send the original trap signal to all the children of the pid
     # and exit with the original trap signal exit code or that of the
-    # tudo_script_custom_trap function so that parent processes can be
+    # tudo_script__custom_trap function so that parent processes can be
     # notified if necessary.
 
     TUDO_SCRIPT_COMMAND_TRAPS=""
@@ -3572,10 +3574,10 @@ tudo_create_script_command_traps() {
     if [[ "$TUDO_TEMP_DIRECTORY" =~ $VALID_ABSOLUTE_PATH_REGEX ]] && [[ "$DO_NOT_DELETE_TUDO_TEMP_DIRECTORY_ON_EXIT" != "1" ]]; then
         # Append the function to TUDO_SCRIPT_COMMAND_TRAPS to remove TUDO_TEMP_DIRECTORY
         # This may specially be necessary if '-E' is passed
-        TUDO_SCRIPT_COMMAND_TRAPS_REMOVE_TEMP_DIRECTORY_FUNCTION="tudo_remove_temp_directory"
+        TUDO_SCRIPT_COMMAND_TRAPS_REMOVE_TEMP_DIRECTORY_FUNCTION="tudo_script__remove_temp_directory"
 
         TUDO_SCRIPT_COMMAND_TRAPS+='
-export TUDO_SCRIPT_DIR='"'${TUDO_TEMP_DIRECTORY//\'/\'\\\'\'}'"'
+export TUDO_SCRIPT__TEMP_DIR='"'${TUDO_TEMP_DIRECTORY//\'/\'\\\'\'}'"'
 
 '"$TUDO_SCRIPT_COMMAND_TRAPS_REMOVE_TEMP_DIRECTORY_FUNCTION"'() {
     rm -rf '"'${TUDO_TEMP_DIRECTORY//\'/\'\\\'\'}'"'
@@ -3587,29 +3589,29 @@ export TUDO_SCRIPT_DIR='"'${TUDO_TEMP_DIRECTORY//\'/\'\\\'\'}'"'
 
     # shellcheck disable=SC2016
     TUDO_SCRIPT_COMMAND_TRAPS+='
-tudo_script_custom_trap() { :; }
+tudo_script__custom_trap() { :; }
 
-tudo_script_killtree() {
+tudo_script__killtree() {
     local signal="$1"; local pid="$2"; local cpid
-    for cpid in $(pgrep -P "$pid"); do tudo_script_killtree "$signal" "$cpid"; done
+    for cpid in $(pgrep -P "$pid"); do tudo_script__killtree "$signal" "$cpid"; done
     [[ "$pid" != "$$" ]] && kill "-${signal:-15}" "$pid" 2>/dev/null
 }
 
-tudo_script_trap() {
-    local tudo_script_exit_code=$?
-    local return_value; tudo_script_custom_trap "$@"; return_value=$?
+tudo_script__trap() {
+    local tudo_script__exit_code=$?
+    local return_value; tudo_script__custom_trap "$@"; return_value=$?
     [ $return_value -eq 125 ] && return 0
-    [ $return_value -ne 0 ] && tudo_script_exit_code=$return_value
+    [ $return_value -ne 0 ] && tudo_script__exit_code=$return_value
     trap - EXIT '"${TUDO_SCRIPT_COMMAND_TRAPS_REMOVE_TEMP_DIRECTORY_FUNCTION:+$'\n'    $TUDO_SCRIPT_COMMAND_TRAPS_REMOVE_TEMP_DIRECTORY_FUNCTION}"'
     [ -n "$1" ] && trap - $1
-    tudo_script_killtree "$1" $$; exit $tudo_script_exit_code
+    tudo_script__killtree "$1" $$; exit $tudo_script__exit_code
 }
 '"
-trap 'tudo_script_trap' EXIT
-trap 'tudo_script_trap TERM' TERM
-trap 'tudo_script_trap INT' INT
-trap 'tudo_script_trap HUP' HUP
-trap 'tudo_script_trap QUIT' QUIT
+trap 'tudo_script__trap' EXIT
+trap 'tudo_script__trap TERM' TERM
+trap 'tudo_script__trap INT' INT
+trap 'tudo_script__trap HUP' HUP
+trap 'tudo_script__trap QUIT' QUIT
 "
     return 0
 
@@ -4823,7 +4825,7 @@ tudo_process_arguments() {
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
                         fi
                         tudo_trim_trailing_newlines "TUDO_POST_SHELL_HOME" "$val"
-                        custom_tudo_post_shell_home_set=1
+                        CUSTOM_TUDO_POST_SHELL_HOME_SET=1
                         ;;
                     post-shell-home | post-shell-home=)
                         tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
@@ -4943,7 +4945,7 @@ tudo_process_arguments() {
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
                         fi
                         tudo_trim_trailing_newlines "TUDO_SHELL_HOME" "$val"
-                        custom_tudo_shell_home_set=1
+                        CUSTOM_TUDO_SHELL_HOME_SET=1
                         ;;
                     shell-home | shell-home=)
                         tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
@@ -5466,7 +5468,7 @@ Available command_options:
   [ --script-name=<name> ]
                      Filename to use for the core_script temp file
                      created in '.tudo.temp.XXXXXX' directory instead
-                     of 'tudo_core_script'.
+                     of 'tudo_script__core_script'.
   [ --script-redirect=<mode/string> ]
                      Core_script redirect mode for stdout and stderr.
   [ --shell=<shell> ]
@@ -5561,7 +5563,7 @@ The 'core_script' will be considered a 'bash' script by default.
 The 'core_script' will be passed to the desired shell using
 process substitution or after storing the 'core_script' in a temp file
 in a temp directory in 'tudo shell' home
-'$TMPDIR/.tudo.temp.XXXXXX/tudo_core_script' and passing the path to
+'$TMPDIR/.tudo.temp.XXXXXX/tudo_script__core_script' and passing the path to
 the desired shell, where 'XXXXXX' is a randomly generated string.
 The method is automatically chosen based on the script shell
 capabilities. The '-f' option can be used to force the usage of a

@@ -186,7 +186,7 @@ Available command_options:
   [ --script-name=<name> ]
                      Filename to use for the core_script temp file
                      created in '.tudo.temp.XXXXXX' directory instead
-                     of 'tudo_core_script'.
+                     of 'tudo_script__core_script'.
   [ --script-redirect=<mode/string> ]
                      Core_script redirect mode for stdout and stderr.
   [ --shell=<shell> ]
@@ -273,7 +273,7 @@ The 'core_script' will be considered a 'bash' script by default.
 The 'core_script' will be passed to the desired shell using
 process substitution or after storing the 'core_script' in a temp file
 in a temp directory in 'tudo shell' home
-'$TMPDIR/.tudo.temp.XXXXXX/tudo_core_script' and passing the path to
+'$TMPDIR/.tudo.temp.XXXXXX/tudo_script__core_script' and passing the path to
 the desired shell, where 'XXXXXX' is a randomly generated string.
 The method is automatically chosen based on the script shell
 capabilities. The '-f' option can be used to force the usage of a
@@ -381,7 +381,7 @@ The `script` command type is incredibly useful for usage with termux plugins lik
 
 &nbsp;
 
-The `core_script` will be passed to the desired shell using [Process Substitution] or after storing the `core_script` in a temp file in a temp directory in `$TMPDIR/.tudo.temp.XXXXXX/tudo_core_script` and passing the path to the desired shell, where `XXXXXX` is a randomly generated string. The method is automatically chosen based on the script shell capabilities. The [`-f`](#-f) option can be used to force the usage of a script file. If the temp directory is created, it will be empty other than the `tudo_core_script` file and will be unique for each execution of the script, which the script can use for other temporary stuff without having to worry about cleanup since the temp directory will be automatically removed when `tudo` command exits unless [`--keep-temp`](#--keep-temp) is passed. The temp directory path will also be exported in the `$TUDO_SCRIPT_DIR` environment variable which can be used by the `core_script`, `post shell` and `--*shell-*-commands` options, like `--shell-pre-commands='cd "$TUDO_SCRIPT_DIR"'`. The `$TMPDIR` refers to `${TERMUX__PREFIX:-$PREFIX}/tmp` which the `tmp` directory path for the `Termux` app.
+The `core_script` will be passed to the desired shell using [Process Substitution] or after storing the `core_script` in a temp file in a temp directory in `$TMPDIR/.tudo.temp.XXXXXX/tudo_script__core_script` and passing the path to the desired shell, where `XXXXXX` is a randomly generated string. The method is automatically chosen based on the script shell capabilities. The [`-f`](#-f) option can be used to force the usage of a script file. If the temp directory is created, it will be empty other than the `tudo_script__core_script` file and will be unique for each execution of the script, which the script can use for other temporary stuff without having to worry about cleanup since the temp directory will be automatically removed when `tudo` command exits unless [`--keep-temp`](#--keep-temp) is passed. The temp directory path will also be exported in the `$TUDO_SCRIPT__TEMP_DIR` environment variable which can be used by the `core_script`, `post shell` and `--*shell-*-commands` options, like `--shell-pre-commands='cd "$TUDO_SCRIPT__TEMP_DIR"'`. The `$TMPDIR` refers to `${TERMUX__PREFIX:-$PREFIX}/tmp` which the `tmp` directory path for the `Termux` app.
 
 For `bash zsh fish ksh python python2 ruby perl lua5.2 lua5.3 lua5.4`, process substitution is used by default and for `dash sh node php` a file is used. If the usage of process substitution is breaking for some complex scripts of some specific shell, please report the issue.
 
@@ -391,11 +391,11 @@ The `core_script` can optionally not be passed or passed as an empty string so t
 
 &nbsp;
 
-It may also be important to automatically open an interactive shell after the `core_script` completes. This can be done by using the  [`-i`](#-i) option along with [`--post-shell*`](#--post-shell) options. The `tudo post shell` can be any of the supported [Interactive Shells](#interactive-shells) and defaults to `bash`. The same shell as the script `tudo shell` can also be used for `tudo post shell` by passing the [`-S`](#-s-1) option as long as the `tudo shell` exists in the list of supported interactive shells. The environment variable `$TUDO_SCRIPT_EXIT_CODE` will be exported containing the exit code of the `core_script` before the interactive shell is started. Running an interactive shell will also keep the terminal session open after commands complete which is normally closed automatically when commands are run with the plugin or intents, although the [`--hold`](#--hold) option can also be used for this.
+It may also be important to automatically open an interactive shell after the `core_script` completes. This can be done by using the  [`-i`](#-i) option along with [`--post-shell*`](#--post-shell) options. The `tudo post shell` can be any of the supported [Interactive Shells](#interactive-shells) and defaults to `bash`. The same shell as the script `tudo shell` can also be used for `tudo post shell` by passing the [`-S`](#-s-1) option as long as the `tudo shell` exists in the list of supported interactive shells. The environment variable `$TUDO_SCRIPT__CORE_SCRIPT_EXIT_CODE` will be exported containing the exit code of the `core_script` before the interactive shell is started. Running an interactive shell will also keep the terminal session open after commands complete which is normally closed automatically when commands are run with the plugin or intents, although the [`--hold`](#--hold) option can also be used for this.
 
 &nbsp;
 
-You can define your own exit traps inside the `core_script`, but **DO NOT** define them outside it with the `--*shell-*-commands` options since `tudo` defines its own trap function `tudo_script_trap` for cleanup, killing child processes and to exit with the trap signal exit code. If you want to handle traps outside the `core_script`, then define a function named `tudo_script_custom_trap` which will automatically be called by `tudo_script_trap`. The function will be sent `TERM`, `INT`, `HUP`, `QUIT` as `$1` for the respective trap signals. For the `EXIT` signal the `$1` will not be passed. Do not `exit` inside the `tudo_script_custom_trap` function. If the `tudo_script_custom_trap` function exits with exit code `0`, then the `tudo_script_trap` will continue to exit with the original trap signal exit code. If it exits with exit code `125` `ECANCELED`, then `tudo_script_trap` will consider that as a cancellation and will just return without running any other trap commands. If any other exit code is returned, then the `tudo_script_trap` will use that as exit code instead of the original trap signal exit code.
+You can define your own exit traps inside the `core_script`, but **DO NOT** define them outside it with the `--*shell-*-commands` options since `tudo` defines its own trap function `tudo_script__trap` for cleanup, killing child processes and to exit with the trap signal exit code. If you want to handle traps outside the `core_script`, then define a function named `tudo_script__custom_trap` which will automatically be called by `tudo_script__trap`. The function will be sent `TERM`, `INT`, `HUP`, `QUIT` as `$1` for the respective trap signals. For the `EXIT` signal the `$1` will not be passed. Do not `exit` inside the `tudo_script__custom_trap` function. If the `tudo_script__custom_trap` function exits with exit code `0`, then the `tudo_script__trap` will continue to exit with the original trap signal exit code. If it exits with exit code `125` `ECANCELED`, then `tudo_script__trap` will consider that as a cancellation and will just return without running any other trap commands. If any other exit code is returned, then the `tudo_script__trap` will use that as exit code instead of the original trap signal exit code.
 
 &nbsp;
 
@@ -413,7 +413,7 @@ Check the [`-b`](#-b), [`-B`](#-b-1), [`-c`](#-c), [`-d`](#-d), [`-e`](#-e), [`-
 
 The `bash` shell is the default interactive and script shell and must exist at `$PREFIX/bin/bash` with ownership and permissions allowing `Termux app` user to read and execute it. The [`--shell`](#--shell) and [`--post-shell`](#--post-shell) options can be used to change the default shells. The `path` command type always uses the `bash` shell and command options are ignored. The shells must have proper ownership or executable permissions set that allows `Termux app` user to read and execute them.
 
-The exported environment variables `$TUDO_SHELL_PS1` and `$TUDO_POST_SHELL_PS1` can be used to change the default `$PS1` values of the shell, provided that the shell uses it. Check the [Modifying Default Values](#modifying-default-values) section for more info on `tudo` environment variables and modifying default values.
+The exported environment variables `$TUDO__SHELL_PS1` and `$TUDO__POST_SHELL_PS1` can be used to change the default `$PS1` values of the shell, provided that the shell uses it. Check the [Modifying Default Values](#modifying-default-values) section for more info on `tudo` environment variables and modifying default values.
 
 &nbsp;
 
@@ -465,7 +465,7 @@ Check [Arguments and Result Data Limits](#arguments-and-result-data-limits) for 
 #### `-v`
 #### `-vv`
 
-Increase the log level of the `tudo` command. Useful to see script progress and what commands will actually be run. You can also use log level `>= DEBUG` with the [`--dry-run`](#--dry-run) option to see what commands will be run without actually executing them. `tudo` uses log levels (`OFF=0`, `NORMAL=1`, `DEBUG=2`, `VERBOSE=3`) and defaults to `NORMAL=1`, but currently does not log anything at `OFF=0` or `NORMAL=1`. Log level can also be set by exporting an `int` in `$TUDO_LOG_LEVEL` between `0-3`, like `TUDO_LOG_LEVEL=3` to set log level to `VERBOSE=3`.
+Increase the log level of the `tudo` command. Useful to see script progress and what commands will actually be run. You can also use log level `>= DEBUG` with the [`--dry-run`](#--dry-run) option to see what commands will be run without actually executing them. `tudo` uses log levels (`OFF=0`, `NORMAL=1`, `DEBUG=2`, `VERBOSE=3`) and defaults to `NORMAL=1`, but currently does not log anything at `OFF=0` or `NORMAL=1`. Log level can also be set by exporting an `int` in `$TUDO__LOG_LEVEL` between `0-3`, like `TUDO__LOG_LEVEL=3` to set log level to `VERBOSE=3`.
 
 
 
@@ -502,7 +502,7 @@ Can be used with the `script` command type mainly for when commands are to be ru
 
 #### `-B`
 
-Can be used with the `script` command type to run the `core_script` in background with `&` (not the entire `tudo` command). This can be used with the [`-i`](#-i) option or even with the [`--shell-post-commands`](#--shell-post-commands) option. The `pid` of the background process will be available in the `$TUDO_SCRIPT_PID` variable. Note that all child processes are killed when `tudo` exits.
+Can be used with the `script` command type to run the `core_script` in background with `&` (not the entire `tudo` command). This can be used with the [`-i`](#-i) option or even with the [`--shell-post-commands`](#--shell-post-commands) option. The `pid` of the background process will be available in the `$TUDO_SCRIPT__CORE_SCRIPT_PID` variable. Note that all child processes are killed when `tudo` exits.
 
 
 
@@ -532,7 +532,7 @@ Can be used with the `script` command type to exit early if `core_script` fails 
 
 #### `-f`
 
-Can be used with the `script` command to force usage of `$TMPDIR/.tudo.temp.XXXXXX/tudo_core_script` temp file for storing `core_script` for debugging or if for reason the shell variant doesn't support process substitution and the `tudo` command is automatically trying to use it and is failing. It can also be used to provide a unique temp directory that can be used by the `core_script` which will automatically be deleted after execution.
+Can be used with the `script` command to force usage of `$TMPDIR/.tudo.temp.XXXXXX/tudo_script__core_script` temp file for storing `core_script` for debugging or if for reason the shell variant doesn't support process substitution and the `tudo` command is automatically trying to use it and is failing. It can also be used to provide a unique temp directory that can be used by the `core_script` which will automatically be deleted after execution.
 
 
 
@@ -646,19 +646,19 @@ Set the comma alternative character to be used for the [`-r`](#-r) option instea
 
 #### `--dry-run`
 
-Enable dry running of the `tudo` script. This will not execute any commands, nor will `rc` files, `history` files or `working directory` passed be created. However, the `tudo shell` home and `$TMPDIR/.tudo.temp.XXXXXX/tudo_core_script` file will still be created if `tudo_core_script` file needs to be created. It's advisable to also pass the [`-v`](#-v) or [`-vv`](#-vv) options along with this to see script progress and what commands would actually have been run. Passing `--keep-temp` may also be useful.
+Enable dry running of the `tudo` script. This will not execute any commands, nor will `rc` files, `history` files or `working directory` passed be created. However, the `tudo shell` home and `$TMPDIR/.tudo.temp.XXXXXX/tudo_script__core_script` file will still be created if `tudo_script__core_script` file needs to be created. It's advisable to also pass the [`-v`](#-v) or [`-vv`](#-vv) options along with this to see script progress and what commands would actually have been run. Passing `--keep-temp` may also be useful.
 
 
 
 #### `--export-paths`
 
-Set the additional paths to export in `$PATH` variable, separated with colons `:`. The string passed must not start or end with or contain two consecutive colons `:`. This overrides `$TUDO_ADDITIONAL_PATHS_TO_EXPORT`.
+Set the additional paths to export in `$PATH` variable, separated with colons `:`. The string passed must not start or end with or contain two consecutive colons `:`. This overrides `$TUDO__ADDITIONAL_PATHS_TO_EXPORT`.
 
 
 
 #### `--export-ld-lib-paths`
 
-Set the additional paths to export in `$LD_LIBRARY_PATH` variable, separated with colons `:`. The string passed must not start or end with or contain two consecutive colons `:`. This overrides `$TUDO_ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT`.
+Set the additional paths to export in `$LD_LIBRARY_PATH` variable, separated with colons `:`. The string passed must not start or end with or contain two consecutive colons `:`. This overrides `$TUDO__ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT`.
 
 
 
@@ -766,7 +766,7 @@ Can be used with the `script` command type so that the `core_script` passed is c
 
 #### `--script-name`
 
-Can be used with the `script` command type to set the filename to use for the `core_script` temp file created in `$TMPDIR/.tudo.temp.XXXXXX/tudo_core_script` directory instead of `tudo_core_script`. The temp file path is passed to the script shell if [`-f`](#-f) or [`--script-decode`](#--script-decode) is passed or if the script shell doesn't support process substitution or if `core_script` passed contained non `UTF-8` or binary data.
+Can be used with the `script` command type to set the filename to use for the `core_script` temp file created in `$TMPDIR/.tudo.temp.XXXXXX/tudo_script__core_script` directory instead of `tudo_script__core_script`. The temp file path is passed to the script shell if [`-f`](#-f) or [`--script-decode`](#--script-decode) is passed or if the script shell doesn't support process substitution or if `core_script` passed contained non `UTF-8` or binary data.
 
 
 
@@ -844,13 +844,13 @@ Can be used with the [`--sleep`](#--sleep) option to only sleep if exit code of 
 
 #### `--su-bin-path-add`
 
-The `--su-bin-path-add=0|1` option can be used to define whether to add the path to `su` binary directory to end of `$PATH` exported for `android` priority. Defaults to `0`. This overrides `$TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE`. It is not added for `-A` and `-T` flags and also not for `-TT` flags as the termux `bin` directory contains a [wrapper for `su`](https://github.com/termux/termux-tools/blob/v1.40.4/scripts/su.in), which would be chosen first since its will exist first in the `$PATH`. Check [`su` search paths](#su-search-paths) for more info and `su` binary options requirements.
+The `--su-bin-path-add=0|1` option can be used to define whether to add the path to `su` binary directory to end of `$PATH` exported for `android` priority. Defaults to `0`. This overrides `$TUDO__ADD_SU_BIN_PATH_TO_PATH_VARIABLE`. It is not added for `-A` and `-T` flags and also not for `-TT` flags as the termux `bin` directory contains a [wrapper for `su`](https://github.com/termux/termux-tools/blob/v1.40.4/scripts/su.in), which would be chosen first since its will exist first in the `$PATH`. Check [`su` search paths](#su-search-paths) for more info and `su` binary options requirements.
 
 
 
 #### `--su-path`
 
-The `--su-path=<path>` option can be used to set the absolute path for `su` binary to use instead of searching for it in default search paths. This can be used if path is not in search paths or all paths in it should not be checked. This overrides `$TUDO_SU_PATH`. Check [`su` search paths](#su-search-paths) for more info and `su` binary options requirements.
+The `--su-path=<path>` option can be used to set the absolute path for `su` binary to use instead of searching for it in default search paths. This can be used if path is not in search paths or all paths in it should not be checked. This overrides `$TUDO__SU_PATH`. Check [`su` search paths](#su-search-paths) for more info and `su` binary options requirements.
 
 
 
@@ -874,7 +874,7 @@ The `--work-dir=<path>` option can be used to set the absolute path for working 
 
 ## Shell Home
 
-The default `$HOME` directory for `tudo shell` and `tudo post shell` is termux home `/data/data/com.termux/files/home`. The [`--shell-home`](#--shell-home) and [`--post-shell-home`](#--post-shell-home) options or the exported environment variables `$TUDO_SHELL_HOME` and `$TUDO_POST_SHELL_HOME` can be used to change the default directory. The home directory is the same as termux home directory by default to keep `config`, `rc` and `history` files the same for the `termux` user. The home directory should also be owned by the `termux` user and have `0700` permission.
+The default `$HOME` directory for `tudo shell` and `tudo post shell` is termux home `/data/data/com.termux/files/home`. The [`--shell-home`](#--shell-home) and [`--post-shell-home`](#--post-shell-home) options or the exported environment variables `$TUDO__SHELL_HOME` and `$TUDO__POST_SHELL_HOME` can be used to change the default directory. The home directory is the same as termux home directory by default to keep `config`, `rc` and `history` files the same for the `Termux app` user. The home directory should also be owned by the `Termux app` user and have `0700` permission.
 
 Check the [Modifying Default Values](#modifying-default-values) section for more info on `tudo` environment variables and modifying default values.
 
@@ -898,7 +898,7 @@ The following shell `rc` files are used for different shells depending on if `tu
 
 - If the homes are shared, then the `tudo` shells and `termux` shells and will share the `rc` files by default, stored in termux home.
 
-- If the homes are shared, you can set the environment variables `$TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES` and `$TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES` to `0` so that if the shell supports it, then different `rc` files will be used, stored in termux home. This will only work if the shell has a [`--rc`](#--rc) param or environment variable for `rc` files, otherwise `tudo` shells and `termux` shells will have to share the same `RCFILE`, implied by `(shared)` and `(hard-coded)` (by the shell) columns.
+- If the homes are shared, you can set the environment variables `$TUDO__SHELL_SHARE_RCFILES_AND_HISTFILES` and `$TUDO__POST_SHELL_SHARE_RCFILES_AND_HISTFILES` to `0` so that if the shell supports it, then different `rc` files will be used, stored in termux home. This will only work if the shell has a [`--rc`](#--rc) param or environment variable for `rc` files, otherwise `tudo` shells and `termux` shells will have to share the same `RCFILE`, implied by `(shared)` and `(hard-coded)` (by the shell) columns.
 
 For shells that do not have `rc` files have their columns set to `-`.
 
@@ -929,7 +929,7 @@ The `rc` file is automatically created when `tudo` command is run if it does not
 
 The `rc` file parent directory and `rc` file will not be created automatically if [`-no-create-rc`](#-no-create-rc) is passed.
 
-Check the [Modifying Default Values](#modifying-default-values) section for more info on how do modify the `$TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES` and `$TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES` default values.
+Check the [Modifying Default Values](#modifying-default-values) section for more info on how do modify the `$TUDO__SHELL_SHARE_RCFILES_AND_HISTFILES` and `$TUDO__POST_SHELL_SHARE_RCFILES_AND_HISTFILES` default values.
 
 ---
 
@@ -948,7 +948,7 @@ The following shell `history` files are used for different shells depending on i
 
 - If the homes are shared, then the `tudo` shells and `termux` shells and will share the `history` files by default, stored in termux home.
 
-- If the homes are shared, you can set the environment variables `$TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES` and `$TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES` to `0` so that if the shell supports it, then different `history` files will be used, stored in termux home. This will only work if the shell has an environment variable for `history` files, otherwise `tudo` shells and `termux` shells will have to share the same `HISTFILE`, implied by `(shared)` and `(hard-coded)` (by the shell) columns.
+- If the homes are shared, you can set the environment variables `$TUDO__SHELL_SHARE_RCFILES_AND_HISTFILES` and `$TUDO__POST_SHELL_SHARE_RCFILES_AND_HISTFILES` to `0` so that if the shell supports it, then different `history` files will be used, stored in termux home. This will only work if the shell has an environment variable for `history` files, otherwise `tudo` shells and `termux` shells will have to share the same `HISTFILE`, implied by `(shared)` and `(hard-coded)` (by the shell) columns.
 
 For shells that do not have `history` files have their columns set to `-`. For shells whose history cannot be disabled have their `Disable Method` column set to `(not possible)`.
 
@@ -981,7 +981,7 @@ The `history` file is automatically created when `tudo` command is run if it doe
 
 The `history` file parent directory and `history` file will not be created automatically if [`-no-create-hist`](#-no-create-hist) or [`--no-hist`](#--no-hist) is passed.
 
-Check the [Modifying Default Values](#modifying-default-values) section for more info on how do modify the `$TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES` and `$TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES` default values.
+Check the [Modifying Default Values](#modifying-default-values) section for more info on how do modify the `$TUDO__SHELL_SHARE_RCFILES_AND_HISTFILES` and `$TUDO__POST_SHELL_SHARE_RCFILES_AND_HISTFILES` default values.
 
 ---
 
@@ -1025,9 +1025,9 @@ Note that the android default `SAF` `Document` file picker may not support hidde
 
 &nbsp;
 
-If you use the `bash` shell in termux terminal session, you can optionally export the environment variables like `$TUDO_SHELL_HOME` and `$TUDO_POST_SHELL_HOME` in the `~/.bashrc` file by adding `export TUDO_SHELL_HOME="/path/to/home"` and `export TUDO_POST_SHELL_HOME="/path/to/home"` lines to it so that they are automatically set whenever you start a terminal session. However, the `~/.bashrc` and `rc` files of other shells will not be sourced if you are running commands from `Termux:Tasker` or `RUN_COMMAND Intent`, and so it is advisable to use the `tudo.config` file instead, which will be sourced in all cases, regardless of how `tudo` is run.
+If you use the `bash` shell in termux terminal session, you can optionally export the environment variables like `$TUDO__SHELL_HOME` and `$TUDO__POST_SHELL_HOME` in the `~/.bashrc` file by adding `export TUDO__SHELL_HOME="/path/to/home"` and `export TUDO__POST_SHELL_HOME="/path/to/home"` lines to it so that they are automatically set whenever you start a terminal session. However, the `~/.bashrc` and `rc` files of other shells will not be sourced if you are running commands from `Termux:Tasker` or `RUN_COMMAND Intent`, and so it is advisable to use the `tudo.config` file instead, which will be sourced in all cases, regardless of how `tudo` is run.
 
-Note that `$TUDO_SHELL_PS1` and `$TUDO_POST_SHELL_PS1` values will not work if `$PS1` variable is overridden in `rc` files in `$PREFIX/etc/` or in `tudo shell` and `tudo post shell` homes. Check [RC File Variables](#rc-file-variables) section for more details.
+Note that `$TUDO__SHELL_PS1` and `$TUDO__POST_SHELL_PS1` values will not work if `$PS1` variable is overridden in `rc` files in `$PREFIX/etc/` or in `tudo shell` and `tudo post shell` homes. Check [RC File Variables](#rc-file-variables) section for more details.
 
 &nbsp;
 
@@ -1361,7 +1361,7 @@ TUDO_EOF
 
 The `youtube-dl` file is actually not a single python script text file but is a [binary file](https://github.com/ytdl-org/youtube-dl/blob/9fe50837c3e8f6c40b7bed8bf7105a868a7a678f/Makefile#L70) containing multiple python files.
 
-- Read `python` script text from a file using `cat` and pass it with process substitution. Passing the data of the `youtube-dl` file to `tudo` script using process substitution will engage automatic `base64` encoding of the data and creation of temp script file. The `youtube-dl` generates its help output based on the named of the its own file, hence [`--script-name`](#--script-name) is passed, otherwise help with contain `tudo_core_script` entries instead. The current size of the `youtube-dl` binary is over `1MB` and so its data cannot be passed as an argument directly (after `base64` encoding) since [Arguments Data Limits](#arguments-and-result-data-limits) will cross.  
+- Read `python` script text from a file using `cat` and pass it with process substitution. Passing the data of the `youtube-dl` file to `tudo` script using process substitution will engage automatic `base64` encoding of the data and creation of temp script file. The `youtube-dl` generates its help output based on the named of the its own file, hence [`--script-name`](#--script-name) is passed, otherwise help with contain `tudo_script__core_script` entries instead. The current size of the `youtube-dl` binary is over `1MB` and so its data cannot be passed as an argument directly (after `base64` encoding) since [Arguments Data Limits](#arguments-and-result-data-limits) will cross.  
 
 ```
 tudo -s --shell=python --script-name="youtube-dl" <(cat "$PREFIX/bin/youtube-dl") --help
@@ -1830,7 +1830,7 @@ For the `$PATH` and `$LD_LIBRARY_PATH` variables, either remove their variable s
 
 The `$PS1` variable, short for [Prompt String 1], defines the characters you see at the start of the "line" when typing commands in shells running interactively like `bash` or `zsh`. For `termux` `bash` shell, this defaults to `$ `. For `termux` `zsh` shell, this defaults to `% `.
 
-If you want to allow `tudo` to set its own default `$PS1` value `Ⲧ ` or the one set with the `$TUDO_SHELL_PS1` or `$TUDO_POST_SHELL_PS1` variables in the `tudo.config` file, then **make sure the `$PS1` value is not overridden by the shell `rc` files, otherwise you will not be able to easily tell the difference between whether you are running a shell via `tudo` or normally as the `termux` user when you run commands like `tudo su`.** You can however check the value of `$SHLVL` to see the nested shell level, run `printenv | grep SHLVL`.
+If you want to allow `tudo` to set its own default `$PS1` value `Ⲧ ` or the one set with the `$TUDO__SHELL_PS1` or `$TUDO__POST_SHELL_PS1` variables in the `tudo.config` file, then **make sure the `$PS1` value is not overridden by the shell `rc` files, otherwise you will not be able to easily tell the difference between whether you are running a shell via `tudo` or normally as the `Termux app` user when you run commands like `tudo su`.** You can however check the value of `$SHLVL` to see the nested shell level, run `printenv | grep SHLVL`.
 
 1. The `rc` files in `$PREFIX/etc/` are sourced first whenever shells are started by `tudo`. The `$PS1` value is set and exported by `tudo` before new shells are started, however, the value will get replaced if its overridden by the `rc` files when they are sourced during startup of the new shell.  
 
@@ -1876,9 +1876,9 @@ The argument data limits also apply for the [RUN_COMMAND Intent] intent.
 
 The `tudo` script exports variables depending on the flags passed. If flags are not passed, then the [`su`](#su) and [`script`](#script) command types export variables as per [`-t`](#-t) flag, the [`asu`](#asu) command type export variables as per [`-a`](#-a) flag and the [`path`](#path) command types export variables as per [`-t`](#-t) flag if executable `canonical` path is under `$TERMUX__ROOTFS` directory, otherwise as per [`-a`](#-a) flag.
 
-The `$PATH` variable value will depend on the flag passed and will vary depending on Android version. If custom paths are passed with [`--export-paths`](#--export-paths) or `$TUDO_ADDITIONAL_PATHS_TO_EXPORT`, they will be still set or appended to `$PATH`.
+The `$PATH` variable value will depend on the flag passed and will vary depending on Android version. If custom paths are passed with [`--export-paths`](#--export-paths) or `$TUDO__ADDITIONAL_PATHS_TO_EXPORT`, they will be still set or appended to `$PATH`.
 
-The `$LD_LIBRARY_PATH` variable will not be set for Android `>= 7` for any flags, since `DT_RUNPATH` is used by termux. It will contain `$TERMUX__PREFIX/lib` for Android `< 7`, but only for [`-a`](#-a), [`-t`](#-t), [`-T`](#-t-1) and [`-TT`](#-tt) flags, i.e for priority flags for which termux `bin` paths exist in `$PATH` as `DT_RUNPATH` is not used by termux for Android `< 7` packages. However, if custom paths are passed with [`--export-ld-lib-paths`](#--export-ld-lib-paths) or `$TUDO_ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT`, they will still be set or appended to `$LD_LIBRARY_PATH`.
+The `$LD_LIBRARY_PATH` variable will not be set for Android `>= 7` for any flags, since `DT_RUNPATH` is used by termux. It will contain `$TERMUX__PREFIX/lib` for Android `< 7`, but only for [`-a`](#-a), [`-t`](#-t), [`-T`](#-t-1) and [`-TT`](#-tt) flags, i.e for priority flags for which termux `bin` paths exist in `$PATH` as `DT_RUNPATH` is not used by termux for Android `< 7` packages. However, if custom paths are passed with [`--export-ld-lib-paths`](#--export-ld-lib-paths) or `$TUDO__ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT`, they will still be set or appended to `$LD_LIBRARY_PATH`.
 
 The `$LD_PRELOAD` variable will contain `$TERMUX__PREFIX/lib/libtermux-exec.so` only for [`-t`](#-t), [`-T`](#-t-1), [`-TT`](#-tt) flags.
 
@@ -1994,11 +1994,11 @@ For the `fish` shell, additional functions named `export` and `unset` are also a
 
 ### `su` search paths
 
-If [`-A`](#-a-1), [`-T`](#-t-1) or [`-TT`](#-tt) flags are not passed, and [`--su-bin-path-add=1`](#--su-bin-path-add) is passed to `tudo` or `TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABL=1` is exported, or is set in the `tudo.config` file, then `tudo` will search and add the `su` binary directory path to `$PATH`.
+If [`-A`](#-a-1), [`-T`](#-t-1) or [`-TT`](#-tt) flags are not passed, and [`--su-bin-path-add=1`](#--su-bin-path-add) is passed to `tudo` or `TUDO__ADD_SU_BIN_PATH_TO_PATH_VARIABL=1` is exported, or is set in the `tudo.config` file, then `tudo` will search and add the `su` binary directory path to `$PATH`.
 
 The `su` binary is searched at the following paths in order: `/system/bin/su`, `/debug_ramdisk/su`, `/system/xbin/su`, `/sbin/su`, `/sbin/bin/su`, `/system/sbin/su`, `/su/xbin/su`, `/su/bin/su`, `/magisk/.core/bin/su`
 
-If a `su` binary is not found at any of the paths or if no `su` found contains the `-c`, `--shell`, `--preserve-environment` and `--mount-master` options in its `--help` output, then `tudo` will not add `su` binary directory to `$PATH` exported for `android` paths. You can specify a custom path by exporting it in `$TUDO_SU_PATH` or passing the [`--su-path`](#--su-pathpath) option if the `su` binary does not exist at the default search paths or all paths in it should not be checked.
+If a `su` binary is not found at any of the paths or if no `su` found contains the `-c`, `--shell`, `--preserve-environment` and `--mount-master` options in its `--help` output, then `tudo` will not add `su` binary directory to `$PATH` exported for `android` paths. You can specify a custom path by exporting it in `$TUDO__SU_PATH` or passing the [`--su-path`](#--su-pathpath) option if the `su` binary does not exist at the default search paths or all paths in it should not be checked.
 
 - `/system/bin/su`: Used by `Magisk` and its `avd_patch.sh` script which patch the boot image/emulator ramdisk.  
 

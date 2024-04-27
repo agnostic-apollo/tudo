@@ -119,7 +119,7 @@ bash ~/tudo_tests -vv script
 bash ~/tudo_tests -vv script bash 1
 
 # Run only script command type bash shell test 1 with tudo log level 'VERBOSE'
-TUDO_LOG_LEVEL=3 bash ~/tudo_tests -vv script bash 1
+TUDO__LOG_LEVEL=3 bash ~/tudo_tests -vv script bash 1
 
 # For some tests **sometimes** where *-stdin-string option is used to pass a string to an interactive shell using stdin,
 # the stdout may be returned in an unsynchronized manner which fails the validation
@@ -134,9 +134,11 @@ TUDO_TESTS_HELP_EXTRA
 ### Set Default Variables Start
 
 TUDO_TESTS_MAX_LOG_LEVEL=4 # Default: `4` (VVERBOSE=4)
+# shellcheck disable=SC2153
+TUDO_TESTS_LOG_LEVEL="$TUDO_TESTS__LOG_LEVEL"
 { [[ ! "$TUDO_TESTS_LOG_LEVEL" =~ ^[0-9]+$ ]] || [[ "$TUDO_TESTS_LOG_LEVEL" -gt "$TUDO_TESTS_MAX_LOG_LEVEL" ]]; } && \
 TUDO_TESTS_LOG_LEVEL=1 # Default: `1` (OFF=0, NORMAL=1, DEBUG=2, VERBOSE=3, VVERBOSE=4)
-TUDO_TESTS_LOG_ARGS=${TUDO_TESTS_LOG_ARGS:-0} # Default: `0` (Export or manually set to `1` if you want to debug arguments received)
+TUDO_TESTS_LOG_ARGS="${TUDO_TESTS__LOG_ARGS:-0}" # Default: `0` (Export or manually set to `1` if you want to debug arguments received)
 
 TUDO_TESTS_COMMAND_TYPE="" # Default: ``
 TUDO_TESTS_NOOP_COMMAND=0 # Default: `0`
@@ -332,8 +334,11 @@ tudo_tests_set_required_variables() {
         return $return_value
     fi
 
-    export TUDO_SHELL_HOME="$TUDO_TESTS_WORKING_DIR/.shell_home.$TUDO_TESTS_TEMP_DIRECTORY_SUFFIX"
-    export TUDO_POST_SHELL_HOME="$TUDO_TESTS_WORKING_DIR/.post_shell_home.$TUDO_TESTS_TEMP_DIRECTORY_SUFFIX"
+    TUDO_SHELL_HOME="$TUDO_TESTS_WORKING_DIR/.shell_home.$TUDO_TESTS_TEMP_DIRECTORY_SUFFIX"
+    TUDO_POST_SHELL_HOME="$TUDO_TESTS_WORKING_DIR/.post_shell_home.$TUDO_TESTS_TEMP_DIRECTORY_SUFFIX"
+
+    export TUDO__SHELL_HOME="$TUDO_SHELL_HOME"
+    export TUDO__POST_SHELL_HOME="$TUDO_POST_SHELL_HOME"
 
     TUDO_SHELL_HOME_BASENAME="${TUDO_SHELL_HOME##*/}" # Strip longest match of */ from start
     TUDO_POST_SHELL_HOME_BASENAME="${TUDO_POST_SHELL_HOME##*/}" # Strip longest match of */ from start
@@ -659,12 +664,12 @@ echo "Hi, $name." 1>&2
 
     run_tudo_test 14 && \
     output="$(tudo -sf 'echo "Running $1 $2 script: $(basename "$0")"' "$shell" "shell")"
-    validate_tudo_test 0 $? "$output" "Running $shell shell script: tudo_core_script"
+    validate_tudo_test 0 $? "$output" "Running $shell shell script: tudo_script__core_script"
 
 
     run_tudo_test 15 && \
-    output="$(tudo -sf --script-name="tudo_core_script_custom" 'echo "Running $1 $2 script: $(basename "$0")"' "$shell" "shell")"
-    validate_tudo_test 0 $? "$output" "Running $shell shell script: tudo_core_script_custom"
+    output="$(tudo -sf --script-name="tudo_script__core_script_custom" 'echo "Running $1 $2 script: $(basename "$0")"' "$shell" "shell")"
+    validate_tudo_test 0 $? "$output" "Running $shell shell script: tudo_script__core_script_custom"
 
 
 
