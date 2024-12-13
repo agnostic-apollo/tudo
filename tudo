@@ -5521,11 +5521,16 @@ tudo_process_script_arguments() {
 
 tudo_show_help() {
 
-    cat <<'TUDO_HELP_EOF'
-tudo is a wrapper script to execute commands as the 'termux' user in
-the Termux App, like to drop to an interactive shell for any of the
-supported shells, or to execute shell script files or their text
-passed as an argument.
+    cat <<'TUDO_HELP_EOF' | \
+        sed \
+            -e "s%[@]TERMUX__LNAME[@]%${TERMUX__LNAME}%g" \
+            -e "s%[@]TERMUX_APP__NAME[@]%${TERMUX_APP__NAME}%g"
+tudo stands for '@TERMUX_APP__NAME@ app user do'.
+It is a wrapper script to execute commands as the
+'@TERMUX_APP__NAME@ app (u<userid>_a<appid>)' user in the
+@TERMUX_APP__NAME@ app, like to drop to an interactive shell for any
+of the supported shells, or to execute shell script files or their
+text passed as an argument.
 
 
 Usage:
@@ -5543,17 +5548,17 @@ Available command_options:
   [ --version ]      Display version.
   [ -a ]             Set priority to android paths for 'path' and
                      'script' command types. The '$PATH' variable will
-                     contain all android bin paths followed all termux
-                     bin paths. The `$LD_PRELOAD` variable will not be
+                     contain all android bin paths followed all @TERMUX__LNAME@
+                     bin paths. The '$LD_PRELOAD' variable will not be
                      set.
   [ -A ]             Set priority to android paths for 'asu', 'path'
                      and 'script' command types. The '$PATH' variable
-                     will contain only `/system/bin` path. The
-                     `$LD_PRELOAD` variable will not be set.
+                     will contain only '/system/bin' path. The
+                     '$LD_PRELOAD' variable will not be set.
   [ -AA ]            Set priority to android paths for 'asu', 'path'
                      and 'script' command types. The '$PATH' variable
                      will contain all android bin paths. The
-                     `$LD_PRELOAD` variable will not be set.
+                     '$LD_PRELOAD' variable will not be set.
   [ -b ]             Go back to last activity after running core_script.
   [ -B ]             Run core_script in background.
   [ -c ]             Clear shell after running core_script.
@@ -5579,21 +5584,21 @@ Available command_options:
   [ -r ]             Parse commands as per RUN_COMMAND intent rules.
   [ -s ]             Set 'script' as command type.
   [ -S ]             Same tudo post shell as tudo shell.
-  [ -t ]             Set priority to termux paths for 'path' and
+  [ -t ]             Set priority to @TERMUX__LNAME@ paths for 'path' and
                      'script' command types. The '$PATH' variable will
-                     contain all termux bin paths followed all android
-                     bin paths. The `$LD_PRELOAD` variable will
-                     contain `$TERMUX__PREFIX/lib/libtermux-exec.so`.
-  [ -T ]             Set priority to termux paths for 'su', 'path'
+                     contain all @TERMUX__LNAME@ bin paths followed all android
+                     bin paths. The '$LD_PRELOAD' variable will
+                     contain '$TERMUX__PREFIX/lib/libtermux-exec.so'.
+  [ -T ]             Set priority to @TERMUX__LNAME@ paths for 'su', 'path'
                      and 'script' command types. The '$PATH' variable
                      will contain only '$TERMUX__PREFIX/bin' path.
-                     The `$LD_PRELOAD` variable will contain
-                     `$TERMUX__PREFIX/lib/libtermux-exec.so`.
-  [ -TT ]            Set priority to termux paths for 'su', 'path'
+                     The '$LD_PRELOAD' variable will contain
+                     '$TERMUX__PREFIX/lib/libtermux-exec.so'.
+  [ -TT ]            Set priority to @TERMUX__LNAME@ paths for 'su', 'path'
                      and 'script' command types. The '$PATH' variable
-                     will contain all termux bin paths. The
-                     `$LD_PRELOAD` variable will contain
-                     `$TERMUX__PREFIX/lib/libtermux-exec.so`.
+                     will contain all @TERMUX__LNAME@ bin paths. The
+                     '$LD_PRELOAD' variable will contain
+                     '$TERMUX__PREFIX/lib/libtermux-exec.so'.
   [ --comma-alternative=<alternative> ]
                      Comma alternative character to be used for
                      the '-r' option instead of the default.
@@ -5700,13 +5705,17 @@ tudo_show_help_extra() {
 
     tudo_show_help
 
-    cat <<'TUDO_HELP_EOF'
+    cat <<'TUDO_HELP_EOF' | \
+        sed \
+            -e "s%[@]TERMUX__LNAME[@]%${TERMUX__LNAME}%g" \
+            -e "s%[@]TERMUX_APP__NAME[@]%${TERMUX_APP__NAME}%g"
 
 
-The 'su' command type drops to an interactive shell as the 'termux'
-user for any of the supported interactive shells. To drop to a
-'bash' shell, just run 'tudo su'. The priority will be set to termux
-bin and library paths in '$PATH' and '$LD_LIBRARY_PATH' variables.
+The 'su' command type drops to an interactive shell as the
+'@TERMUX_APP__NAME@ app' user for any of the supported interactive
+shells. To drop to a 'bash' shell, just run 'tudo su'. The priority
+will be set to @TERMUX__LNAME@ bin and library paths in '$PATH' and
+'$LD_LIBRARY_PATH' variables.
 Use the '--shell' option to set the interactive shell to use.
 
 
@@ -5716,8 +5725,8 @@ instead the priority will be set to android bin and library paths in
 Use the '--shell' option to set the interactive shell to use.
 
 
-The 'path' command type runs a single command as the 'termux' user.
-You can use it just by running 'tudo <command> [command_args]'
+The 'path' command type runs a single command as the 'Termux app'
+user. You can use it just by running 'tudo <command> [command_args]'
 where 'command' is the executable you want to run and 'command_args'
 are any optional arguments to it. The 'command' will be run within a
 'bash' shell.
@@ -5728,10 +5737,10 @@ executable 'basename' in a directory listed in the final '$PATH'
 variable that is to be exported by the 'tudo' command depending on
 priority set.
 The priority is set based on '-a|-A|-AA' or '-t|-T|-TT' flags, and
-if flags are not passed, then the priority for bin paths in `$PATH`
-variable is given to termux paths followed by android paths if
+if flags are not passed, then the priority for bin paths in '$PATH'
+variable is given to @TERMUX__LNAME@ paths followed by android paths if
 executable canonical path is under '$TERMUX__ROOTFS' directory,
-otherwise to android paths followed by termux paths.
+otherwise to android paths followed by @TERMUX__LNAME@ paths.
 
 
 The 'script' command type takes any script text or path to a script
@@ -5753,12 +5762,12 @@ is considered as a path to script file that should be passed to
 Use the '--shell' option to set the script shell to use.
 Use the '--post-shell' option to set the interactive shell to use if
 '-i' option is passed.
-The priority is given to termux paths unless '-a|-A|-AA' or
+The priority is given to @TERMUX__LNAME@ paths unless '-a|-A|-AA' or
 '-t|-T|-TT' flags are passed.
 
 
 Run "exit" command of your shell to exit interactive shells and return
-to the termux shell.
+to the @TERMUX__LNAME@ shell.
 TUDO_HELP_EOF
 
 }
