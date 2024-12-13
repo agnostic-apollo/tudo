@@ -180,17 +180,31 @@ tudo_tests_main() {
 
     local return_value
 
+    # Find the tudo script path
+    TUDO_SCRIPT_PATH="$(command -v tudo)"
+    return_value=$?
+    if [ $return_value -ne 0 ] || [[ ! "$TUDO_SCRIPT_PATH" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
+        tudo_log_errors "Failure while finding TUDO_SCRIPT_PATH"
+        tudo_log_errors "TUDO_SCRIPT_PATH=\"$TUDO_SCRIPT_PATH\""
+        if [ $return_value -eq 0 ]; then
+            return_value=1
+        fi
+        return $return_value
+    fi
+
     # Source the tudo script
-    if [ ! -x /data/data/com.termux/files/usr/bin/tudo ]; then
-        tudo_tests_log_errors "Failed to find \"/data/data/com.termux/files/usr/bin/tudo\""
+    if [ ! -x "$TUDO_SCRIPT_PATH" ]; then
+        tudo_tests_log_errors "The TUDO_SCRIPT_PATH \"$TUDO_SCRIPT_PATH\" found is not executable"
         return 1
     else
-        source /data/data/com.termux/files/usr/bin/tudo
-        tudo_set_default_variables
+        # shellcheck source=tudo
+        source "$TUDO_SCRIPT_PATH" || return $?
+        tudo_set_termux_env_variables || return $?
+        tudo_set_tudo_default_variables || return $?
     fi
 
     local -a TUDO_TESTS_REQUIRED_VARIABLES_ARRAY=(
-        TERMUX_FILES
+        TERMUX_ROOTFS
         TERMUX_PREFIX
         TERMUX_HOME
         TERMUX_LD_LIBRARY_PATH
@@ -865,7 +879,7 @@ TUDO_EOF
 
     run_tudo_test 40 && \
     output="$(tudo -s --shell-home='/data' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The TUDO_SHELL_HOME \"/data\" must be an absolute path under TERMUX_FILES \"$TERMUX_FILES\"" "*"
+    validate_tudo_test 1 $? "$output" "" "The TUDO_SHELL_HOME \"/data\" must be an absolute path under TERMUX_ROOTFS \"$TERMUX_ROOTFS\"" "*"
 
 
 
@@ -889,7 +903,7 @@ TUDO_EOF
 
     run_tudo_test 44 && \
     output="$(tudo -si --post-shell-home='/data' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The TUDO_POST_SHELL_HOME \"/data\" must be an absolute path under TERMUX_FILES \"$TERMUX_FILES\"" "*"
+    validate_tudo_test 1 $? "$output" "" "The TUDO_POST_SHELL_HOME \"/data\" must be an absolute path under TERMUX_ROOTFS \"$TERMUX_ROOTFS\"" "*"
 
 
 
