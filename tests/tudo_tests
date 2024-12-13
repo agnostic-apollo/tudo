@@ -178,7 +178,7 @@ function reopen_stdin () {  if [[ "$TUDO_TESTS_TTY_PATH" == "/dev/"* ]]; then ex
 
 
 ##
-# tudo_tests_main `[argument...]`
+# `tudo_tests_main` [`<argument...>`]
 ##
 tudo_tests_main() {
 
@@ -1423,8 +1423,8 @@ TUDO_EOF
 
 ##
 # Capture stdout and stderr of command in separate variables.
-# .
-# tudo_tests_run_subshell_command `stdout_variable_name` `stderr_variable_name` `command` `[arguments]`
+#
+# `tudo_tests_run_subshell_command` `<stdout_variable_name>` `<stderr_variable_name>` `<command>` [`<arguments...>`]
 ##
 tudo_tests_run_subshell_command() {
 
@@ -1534,7 +1534,7 @@ set_tudo_tests_current_test_number () {
 }
 
 ##
-# run_tudo_test `current_test_number`
+# `run_tudo_test` `<current_test_number>`
 ##
 run_tudo_test () {
 
@@ -1544,7 +1544,7 @@ run_tudo_test () {
 }
 
 ##
-# skip_tudo_test `current_test_number`
+# `skip_tudo_test` `<current_test_number>`
 ##
 skip_tudo_test () {
 
@@ -1554,8 +1554,8 @@ skip_tudo_test () {
 }
 
 ##
-# validate_tudo_test `expected_result_value` `actual_result_value` `actual_output` `expected_output`
-# validate_tudo_test `expected_result_value` `actual_result_value` `actual_output` `expected_output_prefix_glob` `expected_output` `expected_output_suffix_glob`
+# `validate_tudo_test` `<expected_result_value>` `<actual_result_value>` `<actual_output>` `<expected_output>`
+# `validate_tudo_test` `<expected_result_value>` `<actual_result_value>` `<actual_output>` `<expected_output_prefix_glob>` `<expected_output>` `<expected_output_suffix_glob>`
 ##
 validate_tudo_test () {
 
@@ -1660,7 +1660,7 @@ tudo_tests_remove_tudo_tests_temp_directories() {
 }
 
 ##
-# tudo_tests_process_arguments `[argument...]`
+# `tudo_tests_process_arguments` [`<argument...>`]
 ##
 tudo_tests_process_arguments() {
 

@@ -18,8 +18,8 @@ TUDO__VERSION=0.2.0
 
 ##
 # Function to set termux env variables.
-# .
-# tudo_set_termux_env_variables
+#
+# `tudo_set_termux_env_variables`
 ##
 tudo_set_termux_env_variables() {
 
@@ -76,8 +76,8 @@ done
 
 ##
 # Function to set tudo default variables.
-# .
-# tudo_set_tudo_default_variables
+#
+# `tudo_set_tudo_default_variables`
 ##
 tudo_set_tudo_default_variables() {
 
@@ -279,7 +279,7 @@ function tudo_log_arg_errors() { echo "$@" 1>&2; }
 
 
 ##
-# tudo_main `[argument...]`
+# `tudo_main` [`<argument...>`]
 ##
 tudo_main() {
 
@@ -645,7 +645,7 @@ tudo_run() {
 }
 
 ##
-# tudo_run_pre_exit_commands `exit_code`
+# `tudo_run_pre_exit_commands` `<exit_code>`
 ##
 tudo_run_pre_exit_commands() {
 
@@ -1090,10 +1090,9 @@ tudo_set_required_variables() {
 ##
 # Set termux and android path priority variables that should be used
 # depending on required priority.
-# .
-# The `ARCH` variable must be set.
-# .
-# tudo_set_path_priority_variables `set_secondary_paths`
+#
+#
+# `tudo_set_path_priority_variables` `<set_secondary_paths>`
 tudo_set_path_priority_variables() {
 
     local set_secondary_paths="$1"
@@ -1145,10 +1144,10 @@ tudo_set_path_priority_variables() {
 
 ##
 # Set variables to export with priority to termux or android bin and library paths.
-# .
+#
 # `priority` must be one of `termux` or `android`.
-# .
-# tudo_set_priority_dependent_variables `priority`
+#
+# `tudo_set_priority_dependent_variables` `<priority>`
 ##
 tudo_set_priority_dependent_variables() {
 
@@ -1865,7 +1864,7 @@ tudo_set_tudo_script_command() {
 }
 
 ##
-# tudo_set_script_argument_for_script_shell `shell_basename` `heredoc_word` `heredoc_word_quote` `script_is_path_to_script_file` `force_use_temp_script_file` `decode_script_content` `script_file_label` `script_file_name` `script_file_path`/script_content
+# `tudo_set_script_argument_for_script_shell` `<shell_basename>` `<heredoc_word>` `<heredoc_word_quote>` `<script_is_path_to_script_file>` `<force_use_temp_script_file>` `<decode_script_content>` `<script_file_label>` `<script_file_name>` `<script_file_path>`/script_content
 ##
 tudo_set_script_argument_for_script_shell() {
 
@@ -1998,7 +1997,7 @@ tudo_set_script_argument_for_script_shell() {
 }
 
 ##
-# tudo_create_tudo_temp_file `label` `path` `log_content` `decode_content` `content`
+# `tudo_create_tudo_temp_file` `<label>` `<path>` `<log_content>` `<decode_content>` `<content>`
 ##
 tudo_create_tudo_temp_file() {
 
@@ -2150,7 +2149,7 @@ tudo_set_tudo_post_shell() {
 }
 
 ##
-# tudo_validate_shell `variable_name` `shell_label` `user_shell` `supported_shells` `termux_prefix` `termux_bin` `termux_home`
+# `tudo_validate_shell` `<variable_name>` `<shell_label>` `<user_shell>` `<supported_shells>` `<termux_prefix>` `<termux_bin>` `<termux_home>`
 ##
 tudo_validate_shell() {
 
@@ -2268,7 +2267,7 @@ tudo_set_tudo_post_shell_rcfile() {
 }
 
 ##
-# tudo_set_shell_rcfile `shell_basename` `shell_home` `shell_share_rcfiles`
+# `tudo_set_shell_rcfile` `<shell_basename>` `<shell_home>` `<shell_share_rcfiles>`
 ##
 tudo_set_shell_rcfile() {
 
@@ -2423,7 +2422,7 @@ tudo_set_shell_rcfile() {
 }
 
 ##
-# tudo_set_rcfile_functions
+# `tudo_set_rcfile_functions`
 ##
 tudo_set_rcfile_functions() {
 
@@ -2584,7 +2583,7 @@ tudo_set_tudo_post_shell_histfile() {
 }
 
 ##
-# tudo_set_shell_histfile `shell_label` `shell_basename` `shell_home` `shell_history_enabled` `shell_share_histfiles`
+# `tudo_set_shell_histfile` `<shell_label>` `<shell_basename>` `<shell_home>` `<shell_history_enabled>` `<shell_share_histfiles>`
 ##
 tudo_set_shell_histfile() {
 
@@ -2858,7 +2857,7 @@ tudo_set_tudo_post_shell_command() {
 }
 
 ##
-# tudo_set_shell_command `shell_label` `shell` `shell_basename` `shell_parent_dir` `interactive_shell_required`
+# `tudo_set_shell_command` `<shell_label>` `<shell>` `<shell_basename>` `<shell_parent_dir>` `<interactive_shell_required>`
 ##
 tudo_set_shell_command() {
 
@@ -3012,7 +3011,7 @@ tudo_setup_tudo_shell_home_and_working_environment() {
 }
 
 ##
-# tudo_setup_shell_home `shell_label` `shell_home_parent_dir` `shell_home` `shell_automatically_create_rc_file` `shell_rcfile_parent_dir` `shell_rcfile` `shell_rcfile_value`  `shell_histfile_parent_dir` `shell_histfile`
+# `tudo_setup_shell_home` `<shell_label>` `<shell_home_parent_dir>` `<shell_home>` `<shell_automatically_create_rc_file>` `<shell_rcfile_parent_dir>` `<shell_rcfile>` `<shell_rcfile_value>`  `<shell_histfile_parent_dir>` `<shell_histfile>`
 ##
 tudo_setup_shell_home() {
 
@@ -3204,12 +3203,12 @@ tudo_setup_shell_home() {
 }
 
 ##
-# tudo_create_shell_home `shell_label` \
-# `shell_home` `create_shell_home_if_it_does_not_exist` `only_set_perms_and_ownership_on_creation_of_shell_home` `shell_home_ownership` `shell_home_permission` `shell_home_file_type_tests` \
-# `shell_rcfile_parent_dir` `create_shell_rcfile_parent_dir_if_it_does_not_exist` `only_set_perms_and_ownership_on_creation_of_shell_rcfile_parent_dir` `shell_rcfile_parent_dir_ownership` `shell_rcfile_parent_dir_permission` `shell_rcfile_parent_dir_file_type_tests` \
-# `shell_rcfile` `create_shell_rcfile_if_it_does_not_exist` `shell_rcfile_value` `only_set_perms_and_ownership_on_creation_of_shell_rcfile` `shell_rcfile_ownership` `shell_rcfile_permission` `shell_rcfile_file_type_tests` \
-# `shell_histfile_parent_dir` `create_shell_histfile_parent_dir_if_it_does_not_exist` `only_set_perms_and_ownership_on_creation_of_shell_histfile_parent_dir` `shell_histfile_parent_dir_ownership` `shell_histfile_parent_dir_permission` `shell_histfile_parent_dir_file_type_tests` \
-# `shell_histfile` `create_shell_histfile_if_it_does_not_exist` `only_set_perms_and_ownership_on_creation_of_shell_histfile` `shell_histfile_ownership` `shell_histfile_permission` `shell_histfile_file_type_tests`
+# `tudo_create_shell_home` `<shell_label>` \
+#     `<shell_home>` `<create_shell_home_if_it_does_not_exist>` `<only_set_perms_and_ownership_on_creation_of_shell_home>` `<shell_home_ownership>` `<shell_home_permission>` `<shell_home_file_type_tests>` \
+#     `<shell_rcfile_parent_dir>` `<create_shell_rcfile_parent_dir_if_it_does_not_exist>` `<only_set_perms_and_ownership_on_creation_of_shell_rcfile_parent_dir>` `<shell_rcfile_parent_dir_ownership>` `<shell_rcfile_parent_dir_permission>` `<shell_rcfile_parent_dir_file_type_tests>` \
+#     `<shell_rcfile>` `<create_shell_rcfile_if_it_does_not_exist>` `<shell_rcfile_value>` `<only_set_perms_and_ownership_on_creation_of_shell_rcfile>` `<shell_rcfile_ownership>` `<shell_rcfile_permission>` `<shell_rcfile_file_type_tests>` \
+#     `<shell_histfile_parent_dir>` `<create_shell_histfile_parent_dir_if_it_does_not_exist>` `<only_set_perms_and_ownership_on_creation_of_shell_histfile_parent_dir>` `<shell_histfile_parent_dir_ownership>` `<shell_histfile_parent_dir_permission>` `<shell_histfile_parent_dir_file_type_tests>` \
+#     `<shell_histfile>` `<create_shell_histfile_if_it_does_not_exist>` `<only_set_perms_and_ownership_on_creation_of_shell_histfile>` `<shell_histfile_ownership>` `<shell_histfile_permission>` `<shell_histfile_file_type_tests>`
 ##
 tudo_create_shell_home() {
 
@@ -3620,7 +3619,7 @@ trap 'tudo_script__trap QUIT' QUIT
 }
 
 ##
-# tudo_run_file_type_tests_on_path `label` `path` `log_file_tests_failure_errors` `show_stat_output_on_file_tests_failure` `check_if_absolute_path` `file_type_tests`
+# `tudo_run_file_type_tests_on_path` `<label>` `<path>` `<log_file_tests_failure_errors>` `<show_stat_output_on_file_tests_failure>` `<check_if_absolute_path>` `<file_type_tests>`
 ##
 tudo_run_file_type_tests_on_path() {
 
@@ -3729,7 +3728,7 @@ tudo_run_file_type_tests_on_path() {
 }
 
 ##
-# tudo_create_modify_validate_directory `directory_path_label` `directory_path` `check_if_absolute_path` `create_directory_if_it_does_not_exist` `only_set_perms_and_ownership_on_creation` `directory_chown_command_options` `directory_chmod_command_options` `sub_directories_chown_command_options` `sub_directories_chmod_command_options` `sub_files_chown_command_options` `sub_files_chmod_command_options` `file_type_tests`
+# `tudo_create_modify_validate_directory` `<directory_path_label>` `<directory_path>` `<check_if_absolute_path>` `<create_directory_if_it_does_not_exist>` `<only_set_perms_and_ownership_on_creation>` `<directory_chown_command_options>` `<directory_chmod_command_options>` `<sub_directories_chown_command_options>` `<sub_directories_chmod_command_options>` `<sub_files_chown_command_options>` `<sub_files_chmod_command_options>` `<file_type_tests>`
 ##
 tudo_create_modify_validate_directory() {
 
@@ -3910,7 +3909,7 @@ tudo_create_modify_validate_directory() {
 }
 
 ##
-# tudo_create_modify_validate_file `file_path_label` `file_path` `check_if_absolute_path` `create_file_if_it_does_not_exist` `file_creation_command_options` `file_content` `only_set_perms_and_ownership_on_creation` `file_chown_command_options` `file_chmod_command_options` `file_type_tests`
+# `tudo_create_modify_validate_file` `<file_path_label>` `<file_path>` `<check_if_absolute_path>` `<create_file_if_it_does_not_exist>` `<file_creation_command_options>` `<file_content>` `<only_set_perms_and_ownership_on_creation>` `<file_chown_command_options>` `<file_chmod_command_options>` `<file_type_tests>`
 ##
 tudo_create_modify_validate_file() {
 
@@ -4045,7 +4044,7 @@ tudo_create_modify_validate_file() {
 }
 
 ##
-# tudo_expand_termux_path `variable_name` `label` `path` `termux_prefix` `termux_home` `canonicalize_path`
+# `tudo_expand_termux_path` `<variable_name>` `<label>` `<path>` `<termux_prefix>` `<termux_home>` `<canonicalize_path>`
 ##
 tudo_expand_termux_path() {
 
@@ -4120,8 +4119,8 @@ tudo_expand_termux_path() {
 # - If an absolute path is returned by `tudo_expand_termux_path`, then it checked to see if it is for an executable file,
 #   otherwise executable is searched in all the paths in `paths_to_check_for_executable` list (ideally `$PATH` variable).
 # - If an executable is found, then that is returned, otherwise function fails with 112.
-# .
-# tudo_find_absolute_path_for_executable_and_validate `variable_name` `label` `path` `paths_to_check_for_executable` `termux_prefix` `termux_home`
+#
+# `tudo_find_absolute_path_for_executable_and_validate` `<variable_name>` `<label>` `<path>` `<paths_to_check_for_executable>` `<termux_prefix>` `<termux_home>`
 ##
 tudo_find_absolute_path_for_executable_and_validate() {
 
@@ -4218,8 +4217,8 @@ tudo_find_absolute_path_for_executable_and_validate() {
 
 ##
 # Validate if path is under TERMUX_ROOTFS and is not backlisted
-# .
-# tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs `label` `path`
+#
+# `tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs` `<label>` `<path>`
 ##
 tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs() {
 
@@ -4279,7 +4278,7 @@ tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs() {
 }
 
 ##
-# tudo_parse_and_validate_path_variable `variable_name` `label` `path` `remove_duplicates`
+# `tudo_parse_and_validate_path_variable` `<variable_name>` `<label>` `<path>` `<remove_duplicates>`
 ##
 tudo_parse_and_validate_path_variable() {
 
@@ -4603,7 +4602,7 @@ variable${scoped_var_value_invalid_error_suffix}." 1>&2
 
 
 ##
-# tudo_replace_comma_alternative_chars_with_commas_in_string `string`
+# `tudo_replace_comma_alternative_chars_with_commas_in_string` `<string>`
 ##
 tudo_replace_comma_alternative_chars_with_commas_in_string() {
 
@@ -4620,7 +4619,7 @@ tudo_replace_comma_alternative_chars_with_commas_in_string() {
 }
 
 ##
-# tudo_trim_trailing_newlines `variable_name` `variable_value`
+# `tudo_trim_trailing_newlines` `<variable_name>` `<variable_value>`
 ##
 tudo_trim_trailing_newlines() {
 
@@ -4643,7 +4642,7 @@ tudo_trim_trailing_newlines() {
 }
 
 ##
-# tudo_process_arguments `[argument...]`
+# `tudo_process_arguments` [`<argument...>`]
 ##
 tudo_process_arguments() {
 
