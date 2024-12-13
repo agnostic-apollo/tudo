@@ -2195,7 +2195,7 @@ tudo_validate_shell() {
     tudo_run_file_type_tests_on_path "$shell_label" "$shell" 1 1 1 "frx" || return $?
 
 
-    local valid_bash_variable_name_regex='^[a-zA-Z][a-zA-Z0-9_]*(\[[0-9]+\])?$'
+    local valid_bash_variable_name_regex='^[a-zA-Z_][a-zA-Z0-9_]*(\[[0-9]+\])?$'
 
     # If variable_name does not equal "shell" and is valid bash variable_name
     if [[ "$variable_name" != "shell" ]] && [[ "$variable_name" =~ $valid_bash_variable_name_regex ]]; then
@@ -4119,7 +4119,7 @@ tudo_expand_termux_path() {
         path_to_expand="${path_to_expand//\/\///}"
     fi
 
-    local valid_bash_variable_name_regex='^[a-zA-Z][a-zA-Z0-9_]*(\[[0-9]+\])?$'
+    local valid_bash_variable_name_regex='^[a-zA-Z_][a-zA-Z0-9_]*(\[[0-9]+\])?$'
 
     # If variable_name does not equal "path_to_expand" and is valid bash variable_name
     if [[ "$variable_name" != "path_to_expand" ]] && [[ "$variable_name" =~ $valid_bash_variable_name_regex ]]; then
@@ -4221,7 +4221,7 @@ tudo_find_absolute_path_for_executable_and_validate() {
         return 112
     fi
 
-    local valid_bash_variable_name_regex='^[a-zA-Z][a-zA-Z0-9_]*(\[[0-9]+\])?$'
+    local valid_bash_variable_name_regex='^[a-zA-Z_][a-zA-Z0-9_]*(\[[0-9]+\])?$'
 
     # If variable_name does not equal "absolute_path" and is valid bash variable_name
     if [[ "$variable_name" != "absolute_path" ]] && [[ "$variable_name" =~ $valid_bash_variable_name_regex ]]; then
@@ -4332,7 +4332,7 @@ tudo_parse_and_validate_path_variable() {
         return 1
     fi
 
-    local valid_bash_variable_name_regex='^[a-zA-Z][a-zA-Z0-9_]*(\[[0-9]+\])?$'
+    local valid_bash_variable_name_regex='^[a-zA-Z_][a-zA-Z0-9_]*(\[[0-9]+\])?$'
 
     # If variable_name does not equal "path_to_parse" and is valid bash variable_name
     if [[ "$variable_name" != "path_to_parse" ]] && [[ "$variable_name" =~ $valid_bash_variable_name_regex ]]; then
@@ -4625,7 +4625,7 @@ variable${scoped_var_value_invalid_error_suffix}." 1>&2
 ##
 tudo_replace_comma_alternative_chars_with_commas_in_string() {
 
-    local valid_bash_variable_name_regex='^[a-zA-Z][a-zA-Z0-9_]*(\[[0-9]+\])?$'
+    local valid_bash_variable_name_regex='^[a-zA-Z_][a-zA-Z0-9_]*(\[[0-9]+\])?$'
 
     # If $1 is valid bash variable_name
     if [[ "$1" =~ $valid_bash_variable_name_regex ]]; then
@@ -4646,7 +4646,7 @@ tudo_trim_trailing_newlines() {
     shopt extglob >/dev/null && extglob_was_unset=0 # Check if 'extglob' is currently set
     (( extglob_was_unset )) && shopt -s extglob # Set 'extglob', if currently unset
 
-    local valid_bash_variable_name_regex='^[a-zA-Z][a-zA-Z0-9_]*(\[[0-9]+\])?$'
+    local valid_bash_variable_name_regex='^[a-zA-Z_][a-zA-Z0-9_]*(\[[0-9]+\])?$'
 
     # If $1 is valid bash variable_name
     if [[ "$1" =~ $valid_bash_variable_name_regex ]]; then
