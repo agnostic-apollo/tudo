@@ -267,14 +267,14 @@ LANG="en_US.UTF-8"
 
 }
 
-function tudo_log() { local log_level="${1}"; shift; if [[ $TUDO_LOG_LEVEL -ge $log_level ]]; then echo "$@"; fi }
-function tudo_log_literal() { local log_level="${1}"; shift; if [[ $TUDO_LOG_LEVEL -ge $log_level ]]; then echo -e "$@"; fi }
+function tudo_log() { local log_level="${1}"; shift; if [[ "$TUDO_LOG_LEVEL" -ge $log_level ]]; then echo "$@"; fi }
+function tudo_log_literal() { local log_level="${1}"; shift; if [[ "$TUDO_LOG_LEVEL" -ge $log_level ]]; then echo -e "$@"; fi }
 function tudo_log_errors() { echo "$@" 1>&2; }
 function tudo_log_args() { if [[ $TUDO_LOG_ARGS == "1" ]]; then echo "$@"; fi }
 function tudo_log_arg_errors() { echo "$@" 1>&2; }
 
 # Enable the following line if you want to log function runtimes with the '-vv' option
-#tudo_start_time=$(date +%s%3N); function tudo_log_literal() { local log_level="${1}"; shift; if [[ $TUDO_LOG_LEVEL -ge $log_level ]]; then if [[ "$*" == *"Running"* ]]; then tudo_end_time=$(date +%s%3N); run_time=$((tudo_end_time-tudo_start_time)); echo -e "Runtime $run_time\n"; tudo_start_time=$(date +%s%3N); fi; echo -e "$@"; fi }
+#tudo_start_time=$(date +%s%3N); function tudo_log_literal() { local log_level="${1}"; shift; if [[ "$TUDO_LOG_LEVEL" -ge $log_level ]]; then if [[ "$*" == *"Running"* ]]; then tudo_end_time=$(date +%s%3N); run_time=$((tudo_end_time-tudo_start_time)); echo -e "Runtime $run_time\n"; tudo_start_time=$(date +%s%3N); fi; echo -e "$@"; fi }
 
 
 
@@ -758,7 +758,7 @@ tudo_set_su_variables() {
 
                 SU_BIN_PATH_BASENAME="${SU##*/}" # Strip longest match of */ from start
                 SU_BIN_PATH="${SU:0:${#SU} - ${#SU_BIN_PATH_BASENAME}}" # Substring from 0 to position of basename
-                case $SU_BIN_PATH in *[!/]*/) SU_BIN_PATH=${SU_BIN_PATH%"${SU_BIN_PATH##*[!/]}"};; *[/]) SU_BIN_PATH="/";; esac # Remove trailing slashes if not root
+                case "$SU_BIN_PATH" in *[!/]*/) SU_BIN_PATH="${SU_BIN_PATH%"${SU_BIN_PATH##*[!/]}"}";; *[/]) SU_BIN_PATH="/";; esac # Remove trailing slashes if not root
 
                 break
             fi
@@ -1026,7 +1026,7 @@ tudo_set_required_variables() {
     # Find the parent directory of the TUDO_SHELL_HOME
     TUDO_SHELL_HOME_BASENAME="${TUDO_SHELL_HOME##*/}" # Strip longest match of */ from start
     TUDO_SHELL_HOME_PARENT_DIR="${TUDO_SHELL_HOME:0:${#TUDO_SHELL_HOME} - ${#TUDO_SHELL_HOME_BASENAME}}" # Substring from 0 to position of basename
-    case $TUDO_SHELL_HOME_PARENT_DIR in *[!/]*/) TUDO_SHELL_HOME_PARENT_DIR=${TUDO_SHELL_HOME_PARENT_DIR%"${TUDO_SHELL_HOME_PARENT_DIR##*[!/]}"};; *[/]) TUDO_SHELL_HOME_PARENT_DIR="/";; esac # Remove trailing slashes if not root
+    case "$TUDO_SHELL_HOME_PARENT_DIR" in *[!/]*/) TUDO_SHELL_HOME_PARENT_DIR="${TUDO_SHELL_HOME_PARENT_DIR%"${TUDO_SHELL_HOME_PARENT_DIR##*[!/]}"}";; *[/]) TUDO_SHELL_HOME_PARENT_DIR="/";; esac # Remove trailing slashes if not root
 
     tudo_log 3 "TUDO_SHELL_HOME_PARENT_DIR=\"$TUDO_SHELL_HOME_PARENT_DIR\""
 
@@ -1062,7 +1062,7 @@ tudo_set_required_variables() {
         # Find the parent directory of the TUDO_POST_SHELL_HOME
         TUDO_POST_SHELL_HOME_BASENAME="${TUDO_POST_SHELL_HOME##*/}" # Strip longest match of */ from start
         TUDO_POST_SHELL_HOME_PARENT_DIR="${TUDO_POST_SHELL_HOME:0:${#TUDO_POST_SHELL_HOME} - ${#TUDO_POST_SHELL_HOME_BASENAME}}" # Substring from 0 to position of basename
-        case $TUDO_POST_SHELL_HOME_PARENT_DIR in *[!/]*/) TUDO_POST_SHELL_HOME_PARENT_DIR=${TUDO_POST_SHELL_HOME_PARENT_DIR%"${TUDO_POST_SHELL_HOME_PARENT_DIR##*[!/]}"};; *[/]) TUDO_POST_SHELL_HOME_PARENT_DIR="/";; esac # Remove trailing slashes if not root
+        case "$TUDO_POST_SHELL_HOME_PARENT_DIR" in *[!/]*/) TUDO_POST_SHELL_HOME_PARENT_DIR="${TUDO_POST_SHELL_HOME_PARENT_DIR%"${TUDO_POST_SHELL_HOME_PARENT_DIR##*[!/]}"}";; *[/]) TUDO_POST_SHELL_HOME_PARENT_DIR="/";; esac # Remove trailing slashes if not root
 
         tudo_log 3 "TUDO_POST_SHELL_HOME_PARENT_DIR=\"$TUDO_POST_SHELL_HOME_PARENT_DIR\""
     fi
@@ -2040,7 +2040,7 @@ tudo_create_tudo_temp_file() {
     fi
 
     # Read file at path again and log its content but only if binary data is not stored in it
-    if [[ $TUDO_LOG_LEVEL -ge 2 ]] && [[ "$log_content" == "1" ]]  && [[ "$decode_content" != "1" ]]; then
+    if [[ "$TUDO_LOG_LEVEL" -ge 2 ]] && [[ "$log_content" == "1" ]]  && [[ "$decode_content" != "1" ]]; then
         local file_contents=""
         file_contents="$(cat "$path")"
         tudo_log 2 $'\n'"${label}_CONTENTS=\`$file_contents\`"
@@ -2083,7 +2083,7 @@ tudo_set_tudo_shell() {
     # Find the basename and parent directory of the TUDO_SHELL
     TUDO_SHELL_BASENAME="${TUDO_SHELL##*/}" # Strip longest match of */ from start
     TUDO_SHELL_PARENT_DIR="${TUDO_SHELL:0:${#TUDO_SHELL} - ${#TUDO_SHELL_BASENAME}}" # Substring from 0 to position of basename
-    case $TUDO_SHELL_PARENT_DIR in *[!/]*/) TUDO_SHELL_PARENT_DIR=${TUDO_SHELL_PARENT_DIR%"${TUDO_SHELL_PARENT_DIR##*[!/]}"};; *[/]) TUDO_SHELL_PARENT_DIR="/";; esac # Remove trailing slashes if not root
+    case "$TUDO_SHELL_PARENT_DIR" in *[!/]*/) TUDO_SHELL_PARENT_DIR="${TUDO_SHELL_PARENT_DIR%"${TUDO_SHELL_PARENT_DIR##*[!/]}"}";; *[/]) TUDO_SHELL_PARENT_DIR="/";; esac # Remove trailing slashes if not root
 
     tudo_log 3 "TUDO_SHELL_BASENAME=\"$TUDO_SHELL_BASENAME\""
     tudo_log 3 "TUDO_SHELL_PARENT_DIR=\"$TUDO_SHELL_PARENT_DIR\""
@@ -2132,7 +2132,7 @@ tudo_set_tudo_post_shell() {
     # Find the basename and parent directory of the TUDO_POST_SHELL
     TUDO_POST_SHELL_BASENAME="${TUDO_POST_SHELL##*/}" # Strip longest match of */ from start
     TUDO_POST_SHELL_PARENT_DIR="${TUDO_POST_SHELL:0:${#TUDO_POST_SHELL} - ${#TUDO_POST_SHELL_BASENAME}}" # Substring from 0 to position of basename
-    case $TUDO_POST_SHELL_PARENT_DIR in *[!/]*/) TUDO_POST_SHELL_PARENT_DIR=${TUDO_POST_SHELL_PARENT_DIR%"${TUDO_POST_SHELL_PARENT_DIR##*[!/]}"};; *[/]) TUDO_POST_SHELL_PARENT_DIR="/";; esac # Remove trailing slashes if not root
+    case "$TUDO_POST_SHELL_PARENT_DIR" in *[!/]*/) TUDO_POST_SHELL_PARENT_DIR="${TUDO_POST_SHELL_PARENT_DIR%"${TUDO_POST_SHELL_PARENT_DIR##*[!/]}"}";; *[/]) TUDO_POST_SHELL_PARENT_DIR="/";; esac # Remove trailing slashes if not root
 
     tudo_log 3 "TUDO_POST_SHELL_BASENAME=\"$TUDO_POST_SHELL_BASENAME\""
     tudo_log 3 "TUDO_POST_SHELL_PARENT_DIR=\"$TUDO_POST_SHELL_PARENT_DIR\""
@@ -2395,7 +2395,7 @@ tudo_set_shell_rcfile() {
         # Find the parent directory of the SHELL_RCFILE
         SHELL_RCFILE_BASENAME="${SHELL_RCFILE##*/}" # Strip longest match of */ from start
         SHELL_RCFILE_PARENT_DIR="${SHELL_RCFILE:0:${#SHELL_RCFILE} - ${#SHELL_RCFILE_BASENAME}}" # Substring from 0 to position of basename
-        case $SHELL_RCFILE_PARENT_DIR in *[!/]*/) SHELL_RCFILE_PARENT_DIR=${SHELL_RCFILE_PARENT_DIR%"${SHELL_RCFILE_PARENT_DIR##*[!/]}"};; *[/]) SHELL_RCFILE_PARENT_DIR="/";; esac # Remove trailing slashes if not root
+        case "$SHELL_RCFILE_PARENT_DIR" in *[!/]*/) SHELL_RCFILE_PARENT_DIR="${SHELL_RCFILE_PARENT_DIR%"${SHELL_RCFILE_PARENT_DIR##*[!/]}"}";; *[/]) SHELL_RCFILE_PARENT_DIR="/";; esac # Remove trailing slashes if not root
 
         # Set SHELL_RCFILE_VALUE to be set in SHELL_RCFILE
         SHELL_RCFILE_VALUE=""
@@ -2738,7 +2738,7 @@ tudo_set_shell_histfile() {
             # Find the parent directory of the SHELL_HISTFILE
             SHELL_HISTFILE_BASENAME="${SHELL_HISTFILE##*/}" # Strip longest match of */ from start
             SHELL_HISTFILE_PARENT_DIR="${SHELL_HISTFILE:0:${#SHELL_HISTFILE} - ${#SHELL_HISTFILE_BASENAME}}" # Substring from 0 to position of basename
-            case $SHELL_HISTFILE_PARENT_DIR in *[!/]*/) SHELL_HISTFILE_PARENT_DIR=${SHELL_HISTFILE_PARENT_DIR%"${SHELL_HISTFILE_PARENT_DIR##*[!/]}"};; *[/]) SHELL_HISTFILE_PARENT_DIR="/";; esac # Remove trailing slashes if not root
+            case "$SHELL_HISTFILE_PARENT_DIR" in *[!/]*/) SHELL_HISTFILE_PARENT_DIR="${SHELL_HISTFILE_PARENT_DIR%"${SHELL_HISTFILE_PARENT_DIR##*[!/]}"}";; *[/]) SHELL_HISTFILE_PARENT_DIR="/";; esac # Remove trailing slashes if not root
         fi
 
     else
@@ -3358,7 +3358,7 @@ tudo_set_tudo_shell_working_dir() {
     # Find the parent directory of the TUDO_SHELL_WORKING_DIR
     TUDO_SHELL_WORKING_DIR_BASENAME="${TUDO_SHELL_WORKING_DIR##*/}" # Strip longest match of */ from start
     TUDO_SHELL_WORKING_DIR_PARENT_DIR="${TUDO_SHELL_WORKING_DIR:0:${#TUDO_SHELL_WORKING_DIR} - ${#TUDO_SHELL_WORKING_DIR_BASENAME}}" # Substring from 0 to position of basename
-    case $TUDO_SHELL_WORKING_DIR_PARENT_DIR in *[!/]*/) TUDO_SHELL_WORKING_DIR_PARENT_DIR=${TUDO_SHELL_WORKING_DIR_PARENT_DIR%"${TUDO_SHELL_WORKING_DIR_PARENT_DIR##*[!/]}"};; *[/]) TUDO_SHELL_WORKING_DIR_PARENT_DIR="/";; esac # Remove trailing slashes if not root
+    case "$TUDO_SHELL_WORKING_DIR_PARENT_DIR" in *[!/]*/) TUDO_SHELL_WORKING_DIR_PARENT_DIR="${TUDO_SHELL_WORKING_DIR_PARENT_DIR%"${TUDO_SHELL_WORKING_DIR_PARENT_DIR##*[!/]}"}";; *[/]) TUDO_SHELL_WORKING_DIR_PARENT_DIR="/";; esac # Remove trailing slashes if not root
 
     tudo_log 3 "TUDO_SHELL_WORKING_DIR_PARENT_DIR=\"$TUDO_SHELL_WORKING_DIR_PARENT_DIR\""
 
@@ -3385,7 +3385,7 @@ tudo_setup_tudo_shell_working_dir() {
     # Find the parent directory of the TUDO_SHELL_WORKING_DIR
     TUDO_SHELL_WORKING_DIR_BASENAME="${TUDO_SHELL_WORKING_DIR##*/}" # Strip longest match of */ from start
     TUDO_SHELL_WORKING_DIR_PARENT_DIR="${TUDO_SHELL_WORKING_DIR:0:${#TUDO_SHELL_WORKING_DIR} - ${#TUDO_SHELL_WORKING_DIR_BASENAME}}" # Substring from 0 to position of basename
-    case $TUDO_SHELL_WORKING_DIR_PARENT_DIR in *[!/]*/) TUDO_SHELL_WORKING_DIR_PARENT_DIR=${TUDO_SHELL_WORKING_DIR_PARENT_DIR%"${TUDO_SHELL_WORKING_DIR_PARENT_DIR##*[!/]}"};; *[/]) TUDO_SHELL_WORKING_DIR_PARENT_DIR="/";; esac # Remove trailing slashes if not root
+    case "$TUDO_SHELL_WORKING_DIR_PARENT_DIR" in *[!/]*/) TUDO_SHELL_WORKING_DIR_PARENT_DIR="${TUDO_SHELL_WORKING_DIR_PARENT_DIR%"${TUDO_SHELL_WORKING_DIR_PARENT_DIR##*[!/]}"}";; *[/]) TUDO_SHELL_WORKING_DIR_PARENT_DIR="/";; esac # Remove trailing slashes if not root
 
     shell_working_dir_ownership="--reference='${TUDO_SHELL_WORKING_DIR_PARENT_DIR//\'/\'\\\'\'}'"
 
@@ -4069,8 +4069,8 @@ tudo_expand_termux_path() {
     [[ "$path_to_expand" == "\$PREFIX/" ]] && path_to_expand="$termux_prefix" # Replace '$PREFIX/' with "$termux_prefix"
     [[ "$path_to_expand" == "~/" ]] && path_to_expand="$termux_home" # Replace '~/' with "$termux_home"
 
-    path_to_expand=${path_to_expand/#\$PREFIX\//$termux_prefix\/} # Replace '$PREFIX/*' with "$termux_prefix/*"
-    path_to_expand=${path_to_expand/#~\//$termux_home\/} # Replace '~/*' with "$termux_home/*"
+    path_to_expand="${path_to_expand/#\$PREFIX\//$termux_prefix\/}" # Replace '$PREFIX/*' with "$termux_prefix/*"
+    path_to_expand="${path_to_expand/#~\//$termux_home\/}" # Replace '~/*' with "$termux_home/*"
 
     # If canonicalize_path equals "1" or (canonicalize_path equals "2" and path_to_expand is not a symlink
     if [[ "$canonicalize_path" == "1" ]] || { [[ "$canonicalize_path" == "2" ]] && [ ! -L "$path_to_expand" ]; }; then

@@ -173,7 +173,7 @@ function tudo_tests_log_arg_errors() { echo "$@" 1>&2; }
 
 # stdin in closed for some tests as a patch to SuperSU automatic redirection of stderr to stdout when running in interactive mode
 function close_stdin () {  if [ -t 0 ]; then exec <&-; fi }
-function reopen_stdin () {  if [[ "$TUDO_TESTS_TTY_PATH" == "/dev/"* ]]; then exec <$TUDO_TESTS_TTY_PATH; fi }
+function reopen_stdin () {  if [[ "$TUDO_TESTS_TTY_PATH" == "/dev/"* ]]; then exec <"$TUDO_TESTS_TTY_PATH"; fi }
 
 
 
@@ -1635,7 +1635,7 @@ tudo_tests_cleanup() {
     local tudo_tests_exit_code=$?
     trap - EXIT
     tudo_tests_remove_tudo_tests_temp_directories
-    [ -n "$1" ] && trap - $1; exit $tudo_tests_exit_code;
+    [ -n "$1" ] && trap - "$1"; exit $tudo_tests_exit_code;
 
 }
 
