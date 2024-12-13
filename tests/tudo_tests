@@ -10,6 +10,12 @@
 
 
 
+if [ -z "${BASH_VERSION:-}" ]; then
+    echo "The 'tudo_tests' script must be run from a 'bash' shell."; return 64 2>/dev/null|| exit 64 # EX__USAGE
+fi
+
+
+
 TUDO_TESTS_HELP="$(cat<<'TUDO_TESTS_HELP_EOF'
 tudo_tests is a script that run tests for the tudo script.
 
@@ -1666,7 +1672,7 @@ tudo_tests_process_arguments() {
 
     local OPTIND
 
-    # Parse options to tudo_tests command
+    # Parse options to main command
     while getopts ":hqv-:" opt; do
         case ${opt} in
             -)
@@ -1769,5 +1775,7 @@ tudo_tests_exit_on_error() {
 
 }
 
-# Call tudo_tests_main function
+
+
+# Call main function
 tudo_tests_main "$@"

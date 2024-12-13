@@ -16,6 +16,12 @@ TUDO__VERSION=0.2.0
 
 
 
+if [ -z "${BASH_VERSION:-}" ]; then
+    echo "The 'tudo' script must be run from a 'bash' shell."; return 64 2>/dev/null|| exit 64 # EX__USAGE
+fi
+
+
+
 ##
 # Function to set termux env variables.
 #
@@ -4667,7 +4673,7 @@ tudo_process_arguments() {
 
     local OPTIND
 
-    # Parse options to tudo command
+    # Parse options to main command
     while getopts ":hqvaAbBcdeEfFHilLnNoOpPrsStT-:" opt; do
         case ${opt} in
             -)
@@ -5611,5 +5617,14 @@ tudo_exit_on_error() {
 
 }
 
-# Call tudo_main function
-[[ x"${BASH_SOURCE[0]}" == x"$0" ]] && { tudo_main "$@"; exit $?; }
+
+
+# If script is sourced, return with success, otherwise call main function.
+# - https://stackoverflow.com/a/28776166/14686958
+# - https://stackoverflow.com/a/29835459/14686958
+if (return 0 2>/dev/null); then
+    return 0 # EX__SUCCESS
+else
+    tudo_main "$@"
+    exit $?
+fi
