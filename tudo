@@ -320,8 +320,8 @@ tudo_main() {
     tudo_set_pre_required_variables || return $?
 
 
-    # Process the command arguments passed to tudo
-    tudo_process_arguments "$@" || return $?
+    # Process the command arguments passed to the script
+    tudo_process_script_arguments "$@" || return $?
 
     [ "$TUDO_NOOP_COMMAND" = "1" ] && return 0
 
@@ -334,7 +334,7 @@ tudo_main() {
         return_value=$?
     else
         tudo_log_errors "Unknown command type $COMMAND_TYPE"
-        tudo_exit_on_error || return $?
+        tudo_exit_on_args_error || return $?
     fi
 
     tudo_run_pre_exit_commands $return_value
@@ -4826,87 +4826,84 @@ tudo_trim_trailing_newlines() {
 }
 
 ##
-# `tudo_process_arguments` [`<argument...>`]
+# `tudo_process_script_arguments` [`<argument...>`]
 ##
-tudo_process_arguments() {
+tudo_process_script_arguments() {
 
-    local OPTIND
+    local opt; local opt_arg; local OPTARG=""; local OPTIND=1;
 
     # Parse options to main command
     while getopts ":hqvaAbBcdeEfFHilLnNoOpPrsStT-:" opt; do
-        case ${opt} in
+        case "${opt}" in
             -)
-                long_optargs="${OPTARG#*=}"
+                case "${OPTARG}" in *?=*) opt_arg="${OPTARG#*=}";; *) opt_arg="";; esac
                 case "${OPTARG}" in
                     help-extra)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
-                        tudo_show_help_extra
+                        tudo_show_help_extra || return $?
                         TUDO_NOOP_COMMAND=1; return 0
                         ;;
-                    help-extra*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    help-extra=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     help)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
-                        tudo_show_help
+                        tudo_show_help || return $?
                         TUDO_NOOP_COMMAND=1; return 0
                         ;;
-                    help*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    help=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     quiet)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         TUDO_LOG_LEVEL=0
                         ;;
-                    quiet*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    quiet=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     version)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         echo "$TUDO__VERSION"
                         TUDO_NOOP_COMMAND=1; return 0
                         ;;
-                    version*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    version=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     comma-alternative=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
-                        COMMA_ALTERNATIVE="$val"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
+                        COMMA_ALTERNATIVE="$opt_arg"
                         ;;
                     comma-alternative | comma-alternative=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     dry-run)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         TUDO_DRY_RUN=1
                         ;;
-                    dry-run*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    dry-run=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     export-paths=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
-                        tudo_trim_trailing_newlines "TUDO_ADDITIONAL_PATHS_TO_EXPORT" "$val"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
+                        tudo_trim_trailing_newlines "TUDO_ADDITIONAL_PATHS_TO_EXPORT" "$opt_arg"
                         ;;
                     export-paths | export-paths=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     export-ld-lib-paths=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
-                        tudo_trim_trailing_newlines "TUDO_ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT" "$val"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
+                        tudo_trim_trailing_newlines "TUDO_ADDITIONAL_LD_LIBRARY_PATHS_TO_EXPORT" "$opt_arg"
                         ;;
                     export-ld-lib-paths | export-ld-lib-paths=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     hold)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
@@ -4914,8 +4911,8 @@ tudo_process_arguments() {
                         HOLD_AFTER_TUDO=1
                         ;;
                     hold=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -4924,87 +4921,86 @@ tudo_process_arguments() {
                         HOLD_AFTER_TUDO=1
                         ;;
                     hold=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     hold-if-fail)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         HOLD_ONLY_ON_FAILURE=1
                         ;;
-                    hold-if-fail*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    hold-if-fail=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     list-interactive-shells)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         echo "$TUDO_SUPPORTED_INTERACTIVE_SHELLS"
                         TUDO_NOOP_COMMAND=1; return 0
                         ;;
-                    list-interactive-shells*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    list-interactive-shells=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     list-script-shells)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         echo "$TUDO_SUPPORTED_SCRIPT_SHELLS"
                         TUDO_NOOP_COMMAND=1; return 0
                         ;;
-                    list-script-shells*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    list-script-shells=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     no-create-hist)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         TUDO_SHELLS_AUTOMATICALLY_CREATE_HISTORY_FILES=0
                         ;;
-                    no-create-hist*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    no-create-hist=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     no-create-rc)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         TUDO_SHELLS_AUTOMATICALLY_CREATE_RC_FILES=0
                         ;;
-                    no-create-rc*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    no-create-rc=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     no-hist)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         TUDO_SHELLS_HISTORY_ENABLED=0
                         ;;
-                    no-hist*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    no-hist=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     no-log-args)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         DISABLE_ARGUMENTS_LOGGING=1
                         ;;
-                    no-log-args*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    no-log-args=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     keep-temp)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         DO_NOT_DELETE_TUDO_TEMP_DIRECTORY_ON_EXIT=1
                         ;;
-                    keep-temp*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    keep-temp=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     post-shell=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
-                        tudo_trim_trailing_newlines "TUDO_POST_SHELL" "$val"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
+                        tudo_trim_trailing_newlines "TUDO_POST_SHELL" "$opt_arg"
                         ;;
                     post-shell | post-shell=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     post-shell-home=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5013,12 +5009,12 @@ tudo_process_arguments() {
                         CUSTOM_TUDO_POST_SHELL_HOME_SET=1
                         ;;
                     post-shell-home | post-shell-home=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     post-shell-options=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5027,12 +5023,12 @@ tudo_process_arguments() {
                             "'--post-shell-options' arg option" "$val" || return $?
                         ;;
                     post-shell-options | post-shell-options=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     post-shell-post-commands=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5040,12 +5036,12 @@ tudo_process_arguments() {
                         ADDITIONAL_TUDO_POST_SHELL_POST_COMMANDS_TO_RUN="$val"
                         ;;
                     post-shell-post-commands | post-shell-post-commands=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     post-shell-pre-commands=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5053,12 +5049,12 @@ tudo_process_arguments() {
                         ADDITIONAL_TUDO_POST_SHELL_PRE_COMMANDS_TO_RUN="$val"
                         ;;
                     post-shell-pre-commands | post-shell-pre-commands=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     post-shell-stdin-string=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5066,29 +5062,29 @@ tudo_process_arguments() {
                         TUDO_POST_SHELL_STDIN_STRING="$val"
                         ;;
                     post-shell-stdin-string | post-shell-stdin-string=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     remove-prev-temp)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         REMOVE_PREVIOUS_TUDO_TEMP_FILES=1
                         ;;
-                    remove-prev-temp*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    remove-prev-temp=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     script-decode)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         FORCE_USE_TEMP_SCRIPT_FILE_FOR_CORE_SCRIPT=1
                         DECODE_CORE_SCRIPT_CONTENT=1
                         ;;
-                    script-decode*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    script-decode=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     script-name=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5096,12 +5092,12 @@ tudo_process_arguments() {
                         tudo_trim_trailing_newlines "TUDO_CORE_SCRIPT_TEMP_FILENAME" "$val"
                         ;;
                     script-name | script-name=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     script-redirect=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5109,21 +5105,20 @@ tudo_process_arguments() {
                         tudo_trim_trailing_newlines "TUDO_CORE_SCRIPT_REDIRECT_MODE" "$val"
                         ;;
                     script-redirect | script-redirect=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     shell=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
-                        tudo_trim_trailing_newlines "TUDO_SHELL" "$val"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
+                        tudo_trim_trailing_newlines "TUDO_SHELL" "$opt_arg"
                         ;;
                     shell | shell=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     shell-home=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5132,12 +5127,12 @@ tudo_process_arguments() {
                         CUSTOM_TUDO_SHELL_HOME_SET=1
                         ;;
                     shell-home | shell-home=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     shell-options=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5146,12 +5141,12 @@ tudo_process_arguments() {
                             "'--shell-options' arg option" "$val" || return $?
                         ;;
                     shell-options | shell-options=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     shell-post-commands=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5159,12 +5154,12 @@ tudo_process_arguments() {
                         ADDITIONAL_TUDO_SHELL_POST_COMMANDS_TO_RUN="$val"
                         ;;
                     shell-post-commands | shell-post-commands=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     shell-pre-commands=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5172,12 +5167,12 @@ tudo_process_arguments() {
                         ADDITIONAL_TUDO_SHELL_PRE_COMMANDS_TO_RUN="$val"
                         ;;
                     shell-pre-commands | shell-pre-commands=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     shell-stdin-string=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5185,30 +5180,29 @@ tudo_process_arguments() {
                         TUDO_SHELL_STDIN_STRING="$val"
                         ;;
                     shell-stdin-string | shell-stdin-string=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     sleep=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
-                        tudo_trim_trailing_newlines "SLEEP_TIME_AFTER_TUDO" "$val"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
+                        tudo_trim_trailing_newlines "SLEEP_TIME_AFTER_TUDO" "$opt_arg"
                         SLEEP_AFTER_TUDO=1
                         ;;
                     sleep | sleep=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     sleep-if-fail)
                         tudo_log_args "Parsing option: '--${OPTARG%=*}'"
                         SLEEP_ONLY_ON_FAILURE=1
                         ;;
-                    sleep-if-fail*)
-                        tudo_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                    sleep-if-fail=*)
+                        tudo_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     su-bin-path-add=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         if [[ "$val" == "0" ]]; then
                             TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE=0
                         else
@@ -5216,22 +5210,21 @@ tudo_process_arguments() {
                         fi
                         ;;
                     su-bin-path-add | su-bin-path-add=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     su-path=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
-                        tudo_trim_trailing_newlines "TUDO_SU_PATH" "$val"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
+                        tudo_trim_trailing_newlines "TUDO_SU_PATH" "$opt_arg"
                         TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE=1
                         ;;
                     su-path | su-path=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                     title=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5244,8 +5237,8 @@ tudo_process_arguments() {
                         SET_TUDO_SHELL_TERMINAL_TITLE=1
                         ;;
                     work-dir=?*)
-                        val="$long_optargs"
-                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${val}'"
+                        val="$opt_arg"
+                        tudo_log_args "Parsing option: '--${OPTARG%=*}', value: '${opt_arg}'"
                         # If PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES is enabled
                         if  [[ "$PARSE_COMMANDS_AS_PER_RUN_COMMAND_INTENT_RULES" == "1" ]]; then
                             tudo_replace_comma_alternative_chars_with_commas_in_string "val" "$val"
@@ -5253,22 +5246,22 @@ tudo_process_arguments() {
                         tudo_trim_trailing_newlines "TUDO_SHELL_WORKING_DIR" "$val"
                         ;;
                     work-dir | work-dir=)
-                        tudo_log_arg_errors "No parameters set for option: '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "No argument set for arg option '--${OPTARG%=*}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
-                    '' ) # "--" terminates argument processing to support non-options that start with dashes
+                    '')
                         tudo_log_args "Parsing option: '--'"
-                        break
+                        break # End of options `--`.
                         ;;
                     *)
-                        tudo_log_arg_errors "Unknown option '--${OPTARG%=*}'"
-                        tudo_exit_on_error || return $?
+                        tudo_log_arg_errors "Unknown option: '--${OPTARG:-}'."
+                        tudo_exit_on_args_error || return $?
                         ;;
                 esac
                 ;;
             h)
                 tudo_log_args "Parsing option: '-${opt}'"
-                tudo_show_help
+                tudo_show_help || return $?
                 TUDO_NOOP_COMMAND=1; return 0
                 ;;
             q)
@@ -5280,8 +5273,8 @@ tudo_process_arguments() {
                 if [ "$TUDO_LOG_LEVEL" -lt "$TUDO_MAX_LOG_LEVEL" ]; then
                     TUDO_LOG_LEVEL=$((TUDO_LOG_LEVEL+1));
                 else
-                    tudo_log_arg_errors "Invalid Option, max log level is $TUDO_MAX_LOG_LEVEL"
-                    tudo_exit_on_error || return $?
+                    tudo_log_arg_errors "Invalid option, max log level is $TUDO_MAX_LOG_LEVEL"
+                    tudo_exit_on_args_error || return $?
                 fi
                 ;;
             a)
@@ -5407,9 +5400,13 @@ tudo_process_arguments() {
                 fi
                 SET_SECONDARY_PRIORITY_PATHS=0
                 ;;
+            :)
+                tudo_log_arg_errors "No argument passed for arg option '-$OPTARG'."
+                tudo_exit_on_args_error || return $?
+                ;;
             \?)
-                tudo_log_arg_errors "Unknown option: '-${OPTARG}'"
-                tudo_exit_on_error || return $?
+                tudo_log_arg_errors "Unknown option${OPTARG:+": '-${OPTARG:-}'"}."
+                tudo_exit_on_args_error || return $?
                 ;;
         esac
     done
@@ -5425,17 +5422,17 @@ tudo_process_arguments() {
             # If more arguments are given
             if [ $# -ne 0 ]; then
                 tudo_log_arg_errors "Unknown arguments to \"$COMMAND_TYPE\": '$*'"
-                tudo_exit_on_error || return $?
+                tudo_exit_on_args_error || return $?
             fi
 
             if [[ "$COMMAND_TYPE" == "su" ]] && [[ "$A_FLAG_PASSED" == "1" ]]; then
                 tudo_log_arg_errors "Cannot pass '-a|-A' flags to 'su' command, use '-t|-T' flags instead"
-                tudo_exit_on_error || return $?
+                tudo_exit_on_args_error || return $?
             fi
 
             if [[ "$COMMAND_TYPE" == "asu" ]] && [[ "$T_FLAG_PASSED" == "1" ]]; then
                 tudo_log_arg_errors "Cannot pass '-t|-T' flags to 'asu' command, use '-a|-A' flags instead"
-                tudo_exit_on_error || return $?
+                tudo_exit_on_args_error || return $?
             fi
 
         # If COMMAND_TYPE equals "path" or "script"
@@ -5766,11 +5763,11 @@ TUDO_HELP_EOF
 
 }
 
-tudo_exit_on_error() {
+tudo_exit_on_args_error() {
     echo ""
-    tudo_show_help
-    tudo_run_pre_exit_commands 1
-    return 1
+    tudo_show_help || return $?
+    tudo_run_pre_exit_commands 1 || return $?
+    return 64 # EX__USAGE
 
 }
 

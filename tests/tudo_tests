@@ -235,8 +235,8 @@ tudo_tests_main() {
     tudo_tests_set_pre_required_variables || return $?
 
 
-    # Process the command arguments passed to tudo_tests
-    tudo_tests_process_arguments "$@" || return $?
+    # Process the command arguments passed to the script
+    tudo_tests_process_script_arguments "$@" || return $?
 
     [ "$TUDO_TESTS_NOOP_COMMAND" = "1" ] && return 0
 
@@ -1666,65 +1666,65 @@ tudo_tests_remove_tudo_tests_temp_directories() {
 }
 
 ##
-# `tudo_tests_process_arguments` [`<argument...>`]
+# `tudo_tests_process_script_arguments` [`<argument...>`]
 ##
-tudo_tests_process_arguments() {
+tudo_tests_process_script_arguments() {
 
-    local OPTIND
+    local opt; local opt_arg; local OPTARG=""; local OPTIND=1;
 
     # Parse options to main command
     while getopts ":hqv-:" opt; do
-        case ${opt} in
+        case "${opt}" in
             -)
-                long_optargs="${OPTARG#*=}"
+                case "${OPTARG}" in *?=*) opt_arg="${OPTARG#*=}";; *) opt_arg="";; esac
                 case "${OPTARG}" in
                     help-extra)
                         tudo_tests_log_args "Parsing option: '--${OPTARG%=*}'"
-                        tudo_tests_show_help_extra
+                        tudo_tests_show_help_extra || return $?
                         TUDO_TESTS_NOOP_COMMAND=1; return 0
                         ;;
-                    help-extra*)
-                        tudo_tests_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_tests_exit_on_error || return $?
+                    help-extra=*)
+                        tudo_tests_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_tests_exit_on_args_error || return $?
                         ;;
                     help)
                         tudo_tests_log_args "Parsing option: '--${OPTARG%=*}'"
-                        tudo_tests_show_help
+                        tudo_tests_show_help || return $?
                         TUDO_TESTS_NOOP_COMMAND=1; return 0
                         ;;
-                    help*)
-                        tudo_tests_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_tests_exit_on_error || return $?
+                    help=*)
+                        tudo_tests_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_tests_exit_on_args_error || return $?
                         ;;
                     only-bash-tests)
                         tudo_tests_log_args "Parsing option: '--${OPTARG%=*}'"
                         TUDO_TESTS_ONLY_BASH_TESTS=1
                         ;;
-                    only-bash-tests*)
-                        tudo_tests_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_tests_exit_on_error || return $?
+                    only-bash-tests=*)
+                        tudo_tests_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_tests_exit_on_args_error || return $?
                         ;;
                     quiet)
                         tudo_tests_log_args "Parsing option: '--${OPTARG%=*}'"
                         TUDO_TESTS_LOG_LEVEL=0
                         ;;
-                    quiet*)
-                        tudo_tests_log_arg_errors "Invalid option or parameters not allowed for option: '--${OPTARG%=*}'"
-                        tudo_tests_exit_on_error || return $?
+                    quiet=*)
+                        tudo_tests_log_arg_errors "Arguments not allowed for flag option '--${OPTARG%=*}': \`--${OPTARG:-}\`."
+                        tudo_tests_exit_on_args_error || return $?
                         ;;
-                    '' ) # "--" terminates argument processing to support non-options that start with dashes
+                    '')
                         tudo_tests_log_args "Parsing option: '--'"
-                        break
+                        break # End of options '--'.
                         ;;
                     *)
-                        tudo_tests_log_arg_errors "Unknown option '--${OPTARG%=*}'"
-                        tudo_tests_exit_on_error || return $?
+                        tudo_tests_log_arg_errors "Unknown option: '--${OPTARG:-}'."
+                        tudo_tests_exit_on_args_error || return $?
                         ;;
                 esac
                 ;;
             h)
                 tudo_tests_log_args "Parsing option: '-${opt}'"
-                tudo_tests_show_help
+                tudo_tests_show_help || return $?
                 TUDO_TESTS_NOOP_COMMAND=1; return 0
                 ;;
             q)
@@ -1737,12 +1737,16 @@ tudo_tests_process_arguments() {
                     TUDO_TESTS_LOG_LEVEL=$((TUDO_TESTS_LOG_LEVEL+1));
                 else
                     tudo_tests_log_arg_errors "Invalid Option, max log level is $TUDO_TESTS_MAX_LOG_LEVEL"
-                    tudo_tests_exit_on_error || return $? || return $?
+                    tudo_tests_exit_on_args_error || return $? || return $?
                 fi
                 ;;
+            :)
+                tudo_tests_log_arg_errors "No argument passed for arg option '-$OPTARG'."
+                tudo_tests_exit_on_args_error || return $?
+                ;;
             \?)
-                tudo_tests_log_arg_errors "Unknown option: '-${OPTARG}'"
-                tudo_tests_exit_on_error || return $? || return $?
+                tudo_tests_log_arg_errors "Unknown option${OPTARG:+": '-${OPTARG:-}'"}."
+                tudo_tests_exit_on_args_error || return $?
                 ;;
         esac
     done
@@ -1768,10 +1772,10 @@ tudo_tests_show_help_extra() {
 
 }
 
-tudo_tests_exit_on_error() {
+tudo_tests_exit_on_args_error() {
 
-    tudo_tests_show_help
-    return 1
+    tudo_tests_show_help || return $?
+    return 64 # EX__USAGE
 
 }
 
