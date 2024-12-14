@@ -195,7 +195,7 @@ tudo_tests_main() {
     return_value=$?
     if [ $return_value -ne 0 ] || [[ ! "$TUDO_SCRIPT_PATH" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
         tudo_log_errors "Failure while finding TUDO_SCRIPT_PATH"
-        tudo_log_errors "TUDO_SCRIPT_PATH=\"$TUDO_SCRIPT_PATH\""
+        tudo_log_errors "TUDO_SCRIPT_PATH='$TUDO_SCRIPT_PATH'"
         if [ $return_value -eq 0 ]; then
             return_value=1
         fi
@@ -204,7 +204,7 @@ tudo_tests_main() {
 
     # Source the tudo script
     if [ ! -x "$TUDO_SCRIPT_PATH" ]; then
-        tudo_tests_log_errors "The TUDO_SCRIPT_PATH \"$TUDO_SCRIPT_PATH\" found is not executable"
+        tudo_tests_log_errors "The TUDO_SCRIPT_PATH '$TUDO_SCRIPT_PATH' found is not executable"
         return 1
     else
         # shellcheck source=tudo
@@ -225,7 +225,7 @@ tudo_tests_main() {
     for var in "${TUDO_TESTS_REQUIRED_VARIABLES_ARRAY[@]}"; do
         # If var is not set
         if [ -z "${!var}" ]; then
-            tudo_tests_log_errors "The required variable \"$var\" for tudo_tests is not set"
+            tudo_tests_log_errors "The required variable '$var' for tudo_tests is not set"
             return 1
         fi
     done
@@ -288,8 +288,8 @@ tudo_tests_set_pre_required_variables() {
         ANDROID__BUILD_VERSION_SDK="$(unset LD_LIBRARY_PATH; unset LD_PRELOAD; getprop "ro.build.version.sdk")"
         return_value=$?
         if [ $return_value -ne 0 ] || [[ ! "$ANDROID__BUILD_VERSION_SDK" =~ $VALID_NUMBER_REGEX ]]; then
-            tudo_tests_log_errors "Failure while finding \"ro.build.version.sdk\" property"
-            tudo_tests_log_errors "ANDROID__BUILD_VERSION_SDK = \"$ANDROID__BUILD_VERSION_SDK\""
+            tudo_tests_log_errors "Failure while finding 'ro.build.version.sdk' property"
+            tudo_tests_log_errors "ANDROID__BUILD_VERSION_SDK='$ANDROID__BUILD_VERSION_SDK'"
             if [ $return_value -eq 0 ]; then
                 return_value=1
             fi
@@ -297,7 +297,7 @@ tudo_tests_set_pre_required_variables() {
         fi
     fi
 
-    tudo_tests_log 3 "ANDROID__BUILD_VERSION_SDK=\"$ANDROID__BUILD_VERSION_SDK\""
+    tudo_tests_log 3 "ANDROID__BUILD_VERSION_SDK='$ANDROID__BUILD_VERSION_SDK'"
 
 
 
@@ -311,7 +311,7 @@ tudo_tests_set_pre_required_variables() {
         LD_LIBRARY_PATH=""
     fi
 
-    tudo_tests_log 3 "LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\""
+    tudo_tests_log 3 "LD_LIBRARY_PATH='$LD_LIBRARY_PATH'"
 
     return 0
 
@@ -335,7 +335,7 @@ tudo_tests_set_required_variables() {
     return_value=$?
     if [ $return_value -ne 0 ] || [[ ! "$TUDO_TESTS_TEMP_DIRECTORY_SUFFIX" =~  ^tudo\.......$ ]]; then
         tudo_tests_log_errors "Failure while running mktemp to create TUDO_TESTS_TEMP_DIRECTORY_SUFFIX"
-        tudo_tests_log_errors "TUDO_TESTS_TEMP_DIRECTORY_SUFFIX=\"$TUDO_TESTS_TEMP_DIRECTORY_SUFFIX\""
+        tudo_tests_log_errors "TUDO_TESTS_TEMP_DIRECTORY_SUFFIX='$TUDO_TESTS_TEMP_DIRECTORY_SUFFIX'"
         if [ $return_value -eq 0 ]; then
             return_value=1
         fi
@@ -862,61 +862,61 @@ TUDO_EOF
 
     run_tudo_test 35 && \
     output="$(tudo -s --shell=bas 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The TUDO_SHELL \"bas\" is not supported. It must be one of" "*"
+    validate_tudo_test 1 $? "$output" "" "The TUDO_SHELL 'bas' is not supported. It must be one of" "*"
 
 
 
     run_tudo_test 36 && \
     output="$(tudo -si --post-shell=bas 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The TUDO_POST_SHELL \"bas\" is not supported. It must be one of" "*"
+    validate_tudo_test 1 $? "$output" "" "The TUDO_POST_SHELL 'bas' is not supported. It must be one of" "*"
 
 
 
     run_tudo_test 37 && \
     output="$(tudo -s --shell-home='~/.config' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The \"$TERMUX_HOME/.config\" cannot be used as TUDO_SHELL_HOME" "*"
+    validate_tudo_test 1 $? "$output" "" "The '$TERMUX_HOME/.config' cannot be used as TUDO_SHELL_HOME" "*"
 
 
 
     run_tudo_test 38 && \
     output="$(tudo -s --shell-home='$PREFIX/' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The \"$TERMUX_PREFIX\" cannot be used as TUDO_SHELL_HOME" "*"
+    validate_tudo_test 1 $? "$output" "" "The '$TERMUX_PREFIX' cannot be used as TUDO_SHELL_HOME" "*"
 
 
 
     run_tudo_test 39 && \
     output="$(tudo -s --shell-home='$PREFIX/home' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The \"$TERMUX_PREFIX/home\" cannot be used as TUDO_SHELL_HOME" "*"
+    validate_tudo_test 1 $? "$output" "" "The '$TERMUX_PREFIX/home' cannot be used as TUDO_SHELL_HOME" "*"
 
 
 
     run_tudo_test 40 && \
     output="$(tudo -s --shell-home='/data' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The TUDO_SHELL_HOME \"/data\" must be an absolute path under TERMUX_ROOTFS \"$TERMUX_ROOTFS\"" "*"
+    validate_tudo_test 1 $? "$output" "" "The TUDO_SHELL_HOME '/data' must be an absolute path under TERMUX_ROOTFS '$TERMUX_ROOTFS'" "*"
 
 
 
     run_tudo_test 41 && \
     output="$(tudo -si --post-shell-home='~/.config' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The \"$TERMUX_HOME/.config\" cannot be used as TUDO_POST_SHELL_HOME" "*"
+    validate_tudo_test 1 $? "$output" "" "The '$TERMUX_HOME/.config' cannot be used as TUDO_POST_SHELL_HOME" "*"
 
 
 
     run_tudo_test 42 && \
     output="$(tudo -si --post-shell-home='$PREFIX/' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The \"$TERMUX_PREFIX\" cannot be used as TUDO_POST_SHELL_HOME" "*"
+    validate_tudo_test 1 $? "$output" "" "The '$TERMUX_PREFIX' cannot be used as TUDO_POST_SHELL_HOME" "*"
 
 
 
     run_tudo_test 43 && \
     output="$(tudo -si --post-shell-home='$PREFIX/home' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The \"$TERMUX_PREFIX/home\" cannot be used as TUDO_POST_SHELL_HOME" "*"
+    validate_tudo_test 1 $? "$output" "" "The '$TERMUX_PREFIX/home' cannot be used as TUDO_POST_SHELL_HOME" "*"
 
 
 
     run_tudo_test 44 && \
     output="$(tudo -si --post-shell-home='/data' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The TUDO_POST_SHELL_HOME \"/data\" must be an absolute path under TERMUX_ROOTFS \"$TERMUX_ROOTFS\"" "*"
+    validate_tudo_test 1 $? "$output" "" "The TUDO_POST_SHELL_HOME '/data' must be an absolute path under TERMUX_ROOTFS '$TERMUX_ROOTFS'" "*"
 
 
 
@@ -1444,13 +1444,13 @@ tudo_tests_run_subshell_command() {
 
     # If stdout_variable_name does equals "stdout_variable_name" and or is not a valid bash variable_name
     if [[ "$stdout_variable_name" == "stdout_variable_name" ]]|| [[ ! "$stdout_variable_name" =~ $valid_bash_variable_name_regex ]]; then
-        tudo_tests_log_errors "stdout_variable_name \"$1\" passed to \"tudo_tests_run_subshell_command\" equals \"stdout_variable_name\" or is not a valid bash variable name"
+        tudo_tests_log_errors "stdout_variable_name '$1' passed to 'tudo_tests_run_subshell_command' equals 'stdout_variable_name' or is not a valid bash variable name"
         return 1
     fi
 
     # If stderr_variable_name does equals "stderr_variable_name" and or is not a valid bash variable_name
     if [[ "$stderr_variable_name" == "stderr_variable_name" ]]|| [[ ! "$stderr_variable_name" =~ $valid_bash_variable_name_regex ]]; then
-        tudo_tests_log_errors "stderr_variable_name \"$1\" passed to \"tudo_tests_run_subshell_command\" equals \"stderr_variable_name\" or is not a valid bash variable name"
+        tudo_tests_log_errors "stderr_variable_name '$1' passed to 'tudo_tests_run_subshell_command' equals 'stderr_variable_name' or is not a valid bash variable name"
         return 1
     fi
 

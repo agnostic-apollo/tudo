@@ -394,7 +394,7 @@ tudo_run() {
 
         interactive_tudo_shell_required=0
     else
-        tudo_log_errors "COMMAND_TYPE \"$COMMAND_TYPE\" not handled while running tudo command in \"tudo_run\""
+        tudo_log_errors "COMMAND_TYPE '$COMMAND_TYPE' not handled while running tudo command in 'tudo_run'"
         return 1
     fi
 
@@ -530,7 +530,7 @@ tudo_run() {
 
         # If TUDO_SHELL_INTERACTIVE_COMMAND is not set
         if [ ${#TUDO_SHELL_INTERACTIVE_COMMAND[@]} -eq 0 ]; then
-            tudo_log_errors "TUDO_SHELL_INTERACTIVE_COMMAND is not set while running tudo $COMMAND_TYPE command in \"tudo_run\""
+            tudo_log_errors "TUDO_SHELL_INTERACTIVE_COMMAND is not set while running tudo $COMMAND_TYPE command in 'tudo_run'"
             return 1
         fi
 
@@ -607,13 +607,13 @@ tudo_run() {
 
         # If TUDO_SHELL_COMMAND is not set
         if [ ${#TUDO_SHELL_COMMAND[@]} -eq 0 ]; then
-            tudo_log_errors "TUDO_SHELL_COMMAND is not set while running tudo $COMMAND_TYPE command in \"tudo_run\""
+            tudo_log_errors "TUDO_SHELL_COMMAND is not set while running tudo $COMMAND_TYPE command in 'tudo_run'"
             return 1
         fi
 
         # If RUN_INTERACTIVE_POST_TUDO_SHELL_AFTER_RUNNING_CORE_SCRIPT is enabled and TUDO_POST_SHELL_INTERACTIVE_COMMAND is not set
         if [[ "$RUN_INTERACTIVE_POST_TUDO_SHELL_AFTER_RUNNING_CORE_SCRIPT" == "1" ]] && [ ${#TUDO_POST_SHELL_INTERACTIVE_COMMAND[@]} -eq 0 ]; then
-            tudo_log_errors "TUDO_POST_SHELL_INTERACTIVE_COMMAND is not set while running tudo $COMMAND_TYPE command in \"tudo_run\""
+            tudo_log_errors "TUDO_POST_SHELL_INTERACTIVE_COMMAND is not set while running tudo $COMMAND_TYPE command in 'tudo_run'"
             return 1
         fi
 
@@ -646,13 +646,13 @@ tudo_run() {
 
 
     else
-        tudo_log_errors "COMMAND_TYPE \"$COMMAND_TYPE\" not handled while running tudo command in \"tudo_run\""
+        tudo_log_errors "COMMAND_TYPE '$COMMAND_TYPE' not handled while running tudo command in 'tudo_run'"
         return 1
     fi
 
     # If TUDO_DRY_RUN is not enabled
     if [[ "$TUDO_DRY_RUN" != "1" ]]; then
-        tudo_log 3 $'\n'"TUDO_EXIT_CODE=\"$TUDO_EXIT_CODE\""
+        tudo_log 3 $'\n'"TUDO_EXIT_CODE='$TUDO_EXIT_CODE'"
     fi
 
     # If tudo is being run in an interactive shell, then reset terminal
@@ -688,13 +688,13 @@ tudo_run_pre_exit_commands() {
                         # read should never timeout because of TMOUT=0
                         local exit_while=0
                         while [[ $exit_while != "1" ]]; do
-                            TMOUT=0 read -p "Enter \"$HOLD_STRING_AFTER_TUDO\" to exit:"$'\n' input
+                            TMOUT=0 read -p "Enter '$HOLD_STRING_AFTER_TUDO' to exit:"$'\n' input
                             if [ $? -ne 0 ] || [[ "$input" == "$HOLD_STRING_AFTER_TUDO" ]]; then
                                 exit_while=1
                             fi
                         done
                     else
-                        tudo_log_errors "HOLD_STRING_AFTER_TUDO \"$HOLD_STRING_AFTER_TUDO\" is invalid. It can only contain alphanumeric and punctuation characters"
+                        tudo_log_errors "HOLD_STRING_AFTER_TUDO '$HOLD_STRING_AFTER_TUDO' is invalid. It can only contain alphanumeric and punctuation characters"
                         return 1
                     fi
 
@@ -718,7 +718,7 @@ tudo_run_pre_exit_commands() {
                 # Sleep for SLEEP_TIME_AFTER_TUDO seconds
                 sleep "$SLEEP_TIME_AFTER_TUDO"
             else
-                tudo_log_errors "SLEEP_TIME_AFTER_TUDO \"$SLEEP_TIME_AFTER_TUDO\" is not a valid floating point number"
+                tudo_log_errors "SLEEP_TIME_AFTER_TUDO '$SLEEP_TIME_AFTER_TUDO' is not a valid floating point number"
                 return 1
             fi
         fi
@@ -753,7 +753,7 @@ tudo_set_su_variables() {
 
     for su in "${su_search_paths[@]}"; do
         if [ -x "$su" ]; then
-            tudo_log 3 "A su binary found at \"$su\""
+            tudo_log 3 "A su binary found at '$su'"
             su_found=1
 
             # If '-c' option is not supported, then continue searching
@@ -798,8 +798,8 @@ tudo_set_su_variables() {
 
         tudo_log 3 "SU_SEARCH_PATHS: ${su_search_paths[*]}"
     else
-        tudo_log 3 "SU=\"$SU\""
-        tudo_log 3 "SU_BIN_PATH=\"$SU_BIN_PATH\""
+        tudo_log 3 "SU='$SU'"
+        tudo_log 3 "SU_BIN_PATH='$SU_BIN_PATH'"
     fi
 
     return 0
@@ -816,8 +816,8 @@ tudo_set_pre_required_variables() {
         ANDROID__BUILD_VERSION_SDK="$(unset LD_LIBRARY_PATH; unset LD_PRELOAD; getprop "ro.build.version.sdk")"
         return_value=$?
         if [ $return_value -ne 0 ] || [[ ! "$ANDROID__BUILD_VERSION_SDK" =~ $VALID_NUMBER_REGEX ]]; then
-            tudo_log_errors "Failure while finding \"ro.build.version.sdk\" property"
-            tudo_log_errors "ANDROID__BUILD_VERSION_SDK = \"$ANDROID__BUILD_VERSION_SDK\""
+            tudo_log_errors "Failure while finding 'ro.build.version.sdk' property"
+            tudo_log_errors "ANDROID__BUILD_VERSION_SDK='$ANDROID__BUILD_VERSION_SDK'"
             if [ $return_value -eq 0 ]; then
                 return_value=1
             fi
@@ -825,7 +825,7 @@ tudo_set_pre_required_variables() {
         fi
     fi
 
-    tudo_log 3 "ANDROID__BUILD_VERSION_SDK=\"$ANDROID__BUILD_VERSION_SDK\""
+    tudo_log 3 "ANDROID__BUILD_VERSION_SDK='$ANDROID__BUILD_VERSION_SDK'"
 
 
 
@@ -839,7 +839,7 @@ tudo_set_pre_required_variables() {
         LD_LIBRARY_PATH=""
     fi
 
-    tudo_log 3 "LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\""
+    tudo_log 3 "LD_LIBRARY_PATH='$LD_LIBRARY_PATH'"
 
     return 0
 
@@ -867,7 +867,7 @@ tudo_set_required_variables() {
     # Set PATH
     PATH="$TERMUX_BIN:$TERMUX_BIN_APPLETS:$SYS_XBIN:$SYS_BIN"
 
-    tudo_log 3 "PATH=\"$PATH\""
+    tudo_log 3 "PATH='$PATH'"
 
 
     # Set current working directory
@@ -883,7 +883,7 @@ tudo_set_required_variables() {
         return_value=$?
         if [ $return_value -ne 0 ] || [[ ! "$CURRENT_WORKING_DIR" =~ $VALID_ROOTFS_OR_ABSOLUTE_PATH_REGEX ]]; then
             tudo_log_errors "Failure while finding current working directory"
-            tudo_log_errors "CURRENT_WORKING_DIR = \"$CURRENT_WORKING_DIR\""
+            tudo_log_errors "CURRENT_WORKING_DIR='$CURRENT_WORKING_DIR'"
             if [ $return_value -eq 0 ]; then
                 return_value=1
             fi
@@ -891,7 +891,7 @@ tudo_set_required_variables() {
         fi
     fi
 
-    tudo_log 3 "CURRENT_WORKING_DIR=\"$CURRENT_WORKING_DIR\""
+    tudo_log 3 "CURRENT_WORKING_DIR='$CURRENT_WORKING_DIR'"
 
 
 
@@ -940,7 +940,7 @@ tudo_set_required_variables() {
     tudo_parse_and_validate_path_variable "TERMUX_PRIORITY_PATH" "TERMUX_PRIORITY_PATH" "$TERMUX_PRIORITY_PATH" "$remove_duplicates_in_path_variable"
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failed to parse and validate \"TERMUX_PRIORITY_PATH\""
+        tudo_log_errors "Failed to parse and validate 'TERMUX_PRIORITY_PATH'"
         return $return_value
     fi
 
@@ -948,7 +948,7 @@ tudo_set_required_variables() {
     tudo_parse_and_validate_path_variable "ANDROID_PRIORITY_PATH" "ANDROID_PRIORITY_PATH" "$ANDROID_PRIORITY_PATH" "$remove_duplicates_in_path_variable"
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failed to parse and validate \"ANDROID_PRIORITY_PATH\""
+        tudo_log_errors "Failed to parse and validate 'ANDROID_PRIORITY_PATH'"
         return $return_value
     fi
 
@@ -995,7 +995,7 @@ tudo_set_required_variables() {
     tudo_parse_and_validate_path_variable "TERMUX_PRIORITY_LD_LIBRARY_PATH" "TERMUX_PRIORITY_LD_LIBRARY_PATH" "$TERMUX_PRIORITY_LD_LIBRARY_PATH" "$remove_duplicates_in_ld_library_path_variable"
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failed to parse and validate \"TERMUX_PRIORITY_LD_LIBRARY_PATH\""
+        tudo_log_errors "Failed to parse and validate 'TERMUX_PRIORITY_LD_LIBRARY_PATH'"
         return $return_value
     fi
 
@@ -1003,7 +1003,7 @@ tudo_set_required_variables() {
     tudo_parse_and_validate_path_variable "ANDROID_PRIORITY_LD_LIBRARY_PATH" "ANDROID_PRIORITY_LD_LIBRARY_PATH" "$ANDROID_PRIORITY_LD_LIBRARY_PATH" "$remove_duplicates_in_ld_library_path_variable"
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failed to parse and validate \"ANDROID_PRIORITY_LD_LIBRARY_PATH\""
+        tudo_log_errors "Failed to parse and validate 'ANDROID_PRIORITY_LD_LIBRARY_PATH'"
         return $return_value
     fi
 
@@ -1026,29 +1026,29 @@ tudo_set_required_variables() {
     tudo_expand_termux_path "TUDO_SHELL_HOME" "TUDO_SHELL_HOME" "$TUDO_SHELL_HOME" "$TERMUX_PREFIX" "$TERMUX_HOME" "$CUSTOM_TUDO_SHELL_HOME_SET"
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failed to expand TUDO_SHELL_HOME \"$TUDO_SHELL_HOME\""
+        tudo_log_errors "Failed to expand TUDO_SHELL_HOME '$TUDO_SHELL_HOME'"
         return $return_value
     fi
 
     # If TUDO_SHELL_HOME is not a valid absolute path
     if [[ ! "$TUDO_SHELL_HOME" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
-        tudo_log_errors "The TUDO_SHELL_HOME \"$TUDO_SHELL_HOME\" is not a valid absolute path"
+        tudo_log_errors "The TUDO_SHELL_HOME '$TUDO_SHELL_HOME' is not a valid absolute path"
         return 1
     fi
 
     # If TUDO_SHELL_HOME is not set to an absolute path under TERMUX_ROOTFS
     if [[ ! "$TUDO_SHELL_HOME" =~ $VALID_PATH_UNDER_TERMUX_ROOTFS_REGEX ]]; then
-        tudo_log_errors "The TUDO_SHELL_HOME \"$TUDO_SHELL_HOME\" must be an absolute path under TERMUX_ROOTFS \"$TERMUX_ROOTFS\""
+        tudo_log_errors "The TUDO_SHELL_HOME '$TUDO_SHELL_HOME' must be an absolute path under TERMUX_ROOTFS '$TERMUX_ROOTFS'"
     fi
 
-    tudo_log 3 "TUDO_SHELL_HOME=\"$TUDO_SHELL_HOME\""
+    tudo_log 3 "TUDO_SHELL_HOME='$TUDO_SHELL_HOME'"
 
     # Find the parent directory of the TUDO_SHELL_HOME
     TUDO_SHELL_HOME_BASENAME="${TUDO_SHELL_HOME##*/}" # Strip longest match of */ from start
     TUDO_SHELL_HOME_PARENT_DIR="${TUDO_SHELL_HOME:0:${#TUDO_SHELL_HOME} - ${#TUDO_SHELL_HOME_BASENAME}}" # Substring from 0 to position of basename
     case "$TUDO_SHELL_HOME_PARENT_DIR" in *[!/]*/) TUDO_SHELL_HOME_PARENT_DIR="${TUDO_SHELL_HOME_PARENT_DIR%"${TUDO_SHELL_HOME_PARENT_DIR##*[!/]}"}";; *[/]) TUDO_SHELL_HOME_PARENT_DIR="/";; esac # Remove trailing slashes if not root
 
-    tudo_log 3 "TUDO_SHELL_HOME_PARENT_DIR=\"$TUDO_SHELL_HOME_PARENT_DIR\""
+    tudo_log 3 "TUDO_SHELL_HOME_PARENT_DIR='$TUDO_SHELL_HOME_PARENT_DIR'"
 
 
     # If TUDO_POST_SHELL_HOME is set
@@ -1062,29 +1062,29 @@ tudo_set_required_variables() {
         tudo_expand_termux_path "TUDO_POST_SHELL_HOME" "TUDO_POST_SHELL_HOME" "$TUDO_POST_SHELL_HOME" "$TERMUX_PREFIX" "$TERMUX_HOME" "$CUSTOM_TUDO_POST_SHELL_HOME_SET"
         return_value=$?
         if [ $return_value -ne 0 ]; then
-            tudo_log_errors "Failed to expand \"TUDO_POST_SHELL_HOME\""
+            tudo_log_errors "Failed to expand 'TUDO_POST_SHELL_HOME'"
             return $return_value
         fi
 
         # If TUDO_POST_SHELL_HOME is not a valid absolute path
         if [[ ! "$TUDO_POST_SHELL_HOME" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
-            tudo_log_errors "The TUDO_POST_SHELL_HOME \"$TUDO_POST_SHELL_HOME\" is not a valid absolute path"
+            tudo_log_errors "The TUDO_POST_SHELL_HOME '$TUDO_POST_SHELL_HOME' is not a valid absolute path"
             return 1
         fi
 
         # If TUDO_POST_SHELL_HOME is not set to an absolute path under TERMUX_ROOTFS
         if [[ ! "$TUDO_POST_SHELL_HOME" =~ $VALID_PATH_UNDER_TERMUX_ROOTFS_REGEX ]]; then
-            tudo_log_errors "The TUDO_POST_SHELL_HOME \"$TUDO_POST_SHELL_HOME\" must be an absolute path under TERMUX_ROOTFS \"$TERMUX_ROOTFS\""
+            tudo_log_errors "The TUDO_POST_SHELL_HOME '$TUDO_POST_SHELL_HOME' must be an absolute path under TERMUX_ROOTFS '$TERMUX_ROOTFS'"
         fi
 
-        tudo_log 3 "TUDO_POST_SHELL_HOME=\"$TUDO_POST_SHELL_HOME\""
+        tudo_log 3 "TUDO_POST_SHELL_HOME='$TUDO_POST_SHELL_HOME'"
 
         # Find the parent directory of the TUDO_POST_SHELL_HOME
         TUDO_POST_SHELL_HOME_BASENAME="${TUDO_POST_SHELL_HOME##*/}" # Strip longest match of */ from start
         TUDO_POST_SHELL_HOME_PARENT_DIR="${TUDO_POST_SHELL_HOME:0:${#TUDO_POST_SHELL_HOME} - ${#TUDO_POST_SHELL_HOME_BASENAME}}" # Substring from 0 to position of basename
         case "$TUDO_POST_SHELL_HOME_PARENT_DIR" in *[!/]*/) TUDO_POST_SHELL_HOME_PARENT_DIR="${TUDO_POST_SHELL_HOME_PARENT_DIR%"${TUDO_POST_SHELL_HOME_PARENT_DIR##*[!/]}"}";; *[/]) TUDO_POST_SHELL_HOME_PARENT_DIR="/";; esac # Remove trailing slashes if not root
 
-        tudo_log 3 "TUDO_POST_SHELL_HOME_PARENT_DIR=\"$TUDO_POST_SHELL_HOME_PARENT_DIR\""
+        tudo_log 3 "TUDO_POST_SHELL_HOME_PARENT_DIR='$TUDO_POST_SHELL_HOME_PARENT_DIR'"
     fi
 
 
@@ -1175,14 +1175,14 @@ tudo_set_priority_dependent_variables() {
 
     # If argument count is not 1
     if [ $# -ne 1 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_set_priority_dependent_variables\""
+        tudo_log_errors "Invalid argument count to 'tudo_set_priority_dependent_variables'"
         return 1
     fi
 
     local priority="$1"
 
     if [[ "$priority" != "termux" ]] && [[ "$priority" != "android" ]]; then
-        tudo_log_errors "priority \"$priority\" passed to \"tudo_set_priority_dependent_variables\" does not equal \"termux\" or \"android\""
+        tudo_log_errors "priority '$priority' passed to 'tudo_set_priority_dependent_variables' does not equal 'termux' or 'android'"
         return 1
     fi
 
@@ -1191,7 +1191,7 @@ tudo_set_priority_dependent_variables() {
         return 0
     fi
 
-    tudo_log_literal 3 "\nRunning tudo_set_priority_dependent_variables with priority \"$priority\""
+    tudo_log_literal 3 "\nRunning tudo_set_priority_dependent_variables with priority '$priority'"
 
     # Set PATH_TO_EXPORT
     # If priority equals "termux" then PATH_TO_EXPORT should be set to TERMUX_PRIORITY_PATH
@@ -1202,7 +1202,7 @@ tudo_set_priority_dependent_variables() {
         PATH_TO_EXPORT="$ANDROID_PRIORITY_PATH"
     fi
 
-    tudo_log 3 "PATH_TO_EXPORT=\"$PATH_TO_EXPORT\""
+    tudo_log 3 "PATH_TO_EXPORT='$PATH_TO_EXPORT'"
 
 
     # If priority equals "termux" then LD_LIBRARY_PATH_TO_EXPORT should be set to TERMUX_PRIORITY_LD_LIBRARY_PATH
@@ -1213,7 +1213,7 @@ tudo_set_priority_dependent_variables() {
         LD_LIBRARY_PATH_TO_EXPORT="$ANDROID_PRIORITY_LD_LIBRARY_PATH"
     fi
 
-    tudo_log 3 "LD_LIBRARY_PATH_TO_EXPORT=\"$LD_LIBRARY_PATH_TO_EXPORT\""
+    tudo_log 3 "LD_LIBRARY_PATH_TO_EXPORT='$LD_LIBRARY_PATH_TO_EXPORT'"
 
 
     # If priority equals "termux" then LD_PRELOAD_COMMAND should be set to TERMUX_PRIORITY_LD_PRELOAD_COMMAND
@@ -1224,7 +1224,7 @@ tudo_set_priority_dependent_variables() {
         LD_PRELOAD_COMMAND="$ANDROID_PRIORITY_LD_PRELOAD_COMMAND"
     fi
 
-    tudo_log 3 "LD_PRELOAD_COMMAND=\"$LD_PRELOAD_COMMAND\""
+    tudo_log 3 "LD_PRELOAD_COMMAND='$LD_PRELOAD_COMMAND'"
 
 
     previous_priority_dependent_variables_priortiy="$priority"
@@ -1262,28 +1262,28 @@ tudo_set_pre_tudo_shell_commands_to_run() {
     # If COMMAND_TYPE equals "su"
     if [[ "$COMMAND_TYPE" == "su" ]]; then
         priority="termux"
-        tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to \"termux\" bin and library paths for COMMAND_TYPE \"su\""
+        tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to 'termux' bin and library paths for COMMAND_TYPE 'su'"
 
     # If COMMAND_TYPE equals "asu"
     elif [[ "$COMMAND_TYPE" == "asu" ]]; then
         priority="android"
-        tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to \"android\" bin and library paths for COMMAND_TYPE \"asu\""
+        tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to 'android' bin and library paths for COMMAND_TYPE 'asu'"
 
     # If COMMAND_TYPE equals "path"
     elif [[ "$COMMAND_TYPE" == "path" ]]; then
         # If PATH_PRIORITY is android or termux
         if [[ "$PATH_PRIORITY" == "android" ]] || [[ "$PATH_PRIORITY" == "termux" ]]; then
             priority="$PATH_PRIORITY"
-            tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to \"$priority\" bin and library paths for COMMAND_TYPE \"path\" since PATH_PRIORITY is \"$PATH_PRIORITY\""
+            tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to '$priority' bin and library paths for COMMAND_TYPE 'path' since PATH_PRIORITY is '$PATH_PRIORITY'"
         # If PATH_PRIORITY is default
         else
             # If TUDO_CANONICAL_PATH_COMMAND is under termux rootfs
             if [[ "$TUDO_CANONICAL_PATH_COMMAND" == "$TERMUX_ROOTFS"/* ]]; then
                 priority="termux"
-                tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to \"termux\" bin and library paths for COMMAND_TYPE \"path\" since TUDO_PATH_COMMAND is under termux rootfs"
+                tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to 'termux' bin and library paths for COMMAND_TYPE 'path' since TUDO_PATH_COMMAND is under termux rootfs"
             else
                 priority="android"
-                tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to \"android\" bin and library paths for COMMAND_TYPE \"path\" since TUDO_PATH_COMMAND is not under termux rootfs"
+                tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to 'android' bin and library paths for COMMAND_TYPE 'path' since TUDO_PATH_COMMAND is not under termux rootfs"
             fi
         fi
 
@@ -1296,7 +1296,7 @@ tudo_set_pre_tudo_shell_commands_to_run() {
         else
             priority="termux"
         fi
-        tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to $priority bin and library paths for COMMAND_TYPE \"script\" since PATH_PRIORITY is \"$PATH_PRIORITY\""
+        tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to $priority bin and library paths for COMMAND_TYPE 'script' since PATH_PRIORITY is '$PATH_PRIORITY'"
     fi
 
     # Set priority_dependent_variables with new priority if needed
@@ -1368,7 +1368,7 @@ tudo_set_pre_tudo_shell_commands_to_run() {
         fi
     fi
 
-    #tudo_log 3 $'\n'"PRE_TUDO_SHELL_COMMANDS_TO_RUN=\"$PRE_TUDO_SHELL_COMMANDS_TO_RUN\""
+    #tudo_log 3 $'\n'"PRE_TUDO_SHELL_COMMANDS_TO_RUN='$PRE_TUDO_SHELL_COMMANDS_TO_RUN'"
 
     return 0
 
@@ -1428,7 +1428,7 @@ tudo_set_pre_tudo_post_shell_commands_to_run() {
         PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="$TUDO_POST_SHELL_HISTFILE_COMMANDS"$'\n'
     fi
 
-    #tudo_log 3 $'\n'"PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN=\"$PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN\""
+    #tudo_log 3 $'\n'"PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN='$PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN'"
 
     return 0
 
@@ -1442,11 +1442,11 @@ tudo_set_tudo_command_path() {
 
     TUDO_PATH_COMMAND="${TUDO_COMMAND[0]}"
 
-    tudo_log 2 "TUDO_PATH_COMMAND=\"$TUDO_PATH_COMMAND\""
+    tudo_log 2 "TUDO_PATH_COMMAND='$TUDO_PATH_COMMAND'"
 
     # If TUDO_PATH_COMMAND is empty
     if [ -z "$TUDO_PATH_COMMAND" ]; then
-        tudo_log_errors "The tudo command path \"$TUDO_PATH_COMMAND\" is empty"
+        tudo_log_errors "The tudo command path '$TUDO_PATH_COMMAND' is empty"
         return 1
     fi
 
@@ -1462,21 +1462,21 @@ tudo_set_tudo_command_path() {
     tudo_find_absolute_path_for_executable_and_validate "TUDO_ABSOLUTE_PATH_COMMAND" "TUDO_PATH_COMMAND" "$TUDO_PATH_COMMAND" "$PATH_TO_EXPORT" "$TERMUX_PREFIX" "$TERMUX_HOME"
     return_value=$?
     if [ $return_value -ne 0 ] && [ $return_value -ne 112 ]; then
-        tudo_log_errors "Failure while running \"tudo_find_absolute_path_for_executable_and_validate\""
+        tudo_log_errors "Failure while running 'tudo_find_absolute_path_for_executable_and_validate'"
         return $return_value
     elif [ $return_value -eq 112 ]; then
-        tudo_log_errors "Command \"$TUDO_PATH_COMMAND\" not found"
+        tudo_log_errors "Command '$TUDO_PATH_COMMAND' not found"
         tudo_log_errors "Check your spelling and try again"
         return 1
     fi
 
     TUDO_PATH_COMMAND="$TUDO_ABSOLUTE_PATH_COMMAND"
 
-    tudo_log 2 "TUDO_ABSOLUTE_PATH_COMMAND=\"$TUDO_ABSOLUTE_PATH_COMMAND\""
+    tudo_log 2 "TUDO_ABSOLUTE_PATH_COMMAND='$TUDO_ABSOLUTE_PATH_COMMAND'"
 
     # If TUDO_PATH_COMMAND is not a valid absolute path
     if [[ ! "$TUDO_PATH_COMMAND" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
-        tudo_log_errors "The TUDO_PATH_COMMAND \"$TUDO_PATH_COMMAND\" is not a valid absolute path"
+        tudo_log_errors "The TUDO_PATH_COMMAND '$TUDO_PATH_COMMAND' is not a valid absolute path"
         return 1
     fi
 
@@ -1488,7 +1488,7 @@ tudo_set_tudo_command_path() {
         return_value=$?
         if [ $return_value -ne 0 ] || [[ ! "$TUDO_CANONICAL_PATH_COMMAND" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
             tudo_log_errors "Failure while finding canonical path to tudo path commmand"
-            tudo_log_errors "TUDO_CANONICAL_PATH_COMMAND = \"$TUDO_CANONICAL_PATH_COMMAND\""
+            tudo_log_errors "TUDO_CANONICAL_PATH_COMMAND='$TUDO_CANONICAL_PATH_COMMAND'"
             if [ $return_value -eq 0 ]; then
                 return_value=1
             fi
@@ -1496,7 +1496,7 @@ tudo_set_tudo_command_path() {
         fi
 
         if [[ "$TUDO_CANONICAL_PATH_COMMAND" != "$TUDO_ABSOLUTE_PATH_COMMAND" ]]; then
-            tudo_log 2 "TUDO_CANONICAL_PATH_COMMAND=\"$TUDO_CANONICAL_PATH_COMMAND\""
+            tudo_log 2 "TUDO_CANONICAL_PATH_COMMAND='$TUDO_CANONICAL_PATH_COMMAND'"
         fi
     fi
 
@@ -1512,11 +1512,11 @@ tudo_set_tudo_path_command() {
 
     # If TUDO_COMMAND is not set
     if [ ${#TUDO_COMMAND[@]} -eq 0 ]; then
-        tudo_log_errors "TUDO_COMMAND is not set while running \"tudo_set_tudo_path_command\""
+        tudo_log_errors "TUDO_COMMAND is not set while running 'tudo_set_tudo_path_command'"
         return 1
     fi
 
-    tudo_log 3 "TUDO_COMMAND_ARRAY_COUNT=\"${#TUDO_COMMAND[@]}\""
+    tudo_log 3 "TUDO_COMMAND_ARRAY_COUNT='${#TUDO_COMMAND[@]}'"
 
     tudo_log 3 $'\n'"TUDO_PATH_COMMAND=\`$TUDO_PATH_COMMAND\`"
 
@@ -1566,7 +1566,7 @@ tudo_set_tudo_path_command() {
         TUDO_PATH_COMMAND_ARGS="${TUDO_PATH_COMMAND_ARGS% }" # Remove trailing space
 
         TUDO_PATH_COMMAND_ARGS_LENGTH="${#TUDO_PATH_COMMAND_ARGS}"
-        tudo_log 3 "TUDO_PATH_COMMAND_ARGS_LENGTH=\"$TUDO_PATH_COMMAND_ARGS_LENGTH\""
+        tudo_log 3 "TUDO_PATH_COMMAND_ARGS_LENGTH='$TUDO_PATH_COMMAND_ARGS_LENGTH'"
 
 
         # The `path` would not contribute much to crossing ARG_MAX since its only a path to a file, unless the path is too long
@@ -1574,7 +1574,7 @@ tudo_set_tudo_path_command() {
         # and not as a direct argument since in that case ARG_MAX would have crossed at the point instead
         # If TUDO_PATH_COMMAND_ARGS_LENGTH is greater than TUDO_ARG_MAX_SAFE_LIMIT
         if [[ "$TUDO_PATH_COMMAND_ARGS_LENGTH" -gt "$TUDO_ARG_MAX_SAFE_LIMIT" ]]; then
-            tudo_log 2 "Warning! The TUDO_PATH_COMMAND_ARGS_LENGTH \"$TUDO_PATH_COMMAND_ARGS_LENGTH\" is greater than $((TUDO_ARG_MAX_SAFE_LIMIT / 1024))KB. This may cause an \"Argument list too long\" exception."
+            tudo_log 2 "Warning! The TUDO_PATH_COMMAND_ARGS_LENGTH '$TUDO_PATH_COMMAND_ARGS_LENGTH' is greater than $((TUDO_ARG_MAX_SAFE_LIMIT / 1024))KB. This may cause an 'Argument list too long' exception."
         fi
 
         # Pass TUDO_PATH_COMMAND_ARGS to TUDO_PATH_COMMAND
@@ -1606,7 +1606,7 @@ tudo_set_tudo_script_command() {
         TUDO_SCRIPT_COMMAND_TO_RUN+="$ADDITIONAL_TUDO_SHELL_PRE_COMMANDS_TO_RUN"$'\n\n'
     fi
 
-    tudo_log 3 "TUDO_COMMAND_ARRAY_COUNT=\"${#TUDO_COMMAND[@]}\""
+    tudo_log 3 "TUDO_COMMAND_ARRAY_COUNT='${#TUDO_COMMAND[@]}'"
 
     # If TUDO_CORE_SCRIPT or arguments are passed and TUDO_CORE_SCRIPT is not empty
     # The TUDO_CORE_SCRIPT can optionally not be passed or passed as an empty string so that other "features"
@@ -1674,7 +1674,7 @@ tudo_set_tudo_script_command() {
         tudo_set_script_argument_for_script_shell "$TUDO_SHELL_BASENAME" "TUDO_SCRIPT__CORE_SCRIPT_EOF" "'" "$CORE_SCRIPT_IS_PATH_TO_SCRIPT_FILE" "$FORCE_USE_TEMP_SCRIPT_FILE_FOR_CORE_SCRIPT" "$DECODE_CORE_SCRIPT_CONTENT" "TUDO_CORE_SCRIPT" "$TUDO_CORE_SCRIPT_TEMP_FILENAME" "$TUDO_CORE_SCRIPT"
         return_value=$?
         if [ $return_value -ne 0 ]; then
-            tudo_log_errors "Failed to create TUDO_CORE_SCRIPT argument commands to pass them to TUDO_SHELL \"$TUDO_SHELL\""
+            tudo_log_errors "Failed to create TUDO_CORE_SCRIPT argument commands to pass them to TUDO_SHELL '$TUDO_SHELL'"
             return $return_value
         fi
 
@@ -1690,7 +1690,7 @@ tudo_set_tudo_script_command() {
             TUDO_CORE_SCRIPT_COMMAND_ARGS="${TUDO_CORE_SCRIPT_COMMAND_ARGS% }" # Remove trailing space
 
             TUDO_CORE_SCRIPT_COMMAND_ARGS_LENGTH="${#TUDO_CORE_SCRIPT_COMMAND_ARGS}"
-            tudo_log 3 "TUDO_CORE_SCRIPT_COMMAND_ARGS_LENGTH=\"$TUDO_CORE_SCRIPT_COMMAND_ARGS_LENGTH\""
+            tudo_log 3 "TUDO_CORE_SCRIPT_COMMAND_ARGS_LENGTH='$TUDO_CORE_SCRIPT_COMMAND_ARGS_LENGTH'"
 
             # The `core_script` would not contribute much to crossing ARG_MAX since its either passed with process substitution or
             # as a path to a file storing it, unless the path is too long
@@ -1698,7 +1698,7 @@ tudo_set_tudo_script_command() {
             # and not as a direct argument since in that case ARG_MAX would have crossed at the point instead
             # If TUDO_CORE_SCRIPT_COMMAND_ARGS_LENGTH is greater than TUDO_ARG_MAX_SAFE_LIMIT
             if [[ "$TUDO_CORE_SCRIPT_COMMAND_ARGS_LENGTH" -gt "$TUDO_ARG_MAX_SAFE_LIMIT" ]]; then
-                tudo_log 2 "Warning! The TUDO_CORE_SCRIPT_COMMAND_ARGS_LENGTH \"$TUDO_CORE_SCRIPT_COMMAND_ARGS_LENGTH\" is greater than $((TUDO_ARG_MAX_SAFE_LIMIT / 1024))KB. This may cause an \"Argument list too long\" exception."
+                tudo_log 2 "Warning! The TUDO_CORE_SCRIPT_COMMAND_ARGS_LENGTH '$TUDO_CORE_SCRIPT_COMMAND_ARGS_LENGTH' is greater than $((TUDO_ARG_MAX_SAFE_LIMIT / 1024))KB. This may cause an 'Argument list too long' exception."
             fi
 
             # Pass the arguments to the TUDO_SHELL after the SCRIPT_ARGUMENT_FOR_SCRIPT_SHELL
@@ -1862,7 +1862,7 @@ tudo_set_tudo_script_command() {
     tudo_create_script_command_traps
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failed to create traps commands for TUDO_TEMP_DIRECTORY \"$TUDO_TEMP_DIRECTORY\""
+        tudo_log_errors "Failed to create traps commands for TUDO_TEMP_DIRECTORY '$TUDO_TEMP_DIRECTORY'"
         return $return_value
     fi
 
@@ -1892,7 +1892,7 @@ tudo_set_script_argument_for_script_shell() {
 
     # If argument count is not 9
     if [ $# -ne 9 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_set_script_argument_for_script_shell\""
+        tudo_log_errors "Invalid argument count to 'tudo_set_script_argument_for_script_shell'"
         return 1
     fi
 
@@ -1907,7 +1907,7 @@ tudo_set_script_argument_for_script_shell() {
 
     # If shell_basename is not in any of the TUDO_SUPPORTED_SCRIPT_SHELLS, then exit with error
     if [[ "$shell_basename" == *' '* ]] || [[ " $TUDO_SUPPORTED_SCRIPT_SHELLS " != *" $shell_basename "* ]]; then
-        tudo_log_errors "The shell_basename \"$shell_basename\" while running \"tudo_set_script_argument_for_script_shell\" is not supported. It must be one of \"$TUDO_SUPPORTED_SCRIPT_SHELLS\""
+        tudo_log_errors "The shell_basename '$shell_basename' while running 'tudo_set_script_argument_for_script_shell' is not supported. It must be one of '$TUDO_SUPPORTED_SCRIPT_SHELLS'"
         return 1
     fi
 
@@ -1923,17 +1923,17 @@ tudo_set_script_argument_for_script_shell() {
         tudo_expand_termux_path "script_file_path" "$script_file_label" "$script_file_path" "$TERMUX_PREFIX" "$TERMUX_HOME" 3
         return_value=$?
         if [ $return_value -ne 0 ]; then
-            tudo_log_errors "Failed to expand $script_file_label \"$script_file_path\""
+            tudo_log_errors "Failed to expand $script_file_label '$script_file_path'"
             return $return_value
         fi
 
         # If script_file_path is not a valid absolute path
         if [[ ! "$script_file_path" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
-            tudo_log_errors "The $script_file_label \"$script_file_path\" is not a valid absolute path"
+            tudo_log_errors "The $script_file_label '$script_file_path' is not a valid absolute path"
             return 1
         fi
 
-        tudo_log 3 "script_file_path=\"$script_file_path\""
+        tudo_log 3 "script_file_path='$script_file_path'"
         printf -v "script_file_path_string" "%q" "$script_file_path"
         SCRIPT_ARGUMENT_FOR_SCRIPT_SHELL="$script_file_path_string"
 
@@ -1957,25 +1957,25 @@ tudo_set_script_argument_for_script_shell() {
             tudo_setup_tudo_temp_directory
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failure while running \"tudo_setup_tudo_temp_directory\""
+                tudo_log_errors "Failure while running 'tudo_setup_tudo_temp_directory'"
                 return $return_value
             fi
 
             # If TUDO_TEMP_DIRECTORY is not a valid absolute path
             if [[ ! "$TUDO_TEMP_DIRECTORY" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
-                tudo_log_errors "The TUDO_TEMP_DIRECTORY \"$TUDO_TEMP_DIRECTORY\" is not a valid absolute path, required by \"tudo_set_script_argument_for_script_shell\""
+                tudo_log_errors "The TUDO_TEMP_DIRECTORY '$TUDO_TEMP_DIRECTORY' is not a valid absolute path, required by 'tudo_set_script_argument_for_script_shell'"
                 return 1
             fi
 
             script_file="$TUDO_TEMP_DIRECTORY/$script_file_name"
 
-            tudo_log 3 "$script_file_label temp file=\"$script_file\""
+            tudo_log 3 "$script_file_label temp file='$script_file'"
 
             # Tudo_create_tudo_temp_file label path log_content decode_content content
             tudo_create_tudo_temp_file "$script_file_label" "$script_file" "$log_content" "$decode_script_content" "$script_content"
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failure while running \"tudo_create_tudo_temp_file\""
+                tudo_log_errors "Failure while running 'tudo_create_tudo_temp_file'"
                 return $return_value
             fi
 
@@ -2007,7 +2007,7 @@ tudo_set_script_argument_for_script_shell() {
 
 
         else
-            tudo_log_errors "shell_basename \"$shell_basename\" not handled while running \"tudo_set_script_argument_for_script_shell\""
+            tudo_log_errors "shell_basename '$shell_basename' not handled while running 'tudo_set_script_argument_for_script_shell'"
             return 1
         fi
     fi
@@ -2025,7 +2025,7 @@ tudo_create_tudo_temp_file() {
 
     # If argument count is not 5
     if [ $# -ne 5 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_create_tudo_temp_file\""
+        tudo_log_errors "Invalid argument count to 'tudo_create_tudo_temp_file'"
         return 1
     fi
 
@@ -2037,7 +2037,7 @@ tudo_create_tudo_temp_file() {
 
     # If path is not a valid absolute path
     if [[ ! "$path" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
-        tudo_log_errors "The \"$label\" file at path \"$path\" is not an absolute path"
+        tudo_log_errors "The '$label' file at path '$path' is not an absolute path"
         return 2
     fi
 
@@ -2046,7 +2046,7 @@ tudo_create_tudo_temp_file() {
     # Decoding of binary data needs to be done on the fly since
     # Binary data cannot be stored in a variable
 
-    tudo_log 3 "Creating $label file at \"$path\""
+    tudo_log 3 "Creating $label file at '$path'"
 
     if [[ "$decode_content" == "1" ]]; then
         printf '%s' "$content" | base64 -d > "$path"
@@ -2055,7 +2055,7 @@ tudo_create_tudo_temp_file() {
     fi
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failure while creating $label file at \"$path\""
+        tudo_log_errors "Failure while creating $label file at '$path'"
         return $return_value
     fi
 
@@ -2084,7 +2084,7 @@ tudo_set_tudo_shell() {
         tudo_validate_shell "TUDO_SHELL" "TUDO_SHELL" "$TUDO_SHELL" "$TUDO_SUPPORTED_SHELLS" "$TERMUX_PREFIX" "$TERMUX_BIN" "$TERMUX_HOME"
         return_value=$?
         if [ $return_value -ne 0 ]; then
-            tudo_log_errors "Failed to validate \"TUDO_SHELL\""
+            tudo_log_errors "Failed to validate 'TUDO_SHELL'"
             return $return_value
         fi
     else
@@ -2094,24 +2094,24 @@ tudo_set_tudo_shell() {
 
     # If TUDO_SHELL is not a valid absolute path
     if [[ ! "$TUDO_SHELL" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
-        tudo_log_errors "The TUDO_SHELL \"$TUDO_SHELL\" is not a valid absolute path"
+        tudo_log_errors "The TUDO_SHELL '$TUDO_SHELL' is not a valid absolute path"
         return 1
     fi
 
-    tudo_log 2 "TUDO_SHELL=\"$TUDO_SHELL\""
+    tudo_log 2 "TUDO_SHELL='$TUDO_SHELL'"
 
     # Find the basename and parent directory of the TUDO_SHELL
     TUDO_SHELL_BASENAME="${TUDO_SHELL##*/}" # Strip longest match of */ from start
     TUDO_SHELL_PARENT_DIR="${TUDO_SHELL:0:${#TUDO_SHELL} - ${#TUDO_SHELL_BASENAME}}" # Substring from 0 to position of basename
     case "$TUDO_SHELL_PARENT_DIR" in *[!/]*/) TUDO_SHELL_PARENT_DIR="${TUDO_SHELL_PARENT_DIR%"${TUDO_SHELL_PARENT_DIR##*[!/]}"}";; *[/]) TUDO_SHELL_PARENT_DIR="/";; esac # Remove trailing slashes if not root
 
-    tudo_log 3 "TUDO_SHELL_BASENAME=\"$TUDO_SHELL_BASENAME\""
-    tudo_log 3 "TUDO_SHELL_PARENT_DIR=\"$TUDO_SHELL_PARENT_DIR\""
+    tudo_log 3 "TUDO_SHELL_BASENAME='$TUDO_SHELL_BASENAME'"
+    tudo_log 3 "TUDO_SHELL_PARENT_DIR='$TUDO_SHELL_PARENT_DIR'"
 
     # If TUDO_SHELL is not in any of the TUDO_SUPPORTED_SHELLS, then exit with error
     # The basename of the shell file could be faked but the actual shell inside the file is not checked
     if [[ "$TUDO_SHELL_BASENAME" == *' '* ]] || [[ " $TUDO_SUPPORTED_SHELLS " != *" $TUDO_SHELL_BASENAME "* ]]; then
-        tudo_log_errors "The TUDO_SHELL \"$TUDO_SHELL\" is not supported. It must be one of \"$TUDO_SUPPORTED_SHELLS\""
+        tudo_log_errors "The TUDO_SHELL '$TUDO_SHELL' is not supported. It must be one of '$TUDO_SUPPORTED_SHELLS'"
         return 1
     fi
 
@@ -2133,7 +2133,7 @@ tudo_set_tudo_post_shell() {
         tudo_validate_shell "TUDO_POST_SHELL" "TUDO_POST_SHELL" "$TUDO_POST_SHELL" "$TUDO_SUPPORTED_POST_SHELLS" "$TERMUX_PREFIX" "$TERMUX_BIN" "$TERMUX_HOME"
         return_value=$?
         if [ $return_value -ne 0 ]; then
-            tudo_log_errors "Failed to validate \"TUDO_POST_SHELL\""
+            tudo_log_errors "Failed to validate 'TUDO_POST_SHELL'"
             return $return_value
         fi
     else
@@ -2143,24 +2143,24 @@ tudo_set_tudo_post_shell() {
 
     # If TUDO_POST_SHELL is not a valid absolute path
     if [[ ! "$TUDO_POST_SHELL" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
-        tudo_log_errors "The TUDO_POST_SHELL \"$TUDO_POST_SHELL\" is not a valid absolute path"
+        tudo_log_errors "The TUDO_POST_SHELL '$TUDO_POST_SHELL' is not a valid absolute path"
         return 1
     fi
 
-    tudo_log 2 "TUDO_POST_SHELL=\"$TUDO_POST_SHELL\""
+    tudo_log 2 "TUDO_POST_SHELL='$TUDO_POST_SHELL'"
 
     # Find the basename and parent directory of the TUDO_POST_SHELL
     TUDO_POST_SHELL_BASENAME="${TUDO_POST_SHELL##*/}" # Strip longest match of */ from start
     TUDO_POST_SHELL_PARENT_DIR="${TUDO_POST_SHELL:0:${#TUDO_POST_SHELL} - ${#TUDO_POST_SHELL_BASENAME}}" # Substring from 0 to position of basename
     case "$TUDO_POST_SHELL_PARENT_DIR" in *[!/]*/) TUDO_POST_SHELL_PARENT_DIR="${TUDO_POST_SHELL_PARENT_DIR%"${TUDO_POST_SHELL_PARENT_DIR##*[!/]}"}";; *[/]) TUDO_POST_SHELL_PARENT_DIR="/";; esac # Remove trailing slashes if not root
 
-    tudo_log 3 "TUDO_POST_SHELL_BASENAME=\"$TUDO_POST_SHELL_BASENAME\""
-    tudo_log 3 "TUDO_POST_SHELL_PARENT_DIR=\"$TUDO_POST_SHELL_PARENT_DIR\""
+    tudo_log 3 "TUDO_POST_SHELL_BASENAME='$TUDO_POST_SHELL_BASENAME'"
+    tudo_log 3 "TUDO_POST_SHELL_PARENT_DIR='$TUDO_POST_SHELL_PARENT_DIR'"
 
     # If TUDO_POST_SHELL is not in any of the TUDO_SUPPORTED_SHELLS, then exit with error
     # The basename of the shell file could be faked but the actual shell inside the file is not checked
     if [[ "$TUDO_POST_SHELL_BASENAME" == *' '* ]] || [[ " $TUDO_SUPPORTED_POST_SHELLS " != *" $TUDO_POST_SHELL_BASENAME "* ]]; then
-        tudo_log_errors "The TUDO_POST_SHELL \"$TUDO_POST_SHELL\" is not supported. It must be one of \"$TUDO_SUPPORTED_POST_SHELLS\""
+        tudo_log_errors "The TUDO_POST_SHELL '$TUDO_POST_SHELL' is not supported. It must be one of '$TUDO_SUPPORTED_POST_SHELLS'"
         return 1
     fi
 
@@ -2177,7 +2177,7 @@ tudo_validate_shell() {
 
     #if argument count is not 7
     if [ $# -ne 7 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_validate_shell\""
+        tudo_log_errors "Invalid argument count to 'tudo_validate_shell'"
         return 1
     fi
 
@@ -2196,7 +2196,7 @@ tudo_validate_shell() {
         if [[ "$user_shell" != *' '* ]] && [[ " $supported_shells " == *" $user_shell "* ]]; then
             shell="$termux_bin/$user_shell"
         else
-            tudo_log_errors "The $shell_label \"$user_shell\" is not supported. It must be one of \"$supported_shells\""
+            tudo_log_errors "The $shell_label '$user_shell' is not supported. It must be one of '$supported_shells'"
             return 1
         fi
     else
@@ -2204,7 +2204,7 @@ tudo_validate_shell() {
         tudo_expand_termux_path "user_shell" "$shell_label" "$user_shell" "$termux_prefix" "$termux_home" 3
         return_value=$?
         if [ $return_value -ne 0 ]; then
-            tudo_log_errors "Failed to expand $shell_label \"$user_shell\""
+            tudo_log_errors "Failed to expand $shell_label '$user_shell'"
             return $return_value
         fi
 
@@ -2222,7 +2222,7 @@ tudo_validate_shell() {
         # Set variable_name to shell
         printf -v "$variable_name" "%s" "$shell"
     else
-        tudo_log_errors "variable_name \"$1\" passed to \"tudo_expand_termux_path\" equals \"shell\" or is not a valid bash variable name"
+        tudo_log_errors "variable_name '$1' passed to 'tudo_expand_termux_path' equals 'shell' or is not a valid bash variable name"
         return 1
     fi
 
@@ -2238,7 +2238,7 @@ tudo_set_tudo_shell_rcfile() {
     tudo_set_shell_rcfile "TUDO_SHELL" "$TUDO_SHELL_BASENAME" "$TUDO_SHELL_HOME" "$TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES"
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failure while running \"tudo_set_rcfile_functions\" for TUDO_SHELL \"$TUDO_SHELL\""
+        tudo_log_errors "Failure while running 'tudo_set_rcfile_functions' for TUDO_SHELL '$TUDO_SHELL'"
         return $return_value
     fi
 
@@ -2248,9 +2248,9 @@ tudo_set_tudo_shell_rcfile() {
     TUDO_SHELL_RCFILE_VALUE="$SHELL_RCFILE_VALUE"
     TUDO_SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS=("${SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS[@]}" "${TUDO_SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS[@]}")
 
-    tudo_log 3 "TUDO_SHELL_RCFILE=\"$TUDO_SHELL_RCFILE\""
-    tudo_log 3 "TUDO_SHELL_RCFILE_PARENT_DIR=\"$TUDO_SHELL_RCFILE_PARENT_DIR\""
-    tudo_log 3 "TUDO_SHELL_RCFILE_COMMANDS=\"$TUDO_SHELL_RCFILE_COMMANDS\""
+    tudo_log 3 "TUDO_SHELL_RCFILE='$TUDO_SHELL_RCFILE'"
+    tudo_log 3 "TUDO_SHELL_RCFILE_PARENT_DIR='$TUDO_SHELL_RCFILE_PARENT_DIR'"
+    tudo_log 3 "TUDO_SHELL_RCFILE_COMMANDS='$TUDO_SHELL_RCFILE_COMMANDS'"
     tudo_log 3 "TUDO_SHELL_RCFILE_VALUE=\`$TUDO_SHELL_RCFILE_VALUE\`"
 
     return 0
@@ -2267,7 +2267,7 @@ tudo_set_tudo_post_shell_rcfile() {
     tudo_set_shell_rcfile "TUDO_POST_SHELL" "$TUDO_POST_SHELL_BASENAME" "$TUDO_POST_SHELL_HOME" "$TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES"
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failure while running \"tudo_set_rcfile_functions\" for TUDO_POST_SHELL \"$TUDO_POST_SHELL\""
+        tudo_log_errors "Failure while running 'tudo_set_rcfile_functions' for TUDO_POST_SHELL '$TUDO_POST_SHELL'"
         return $return_value
     fi
 
@@ -2277,9 +2277,9 @@ tudo_set_tudo_post_shell_rcfile() {
     TUDO_POST_SHELL_RCFILE_VALUE="$SHELL_RCFILE_VALUE"
     TUDO_POST_SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS=("${SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS[@]}" "${TUDO_POST_SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS[@]}")
 
-    tudo_log 3 "TUDO_POST_SHELL_RCFILE=\"$TUDO_POST_SHELL_RCFILE\""
-    tudo_log 3 "TUDO_POST_SHELL_RCFILE_PARENT_DIR=\"$TUDO_POST_SHELL_RCFILE_PARENT_DIR\""
-    tudo_log 3 "TUDO_POST_SHELL_RCFILE_COMMANDS=\"$TUDO_POST_SHELL_RCFILE_COMMANDS\""
+    tudo_log 3 "TUDO_POST_SHELL_RCFILE='$TUDO_POST_SHELL_RCFILE'"
+    tudo_log 3 "TUDO_POST_SHELL_RCFILE_PARENT_DIR='$TUDO_POST_SHELL_RCFILE_PARENT_DIR'"
+    tudo_log 3 "TUDO_POST_SHELL_RCFILE_COMMANDS='$TUDO_POST_SHELL_RCFILE_COMMANDS'"
     tudo_log 3 "TUDO_POST_SHELL_RCFILE_VALUE=\`$TUDO_POST_SHELL_RCFILE_VALUE\`"
 
     return 0
@@ -2295,7 +2295,7 @@ tudo_set_shell_rcfile() {
 
     # If argument count is not 4
     if [ $# -ne 4 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_set_shell_rcfile\""
+        tudo_log_errors "Invalid argument count to 'tudo_set_shell_rcfile'"
         return 1
     fi
 
@@ -2388,9 +2388,9 @@ tudo_set_shell_rcfile() {
     # If shell is node, perl, lua5.2, lua5.3, lua5.4
     elif [[ " node perl lua5.2 lua5.3 lua5.4 " == *" $shell_basename "* ]]; then
         # The shell does not have a rc file or does not use it
-        tudo_log 3 "The \"$shell_basename\" shell does not have a rc file or does not use it"
+        tudo_log 3 "The '$shell_basename' shell does not have a rc file or does not use it"
     else
-        tudo_log_errors "shell_basename \"$shell_basename\" not handled while running \"tudo_set_shell_rcfile\""
+        tudo_log_errors "shell_basename '$shell_basename' not handled while running 'tudo_set_shell_rcfile'"
         return 1
     fi
 
@@ -2400,7 +2400,7 @@ tudo_set_shell_rcfile() {
 
         # If SHELL_RCFILE is not a valid absolute path
         if [[ ! "$SHELL_RCFILE" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
-            tudo_log_errors "The ${shell_label}_RCFILE \"$SHELL_RCFILE\" is not a valid absolute path"
+            tudo_log_errors "The ${shell_label}_RCFILE '$SHELL_RCFILE' is not a valid absolute path"
             return 1
         fi
 
@@ -2450,7 +2450,7 @@ tudo_set_rcfile_functions() {
 
     # If argument count is not 1
     if [ $# -ne 1 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_set_rcfile_functions\""
+        tudo_log_errors "Invalid argument count to 'tudo_set_rcfile_functions'"
         return 1
     fi
 
@@ -2558,7 +2558,7 @@ tudo_set_tudo_shell_histfile() {
     tudo_set_shell_histfile "TUDO_SHELL" "$TUDO_SHELL_BASENAME" "$TUDO_SHELL_HOME" "$TUDO_SHELLS_HISTORY_ENABLED" "$TUDO_SHELL_SHARE_RCFILES_AND_HISTFILES"
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failure while running \"tudo_set_shell_histfile\" for TUDO_SHELL \"$TUDO_SHELL\""
+        tudo_log_errors "Failure while running 'tudo_set_shell_histfile' for TUDO_SHELL '$TUDO_SHELL'"
         return $return_value
     fi
 
@@ -2567,9 +2567,9 @@ tudo_set_tudo_shell_histfile() {
     TUDO_SHELL_HISTFILE_COMMANDS="$SHELL_HISTFILE_COMMANDS"
     TUDO_SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS=("${SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS[@]}" "${TUDO_SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS[@]}")
 
-    tudo_log 3 "TUDO_SHELL_HISTFILE=\"$TUDO_SHELL_HISTFILE\""
-    tudo_log 3 "TUDO_SHELL_HISTFILE_PARENT_DIR=\"$TUDO_SHELL_HISTFILE_PARENT_DIR\""
-    tudo_log 3 "TUDO_SHELL_HISTFILE_COMMANDS=\"$TUDO_SHELL_HISTFILE_COMMANDS\""
+    tudo_log 3 "TUDO_SHELL_HISTFILE='$TUDO_SHELL_HISTFILE'"
+    tudo_log 3 "TUDO_SHELL_HISTFILE_PARENT_DIR='$TUDO_SHELL_HISTFILE_PARENT_DIR'"
+    tudo_log 3 "TUDO_SHELL_HISTFILE_COMMANDS='$TUDO_SHELL_HISTFILE_COMMANDS'"
 
     return 0
 
@@ -2585,7 +2585,7 @@ tudo_set_tudo_post_shell_histfile() {
     tudo_set_shell_histfile "TUDO_POST_SHELL" "$TUDO_POST_SHELL_BASENAME" "$TUDO_POST_SHELL_HOME" "$TUDO_SHELLS_HISTORY_ENABLED" "$TUDO_POST_SHELL_SHARE_RCFILES_AND_HISTFILES"
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failure while running \"tudo_set_shell_histfile\" for TUDO_POST_SHELL \"$TUDO_POST_SHELL\""
+        tudo_log_errors "Failure while running 'tudo_set_shell_histfile' for TUDO_POST_SHELL '$TUDO_POST_SHELL'"
         return $return_value
     fi
 
@@ -2594,9 +2594,9 @@ tudo_set_tudo_post_shell_histfile() {
     TUDO_POST_SHELL_HISTFILE_COMMANDS="$SHELL_HISTFILE_COMMANDS"
     TUDO_POST_SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS=("${SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS[@]}" "${TUDO_POST_SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS[@]}")
 
-    tudo_log 3 "TUDO_POST_SHELL_HISTFILE=\"$TUDO_POST_SHELL_HISTFILE\""
-    tudo_log 3 "TUDO_POST_SHELL_HISTFILE_PARENT_DIR=\"$TUDO_POST_SHELL_HISTFILE_PARENT_DIR\""
-    tudo_log 3 "TUDO_POST_SHELL_HISTFILE_COMMANDS=\"$TUDO_POST_SHELL_HISTFILE_COMMANDS\""
+    tudo_log 3 "TUDO_POST_SHELL_HISTFILE='$TUDO_POST_SHELL_HISTFILE'"
+    tudo_log 3 "TUDO_POST_SHELL_HISTFILE_PARENT_DIR='$TUDO_POST_SHELL_HISTFILE_PARENT_DIR'"
+    tudo_log 3 "TUDO_POST_SHELL_HISTFILE_COMMANDS='$TUDO_POST_SHELL_HISTFILE_COMMANDS'"
 
     return 0
 
@@ -2611,7 +2611,7 @@ tudo_set_shell_histfile() {
 
     # If argument count is not 5
     if [ $# -ne 5 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_set_shell_histfile\""
+        tudo_log_errors "Invalid argument count to 'tudo_set_shell_histfile'"
         return 1
     fi
 
@@ -2732,10 +2732,10 @@ tudo_set_shell_histfile() {
         # If shell is python2, lua5.2, lua5.3, lua5.4
         elif [[ " python2 lua5.2 lua5.3 lua5.4 " == *" $shell_basename "* ]]; then
             # The shell does not have a history file or does not use it
-            tudo_log 3 "The \"$shell_basename\" shell does not have a history file or does not use it"
+            tudo_log 3 "The '$shell_basename' shell does not have a history file or does not use it"
 
         else
-            tudo_log_errors "shell_basename \"$shell_basename\" not handled while running \"tudo_set_shell_histfile\""
+            tudo_log_errors "shell_basename '$shell_basename' not handled while running 'tudo_set_shell_histfile'"
             return 1
         fi
 
@@ -2744,7 +2744,7 @@ tudo_set_shell_histfile() {
         if [ -n "$SHELL_HISTFILE" ]; then
             # If SHELL_HISTFILE is not a valid absolute path
             if [[ ! "$SHELL_HISTFILE" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
-                tudo_log_errors "The ${shell_label}_HISTFILE \"$SHELL_HISTFILE\" is not a valid absolute path"
+                tudo_log_errors "The ${shell_label}_HISTFILE '$SHELL_HISTFILE' is not a valid absolute path"
                 return 1
             fi
 
@@ -2808,10 +2808,10 @@ tudo_set_shell_histfile() {
         # If shell is ruby, lua5.2, lua5.3, lua5.4, php, python2
         elif [[ " ruby lua5.2 lua5.3 lua5.4 php python2 " == *" $shell_basename "* ]]; then
             # The shell does not have a history file or does not use it or cannot be disabled using any params or environment variables
-            tudo_log 3 "The \"$shell_basename\" shell does not have a history file or does not use it or cannot be disabled using any params or environment variables"
+            tudo_log 3 "The '$shell_basename' shell does not have a history file or does not use it or cannot be disabled using any params or environment variables"
 
         else
-            tudo_log_errors "shell_basename \"$shell_basename\" not handled while running \"tudo_set_shell_histfile\""
+            tudo_log_errors "shell_basename '$shell_basename' not handled while running 'tudo_set_shell_histfile'"
             return 1
         fi
     fi
@@ -2833,7 +2833,7 @@ tudo_set_tudo_shell_command() {
     tudo_set_shell_command "TUDO_SHELL" "$TUDO_SHELL" "$TUDO_SHELL_BASENAME" "$TUDO_SHELL_PARENT_DIR" "$interactive_tudo_shell_required"
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failure while running \"tudo_set_shell_command\" for TUDO_SHELL \"$TUDO_SHELL\""
+        tudo_log_errors "Failure while running 'tudo_set_shell_command' for TUDO_SHELL '$TUDO_SHELL'"
         return $return_value
     fi
 
@@ -2843,8 +2843,8 @@ tudo_set_tudo_shell_command() {
     TUDO_SHELL_INTERACTIVE_COMMAND_PRINT_FORMAT="$SHELL_INTERACTIVE_COMMAND_PRINT_FORMAT"
 
 
-    tudo_log 3 "TUDO_SHELL_COMMAND=\"${TUDO_SHELL_COMMAND[*]}\""
-    tudo_log 3 "TUDO_SHELL_INTERACTIVE_COMMAND=\"${TUDO_SHELL_INTERACTIVE_COMMAND[*]}\""
+    tudo_log 3 "TUDO_SHELL_COMMAND='${TUDO_SHELL_COMMAND[*]}'"
+    tudo_log 3 "TUDO_SHELL_INTERACTIVE_COMMAND='${TUDO_SHELL_INTERACTIVE_COMMAND[*]}'"
 
     return 0
 
@@ -2863,14 +2863,14 @@ tudo_set_tudo_post_shell_command() {
     tudo_set_shell_command "TUDO_POST_SHELL" "$TUDO_POST_SHELL" "$TUDO_POST_SHELL_BASENAME" "$TUDO_POST_SHELL_PARENT_DIR" 1
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failure while running \"tudo_set_shell_command\" for TUDO_POST_SHELL \"$TUDO_POST_SHELL\""
+        tudo_log_errors "Failure while running 'tudo_set_shell_command' for TUDO_POST_SHELL '$TUDO_POST_SHELL'"
         return $return_value
     fi
 
     TUDO_POST_SHELL_INTERACTIVE_COMMAND=("${SHELL_INTERACTIVE_COMMAND[@]}")
     TUDO_POST_SHELL_INTERACTIVE_COMMAND_PRINT_FORMAT="$SHELL_INTERACTIVE_COMMAND_PRINT_FORMAT"
 
-    tudo_log 3 "TUDO_POST_SHELL_INTERACTIVE_COMMAND=\"${TUDO_POST_SHELL_INTERACTIVE_COMMAND[*]}\""
+    tudo_log 3 "TUDO_POST_SHELL_INTERACTIVE_COMMAND='${TUDO_POST_SHELL_INTERACTIVE_COMMAND[*]}'"
 
     return 0
 
@@ -2885,7 +2885,7 @@ tudo_set_shell_command() {
 
     # If argument count is not 5
     if [ $# -ne 5 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_set_shell_command\""
+        tudo_log_errors "Invalid argument count to 'tudo_set_shell_command'"
         return 1
     fi
 
@@ -2959,7 +2959,7 @@ tudo_set_shell_command() {
         SHELL_COMMAND=("$shell" "${SHELL_ADDITIONAL_COMMAND_OPTIONS[@]}")
         SHELL_INTERACTIVE_COMMAND=("$shell" "${SHELL_INTERACTIVE_ADDITIONAL_COMMAND_OPTIONS[@]}" "-i")
     else
-        tudo_log_errors "shell_basename \"$shell_basename\" not handled while running \"tudo_set_shell_command\""
+        tudo_log_errors "shell_basename '$shell_basename' not handled while running 'tudo_set_shell_command'"
         return 1
     fi
 
@@ -2970,7 +2970,7 @@ tudo_set_shell_command() {
             tudo_run_file_type_tests_on_path "$shell_dependency_label" "$shell_dependency" 1 1 1 "frx"
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "\"$shell_dependency_label\" is required to run non-interactive \"$shell_basename\" shell"
+                tudo_log_errors "'$shell_dependency_label' is required to run non-interactive '$shell_basename' shell"
                 return $return_value
             fi
         fi
@@ -2980,7 +2980,7 @@ tudo_set_shell_command() {
             tudo_run_file_type_tests_on_path "$shell_interactive_dependency_label" "$shell_interactive_dependency" 1 1 1 "frx"
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "\"$shell_interactive_dependency_label\" is required to run interactive \"$shell_basename\" shell"
+                tudo_log_errors "'$shell_interactive_dependency_label' is required to run interactive '$shell_basename' shell"
                 return $return_value
             fi
         fi
@@ -3039,7 +3039,7 @@ tudo_setup_shell_home() {
 
     # If argument count is not 10
     if [ $# -ne 10 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_setup_shell_home\""
+        tudo_log_errors "Invalid argument count to 'tudo_setup_shell_home'"
         return 1
     fi
 
@@ -3109,7 +3109,7 @@ tudo_setup_shell_home() {
         shell_home_ownership="--reference=\"$TERMUX_ROOTFS\""
     # If shell_home is a blacklisted path under TERMUX_ROOTFS or is not under TERMUX_ROOTFS
     else
-        tudo_log_errors "The \"$shell_home\" cannot be used as ${shell_label}_HOME"
+        tudo_log_errors "The '$shell_home' cannot be used as ${shell_label}_HOME"
         return 1
     fi
 
@@ -3124,7 +3124,7 @@ tudo_setup_shell_home() {
     if [ -n "$shell_rcfile" ]; then
         # If shell_rcfile_parent_dir is not the same as shell_home or one of subdirectories
         if [[ "$shell_rcfile_parent_dir" != "$shell_home" ]] && [[ "$shell_rcfile_parent_dir" != "$shell_home"/* ]]; then
-            tudo_log_errors "The ${shell_label}_RCFILE_PARENT_DIR \"$shell_rcfile_parent_dir\" must be same as ${shell_label}_HOME \"$shell_home\" or be one of its subdirectories"
+            tudo_log_errors "The ${shell_label}_RCFILE_PARENT_DIR '$shell_rcfile_parent_dir' must be same as ${shell_label}_HOME '$shell_home' or be one of its subdirectories"
             return 1
         fi
 
@@ -3153,7 +3153,7 @@ tudo_setup_shell_home() {
             shell_rcfile_ownership="--reference=\"$TERMUX_ROOTFS\""
         # If shell_rcfile_parent_dir is a blacklisted path under TERMUX_ROOTFS or is not under TERMUX_ROOTFS
         else
-            tudo_log_errors "The \"$shell_rcfile_parent_dir\" cannot be used as ${shell_label}_RCFILE_PARENT_DIR"
+            tudo_log_errors "The '$shell_rcfile_parent_dir' cannot be used as ${shell_label}_RCFILE_PARENT_DIR"
             return 1
         fi
     fi
@@ -3170,7 +3170,7 @@ tudo_setup_shell_home() {
 
         # If shell_histfile_parent_dir is not the same as shell_home or one of subdirectories
         if [[ "$shell_histfile_parent_dir" != "$shell_home" ]] && [[ "$shell_histfile_parent_dir" != "$shell_home"/* ]]; then
-            tudo_log_errors "The ${shell_label}_HISTFILE_PARENT_DIR \"$shell_histfile_parent_dir\" must be same as ${shell_label}_HOME \"$shell_home\" or be one of its subdirectories"
+            tudo_log_errors "The ${shell_label}_HISTFILE_PARENT_DIR '$shell_histfile_parent_dir' must be same as ${shell_label}_HOME '$shell_home' or be one of its subdirectories"
             return 1
         fi
 
@@ -3199,7 +3199,7 @@ tudo_setup_shell_home() {
             shell_histfile_ownership="--reference=\"$TERMUX_ROOTFS\""
         # If shell_histfile_parent_dir is a blacklisted path under TERMUX_ROOTFS or is not under TERMUX_ROOTFS
         else
-            tudo_log_errors "The \"$shell_histfile_parent_dir\" cannot be used as ${shell_label}_HISTFILE_PARENT_DIR"
+            tudo_log_errors "The '$shell_histfile_parent_dir' cannot be used as ${shell_label}_HISTFILE_PARENT_DIR"
             return 1
         fi
     fi
@@ -3214,7 +3214,7 @@ tudo_setup_shell_home() {
         "$shell_histfile" "$create_shell_histfile_if_it_does_not_exist" "$only_set_perms_and_ownership_on_creation_of_shell_histfile" "$shell_histfile_ownership" "$shell_histfile_permission" "$shell_histfile_file_type_tests"
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failure while running \"tudo_create_shell_home\""
+        tudo_log_errors "Failure while running 'tudo_create_shell_home'"
         return $return_value
     fi
 
@@ -3236,7 +3236,7 @@ tudo_create_shell_home() {
 
     # If argument count is not 32
     if [ $# -ne 32 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_create_shell_home\""
+        tudo_log_errors "Invalid argument count to 'tudo_create_shell_home'"
         return 1
     fi
 
@@ -3362,25 +3362,25 @@ tudo_set_tudo_shell_working_dir() {
         tudo_expand_termux_path "TUDO_SHELL_WORKING_DIR" "TUDO_SHELL_WORKING_DIR" "$TUDO_SHELL_WORKING_DIR" "$TERMUX_PREFIX" "$TERMUX_HOME" 1
         return_value=$?
         if [ $return_value -ne 0 ]; then
-            tudo_log_errors "Failed to expand TUDO_SHELL_WORKING_DIR \"$TUDO_SHELL_WORKING_DIR\""
+            tudo_log_errors "Failed to expand TUDO_SHELL_WORKING_DIR '$TUDO_SHELL_WORKING_DIR'"
             return $return_value
         fi
     fi
 
     # If TUDO_SHELL_WORKING_DIR is not a valid absolute path
     if [[ ! "$TUDO_SHELL_WORKING_DIR" =~ $VALID_ROOTFS_OR_ABSOLUTE_PATH_REGEX ]]; then
-        tudo_log_errors "The TUDO_SHELL_WORKING_DIR \"$TUDO_SHELL_WORKING_DIR\" is not a valid absolute path"
+        tudo_log_errors "The TUDO_SHELL_WORKING_DIR '$TUDO_SHELL_WORKING_DIR' is not a valid absolute path"
         return 1
     fi
 
-    tudo_log 2 "TUDO_SHELL_WORKING_DIR=\"$TUDO_SHELL_WORKING_DIR\""
+    tudo_log 2 "TUDO_SHELL_WORKING_DIR='$TUDO_SHELL_WORKING_DIR'"
 
     # Find the parent directory of the TUDO_SHELL_WORKING_DIR
     TUDO_SHELL_WORKING_DIR_BASENAME="${TUDO_SHELL_WORKING_DIR##*/}" # Strip longest match of */ from start
     TUDO_SHELL_WORKING_DIR_PARENT_DIR="${TUDO_SHELL_WORKING_DIR:0:${#TUDO_SHELL_WORKING_DIR} - ${#TUDO_SHELL_WORKING_DIR_BASENAME}}" # Substring from 0 to position of basename
     case "$TUDO_SHELL_WORKING_DIR_PARENT_DIR" in *[!/]*/) TUDO_SHELL_WORKING_DIR_PARENT_DIR="${TUDO_SHELL_WORKING_DIR_PARENT_DIR%"${TUDO_SHELL_WORKING_DIR_PARENT_DIR##*[!/]}"}";; *[/]) TUDO_SHELL_WORKING_DIR_PARENT_DIR="/";; esac # Remove trailing slashes if not root
 
-    tudo_log 3 "TUDO_SHELL_WORKING_DIR_PARENT_DIR=\"$TUDO_SHELL_WORKING_DIR_PARENT_DIR\""
+    tudo_log 3 "TUDO_SHELL_WORKING_DIR_PARENT_DIR='$TUDO_SHELL_WORKING_DIR_PARENT_DIR'"
 
     return 0
 
@@ -3438,18 +3438,18 @@ tudo_set_tudo_temp_directory_parent_directory() {
 
     # If TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY is not a valid absolute path
     if [[ ! "$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
-        tudo_log_errors "The TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY \"$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY\" is not a valid absolute path"
+        tudo_log_errors "The TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY '$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY' is not a valid absolute path"
         return 1
     fi
 
     # If TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY is not set to an absolute path under TERMUX_ROOTFS
     if [[ ! "$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY" =~ $VALID_PATH_UNDER_TERMUX_ROOTFS_REGEX ]]; then
-        tudo_log_errors "The TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY \"$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY\" must be an absolute path under TERMUX_ROOTFS \"$TERMUX_ROOTFS\""
+        tudo_log_errors "The TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY '$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY' must be an absolute path under TERMUX_ROOTFS '$TERMUX_ROOTFS'"
     fi
 
     # If TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY is an absolute path under TERMUX_HOME
     if [[ "$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY" =~ $VALID_PATH_UNDER_TERMUX_HOME_REGEX ]]; then
-        tudo_log_errors "The TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY \"$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY\" must not be an absolute path under TERMUX_HOME \"$TERMUX_HOME\""
+        tudo_log_errors "The TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY '$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY' must not be an absolute path under TERMUX_HOME '$TERMUX_HOME'"
     fi
 
     # If REMOVE_PREVIOUS_TUDO_TEMP_FILES is enabled
@@ -3457,17 +3457,17 @@ tudo_set_tudo_temp_directory_parent_directory() {
         # If TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY is set to an absolute path and TUDO_TEMP_DIRECTORY_PREFIX is not empty
         if [[ "$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY" =~ $VALID_ABSOLUTE_PATH_REGEX ]] && [ -n "$TUDO_TEMP_DIRECTORY_PREFIX" ]; then
             # Remove all directories with the prefix TUDO_TEMP_DIRECTORY_PREFIX
-            tudo_log_literal 3 "\nRemove all directories with the prefix \"$TUDO_TEMP_DIRECTORY_PREFIX\" in TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY \"$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY\""
+            tudo_log_literal 3 "\nRemove all directories with the prefix '$TUDO_TEMP_DIRECTORY_PREFIX' in TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY '$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY'"
             find "$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY" -maxdepth 1 -type d -name "$TUDO_TEMP_DIRECTORY_PREFIX*" -exec rm -rf "{}" \;
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failure while removing all directories with the prefix \"$TUDO_TEMP_DIRECTORY_PREFIX\" in TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY \"$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY\""
+                tudo_log_errors "Failure while removing all directories with the prefix '$TUDO_TEMP_DIRECTORY_PREFIX' in TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY '$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY'"
                 return $return_value
             fi
         fi
     fi
 
-    #tudo_log 3 "TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY=\"$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY\""
+    #tudo_log 3 "TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY='$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY'"
 
     return 0
 
@@ -3511,7 +3511,7 @@ tudo_setup_tudo_temp_directory() {
     return_value=$?
     if [ $return_value -ne 0 ] || [[ ! "$TUDO_TEMP_DIRECTORY" =~ $VALID_ABSOLUTE_PATH_REGEX ]]; then
         tudo_log_errors "Failure while running mktemp to create TUDO_TEMP_DIRECTORY"
-        tudo_log_errors "TUDO_TEMP_DIRECTORY=\"$TUDO_TEMP_DIRECTORY\""
+        tudo_log_errors "TUDO_TEMP_DIRECTORY='$TUDO_TEMP_DIRECTORY'"
         if [ $return_value -eq 0 ]; then
             return_value=1
         fi
@@ -3647,7 +3647,7 @@ tudo_run_file_type_tests_on_path() {
 
     # If argument count is not 6
     if [ $# -ne 6 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_run_file_type_tests_on_path\""
+        tudo_log_errors "Invalid argument count to 'tudo_run_file_type_tests_on_path'"
         return 1
     fi
 
@@ -3660,14 +3660,14 @@ tudo_run_file_type_tests_on_path() {
 
     # If file_type_tests is invalid
     if [[ ! "$file_type_tests" =~ ^[bcdefgGkhLOprSsuwx]+$ ]]; then
-        tudo_log_errors "file_type_tests \"$file_type_tests\" passed to \"tudo_run_file_type_tests_on_path\" is not valid"
+        tudo_log_errors "file_type_tests '$file_type_tests' passed to 'tudo_run_file_type_tests_on_path' is not valid"
         return 1
     fi
 
     # If check_if_absolute_path is enabled and path is not a valid absolute path
     local valid_rootfs_or_absolute_path_regex='^((/)|((/[^/]+)+))$'
     if [[ "$check_if_absolute_path" == "1" ]] && [[ ! "$path" =~ $valid_rootfs_or_absolute_path_regex ]]; then
-        tudo_log_errors "The \"$label\" file \"$path\" is not an absolute path"
+        tudo_log_errors "The '$label' file '$path' is not an absolute path"
         return 2
     fi
 
@@ -3727,10 +3727,10 @@ tudo_run_file_type_tests_on_path() {
     fi
 
     if [ $return_value -ne 1 ]; then
-        tudo_log_errors "Failed to run the following test types on the file \"$label\" at path \"$path\": $file_type_tests_label"
+        tudo_log_errors "Failed to run the following test types on the file '$label' at path '$path': $file_type_tests_label"
     else
         if [[ "$log_file_tests_failure_errors" == "1" ]]; then
-            tudo_log_errors "The \"$label\" file at path \"$path\" failed one or more of the following test types: $file_type_tests_label"
+            tudo_log_errors "The '$label' file at path '$path' failed one or more of the following test types: $file_type_tests_label"
             if [[ "$show_stat_output_on_file_tests_failure" == "1" ]]; then
                 current_user_id="$(id -u 2>/dev/null)"
                 current_user_name="$(id -un 2>/dev/null)"
@@ -3756,7 +3756,7 @@ tudo_create_modify_validate_directory() {
 
     # If argument count is not 12
     if [ $# -ne 12 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_create_modify_validate_directory\""
+        tudo_log_errors "Invalid argument count to 'tudo_create_modify_validate_directory'"
         return 1
     fi
 
@@ -3779,26 +3779,26 @@ tudo_create_modify_validate_directory() {
 
     # If create_directory_if_it_does_not_exist is not set to 0 or 1
     if [[ "$create_directory_if_it_does_not_exist" != "0" ]] && [[ "$create_directory_if_it_does_not_exist" != "1" ]]; then
-        tudo_log_errors "create_directory_if_it_does_not_exist \"$create_directory_if_it_does_not_exist\" passed to \"tudo_create_modify_validate_directory\" is not equal to \"0\" or \"1\""
+        tudo_log_errors "create_directory_if_it_does_not_exist '$create_directory_if_it_does_not_exist' passed to 'tudo_create_modify_validate_directory' is not equal to '0' or '1'"
         return 1
     fi
 
     # If only_set_perms_and_ownership_on_creation is not set to 0 or 1
     if [[ "$only_set_perms_and_ownership_on_creation" != "0" ]] && [[ "$only_set_perms_and_ownership_on_creation" != "1" ]]; then
-        tudo_log_errors "only_set_perms_and_ownership_on_creation \"$only_set_perms_and_ownership_on_creation\" passed to \"tudo_create_modify_validate_directory\" is not equal to \"0\" or \"1\""
+        tudo_log_errors "only_set_perms_and_ownership_on_creation '$only_set_perms_and_ownership_on_creation' passed to 'tudo_create_modify_validate_directory' is not equal to '0' or '1'"
         return 1
     fi
 
     # If check_if_absolute_path is enabled and directory_path is not a valid absolute path
     local valid_rootfs_or_absolute_path_regex='^((/)|((/[^/]+)+))$'
     if [[ "$check_if_absolute_path" == "1" ]] && [[ ! "$directory_path" =~ $valid_rootfs_or_absolute_path_regex ]]; then
-        tudo_log_errors "The \"$directory_path_label\" directory \"$directory_path\" is not an absolute path"
+        tudo_log_errors "The '$directory_path_label' directory '$directory_path' is not an absolute path"
         return 2
     fi
 
     # Check if a non-directory file exists at directory path
     if [ -e "$directory_path" ] && [ ! -d "$directory_path" ]; then
-        tudo_log_errors "A non-directory file exists at $directory_path_label \"$directory_path\""
+        tudo_log_errors "A non-directory file exists at $directory_path_label '$directory_path'"
         return 1
     fi
 
@@ -3806,30 +3806,30 @@ tudo_create_modify_validate_directory() {
     if [ ! -d "$directory_path" ]; then
         # If create_directory_if_it_does_not_exist is enabled, then create directory
         if [[ "$create_directory_if_it_does_not_exist" == "1" ]]; then
-            tudo_log 3 "Creating $directory_path_label directory at \"$directory_path\""
+            tudo_log 3 "Creating $directory_path_label directory at '$directory_path'"
 
             mkdir -p "$directory_path"
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failed to create $directory_path_label directory at \"$directory_path\""
+                tudo_log_errors "Failed to create $directory_path_label directory at '$directory_path'"
                 return $return_value
             fi
 
             if [ ! -d "$directory_path" ]; then
-                tudo_log_errors "Failed to find $directory_path_label directory at \"$directory_path\" after creation"
+                tudo_log_errors "Failed to find $directory_path_label directory at '$directory_path' after creation"
                 return 1
             fi
 
             directory_created=1
         else
-            tudo_log_errors "Failed to find $directory_path_label directory at \"$directory_path\""
+            tudo_log_errors "Failed to find $directory_path_label directory at '$directory_path'"
             return 1
         fi
     else
         if [[ "$create_directory_if_it_does_not_exist" == "1" ]]; then
-            tudo_log 3 "The $directory_path_label directory already exists at \"$directory_path\""
+            tudo_log 3 "The $directory_path_label directory already exists at '$directory_path'"
         else
-            tudo_log 3 "The $directory_path_label directory exists at \"$directory_path\""
+            tudo_log 3 "The $directory_path_label directory exists at '$directory_path'"
         fi
     fi
 
@@ -3844,11 +3844,11 @@ tudo_create_modify_validate_directory() {
             tudo_set_shell_command_args_array directory_chown_command_options_array \
                 "directory_chown_command_options" "$directory_chown_command_options" || return $?
 
-            tudo_log 3 "Setting \"${directory_chown_command_options_array[*]}\" ownership to $directory_path_label directory at \"$directory_path\" directory"
+            tudo_log 3 "Setting '${directory_chown_command_options_array[*]}' ownership to $directory_path_label directory at '$directory_path' directory"
             chown "${directory_chown_command_options_array[@]}" "$directory_path"
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failed to set ownership of $directory_path_label directory at \"$directory_path\""
+                tudo_log_errors "Failed to set ownership of $directory_path_label directory at '$directory_path'"
                 return $return_value
             fi
         fi
@@ -3859,11 +3859,11 @@ tudo_create_modify_validate_directory() {
             tudo_set_shell_command_args_array directory_chmod_command_options_array \
                 "directory_chmod_command_options" "$directory_chmod_command_options" || return $?
 
-            tudo_log 3 "Setting \"${directory_chmod_command_options_array[*]}\" permissions to $directory_path_label directory at \"$directory_path\" directory"
+            tudo_log 3 "Setting '${directory_chmod_command_options_array[*]}' permissions to $directory_path_label directory at '$directory_path' directory"
             chmod "${directory_chmod_command_options_array[@]}" "$directory_path"
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failed to set permissions of $directory_path_label directory at \"$directory_path\""
+                tudo_log_errors "Failed to set permissions of $directory_path_label directory at '$directory_path'"
                 return $return_value
             fi
         fi
@@ -3874,11 +3874,11 @@ tudo_create_modify_validate_directory() {
             tudo_set_shell_command_args_array sub_directories_chown_command_options_array \
                 "sub_directories_chown_command_options" "$sub_directories_chown_command_options" || return $?
 
-            tudo_log 3 "Setting \"${sub_directories_chown_command_options_array[*]}\" ownership to $directory_path_label directory at \"$directory_path\" subdirectories"
+            tudo_log 3 "Setting '${sub_directories_chown_command_options_array[*]}' ownership to $directory_path_label directory at '$directory_path' subdirectories"
             find "$directory_path" -type d -print0 | xargs -0 -r -- chown "${sub_directories_chown_command_options_array[@]}" --
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failed to set ownership of subdirectories in $directory_path_label directory at \"$directory_path\""
+                tudo_log_errors "Failed to set ownership of subdirectories in $directory_path_label directory at '$directory_path'"
                 return $return_value
             fi
         fi
@@ -3889,11 +3889,11 @@ tudo_create_modify_validate_directory() {
             tudo_set_shell_command_args_array sub_directories_chmod_command_options_array \
                 "sub_directories_chmod_command_options" "$sub_directories_chmod_command_options" || return $?
 
-            tudo_log 3 "Setting \"${sub_directories_chmod_command_options_array[*]}\" permissions to $directory_path_label directory at \"$directory_path\" subdirectories"
+            tudo_log 3 "Setting '${sub_directories_chmod_command_options_array[*]}' permissions to $directory_path_label directory at '$directory_path' subdirectories"
             find "$directory_path" -type d -print0 | xargs -0 -r -- chmod "${sub_directories_chmod_command_options_array[@]}" --
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failed to set permissions of subdirectories in $directory_path_label directory at \"$directory_path\""
+                tudo_log_errors "Failed to set permissions of subdirectories in $directory_path_label directory at '$directory_path'"
                 return $return_value
             fi
         fi
@@ -3904,11 +3904,11 @@ tudo_create_modify_validate_directory() {
             tudo_set_shell_command_args_array sub_files_chown_command_options_array \
                 "sub_files_chown_command_options" "$sub_files_chown_command_options" || return $?
 
-            tudo_log 3 "Setting \"${sub_files_chown_command_options_array[*]}\" ownership to $directory_path_label directory at \"$directory_path\" subfiles"
+            tudo_log 3 "Setting '${sub_files_chown_command_options_array[*]}' ownership to $directory_path_label directory at '$directory_path' subfiles"
             find "$directory_path" -type f -print0 | xargs -0 -r -- chown "${sub_files_chown_command_options_array[@]}" --
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failed to set ownership of subfiles in $directory_path_label directory at \"$directory_path\""
+                tudo_log_errors "Failed to set ownership of subfiles in $directory_path_label directory at '$directory_path'"
                 return $return_value
             fi
         fi
@@ -3919,11 +3919,11 @@ tudo_create_modify_validate_directory() {
             tudo_set_shell_command_args_array sub_files_chmod_command_options_array \
                 "sub_files_chmod_command_options" "$sub_files_chmod_command_options" || return $?
 
-            tudo_log 3 "Setting \"${sub_files_chmod_command_options_array[*]}\" permissions to $directory_path_label directory at \"$directory_path\" subfiles"
+            tudo_log 3 "Setting '${sub_files_chmod_command_options_array[*]}' permissions to $directory_path_label directory at '$directory_path' subfiles"
             find "$directory_path" -type f -print0 | xargs -0 -r -- chmod "${sub_files_chmod_command_options_array[@]}" --
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failed to set permissions of subfiles in $directory_path_label directory at \"$directory_path\""
+                tudo_log_errors "Failed to set permissions of subfiles in $directory_path_label directory at '$directory_path'"
                 return $return_value
             fi
         fi
@@ -3950,7 +3950,7 @@ tudo_create_modify_validate_file() {
 
     # If argument count is not 10
     if [ $# -ne 10 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_create_modify_validate_file\""
+        tudo_log_errors "Invalid argument count to 'tudo_create_modify_validate_file'"
         return 1
     fi
 
@@ -3971,26 +3971,26 @@ tudo_create_modify_validate_file() {
 
     # If create_file_if_it_does_not_exist is not set to 0 or 1
     if [[ "$create_file_if_it_does_not_exist" != "0" ]] && [[ "$create_file_if_it_does_not_exist" != "1" ]]; then
-        tudo_log_errors "create_file_if_it_does_not_exist \"$create_file_if_it_does_not_exist\" passed to \"tudo_create_modify_validate_file\" is not equal to \"0\" or \"1\""
+        tudo_log_errors "create_file_if_it_does_not_exist '$create_file_if_it_does_not_exist' passed to 'tudo_create_modify_validate_file' is not equal to '0' or '1'"
         return 1
     fi
 
     # If only_set_perms_and_ownership_on_creation is not set to 0 or 1
     if [[ "$only_set_perms_and_ownership_on_creation" != "0" ]] && [[ "$only_set_perms_and_ownership_on_creation" != "1" ]]; then
-        tudo_log_errors "only_set_perms_and_ownership_on_creation \"$only_set_perms_and_ownership_on_creation\" passed to \"tudo_create_modify_validate_file\" is not equal to \"0\" or \"1\""
+        tudo_log_errors "only_set_perms_and_ownership_on_creation '$only_set_perms_and_ownership_on_creation' passed to 'tudo_create_modify_validate_file' is not equal to '0' or '1'"
         return 1
     fi
 
     # If check_if_absolute_path is enabled and file_path is not a valid absolute path
     local valid_absolute_path_regex='^(/[^/]+)+$'
     if [[ "$check_if_absolute_path" == "1" ]] && [[ ! "$file_path" =~ $valid_absolute_path_regex ]]; then
-        tudo_log_errors "The \"$file_path_label\" file \"$file_path\" is not an absolute path"
+        tudo_log_errors "The '$file_path_label' file '$file_path' is not an absolute path"
         return 2
     fi
 
     # Check if a non-file file exists at file path
     if [ -e "$file_path" ] && [ ! -f "$file_path" ]; then
-        tudo_log_errors "A non-regular file exists at $file_path_label \"$file_path\""
+        tudo_log_errors "A non-regular file exists at $file_path_label '$file_path'"
         return 1
     fi
 
@@ -3998,7 +3998,7 @@ tudo_create_modify_validate_file() {
     if [ ! -f "$file_path" ]; then
         # If create_file_if_it_does_not_exist is enabled, then create file
         if [[ "$create_file_if_it_does_not_exist" == "1" ]]; then
-            tudo_log 3 "Creating $file_path_label \"$file_path\" file"
+            tudo_log 3 "Creating $file_path_label '$file_path' file"
 
             local -a file_creation_command_options_array
             if [[ "$file_creation_command_options" != "-" ]]; then
@@ -4015,31 +4015,31 @@ tudo_create_modify_validate_file() {
             fi
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failed to create $file_path_label file at \"$file_path\""
+                tudo_log_errors "Failed to create $file_path_label file at '$file_path'"
                 return $return_value
             fi
 
             if [ ! -f "$file_path" ]; then
-                tudo_log_errors "Failed to find $file_path_label file at \"$file_path\" after creation"
+                tudo_log_errors "Failed to find $file_path_label file at '$file_path' after creation"
                 return 1
             fi
 
             file_created=1
         else
-            tudo_log_errors "Failed to find $file_path_label file at \"$file_path\""
+            tudo_log_errors "Failed to find $file_path_label file at '$file_path'"
             return 1
         fi
     else
         if [[ "$create_file_if_it_does_not_exist" == "1" ]]; then
-            tudo_log 3 "The $file_path_label file already exists at \"$file_path\""
+            tudo_log 3 "The $file_path_label file already exists at '$file_path'"
         else
-            tudo_log 3 "The $file_path_label file exists at \"$file_path\""
+            tudo_log 3 "The $file_path_label file exists at '$file_path'"
         fi
     fi
 
     # Check if file did not already exist or was not created successfully
     if [ ! -f "$file_path" ]; then
-        tudo_log_errors "Failed to find $file_path_label file at \"$file_path\""
+        tudo_log_errors "Failed to find $file_path_label file at '$file_path'"
         return 1
     fi
 
@@ -4053,11 +4053,11 @@ tudo_create_modify_validate_file() {
             tudo_set_shell_command_args_array file_chown_command_options_array \
                 "file_chown_command_options" "$file_chown_command_options" || return $?
 
-            tudo_log 3 "Setting \"${file_chown_command_options_array[*]}\" ownership to $file_path_label \"$file_path\" file"
+            tudo_log 3 "Setting '${file_chown_command_options_array[*]}' ownership to $file_path_label '$file_path' file"
             chown "${file_chown_command_options_array[@]}" "$file_path"
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failed to set ownership of $file_path_label file at \"$file_path\""
+                tudo_log_errors "Failed to set ownership of $file_path_label file at '$file_path'"
                 return $return_value
             fi
         fi
@@ -4068,11 +4068,11 @@ tudo_create_modify_validate_file() {
             tudo_set_shell_command_args_array file_chmod_command_options_array \
                 "file_chmod_command_options" "$file_chmod_command_options" || return $?
 
-            tudo_log 3 "Setting \"${file_chmod_command_options_array[*]}\" permissions to $file_path_label \"$file_path\" file"
+            tudo_log 3 "Setting '${file_chmod_command_options_array[*]}' permissions to $file_path_label '$file_path' file"
             chmod "${file_chmod_command_options_array[@]}" "$file_path"
             return_value=$?
             if [ $return_value -ne 0 ]; then
-                tudo_log_errors "Failed to set permissions of $file_path_label file at \"$file_path\""
+                tudo_log_errors "Failed to set permissions of $file_path_label file at '$file_path'"
                 return $return_value
             fi
         fi
@@ -4099,7 +4099,7 @@ tudo_expand_termux_path() {
 
     # If argument count is not 6
     if [ $# -ne 6 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_expand_termux_path\""
+        tudo_log_errors "Invalid argument count to 'tudo_expand_termux_path'"
         return 1
     fi
 
@@ -4125,8 +4125,8 @@ tudo_expand_termux_path() {
         path_to_expand="$(readlink -m -- "$path_to_expand")"
         return_value=$?
         if [ $return_value -ne 0 ] || [[ ! "$path_to_expand" =~ $valid_absolute_path_regex ]]; then
-            tudo_log_errors "Failure while finding canonical path for path_to_expand \"$absolute_path_to_expand\""
-            tudo_log_errors "canonical_path_to_expand = \"$path_to_expand\""
+            tudo_log_errors "Failure while finding canonical path for path_to_expand '$absolute_path_to_expand'"
+            tudo_log_errors "canonical_path_to_expand='$path_to_expand'"
             if [ $return_value -eq 0 ]; then
                 return_value=1
             fi
@@ -4154,7 +4154,7 @@ tudo_expand_termux_path() {
         # Set variable_name to path_to_expand
         printf -v "$variable_name" "%s" "$path_to_expand"
     else
-        tudo_log_errors "variable_name \"$1\" passed to \"tudo_expand_termux_path\" equals \"path_to_expand\" or is not a valid bash variable name"
+        tudo_log_errors "variable_name '$1' passed to 'tudo_expand_termux_path' equals 'path_to_expand' or is not a valid bash variable name"
         return 1
     fi
 
@@ -4175,7 +4175,7 @@ tudo_find_absolute_path_for_executable_and_validate() {
 
     # If argument count is not 6
     if [ $# -ne 6 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_find_absolute_path_for_executable_and_validate\""
+        tudo_log_errors "Invalid argument count to 'tudo_find_absolute_path_for_executable_and_validate'"
         return 1
     fi
 
@@ -4195,21 +4195,21 @@ tudo_find_absolute_path_for_executable_and_validate() {
     tudo_expand_termux_path "expanded_path" "${label}_PATH" "$path" "$termux_prefix" "$termux_home" 3
     return_value=$?
     if [ $return_value -ne 0 ]; then
-        tudo_log_errors "Failed to expand ${label}_PATH \"$path\""
+        tudo_log_errors "Failed to expand ${label}_PATH '$path'"
         return $return_value
     fi
 
-    tudo_log 3 "${label}_EXPANDED_PATH=\"$expanded_path\""
+    tudo_log 3 "${label}_EXPANDED_PATH='$expanded_path'"
 
     if [[ "$expanded_path" =~ $valid_absolute_path_regex ]]; then
         absolute_path="$expanded_path"
         test -f "$absolute_path" && test -r "$absolute_path" && test -x "$absolute_path"
         return_value=$?
         if [ $return_value -ne 0 ] && [ $return_value -ne 1 ]; then
-            tudo_log_errors "Failed to run the following test types on the file \"${label}_PATH\" at path \"$absolute_path\": [regular file], [readable], [executable]"
+            tudo_log_errors "Failed to run the following test types on the file '${label}_PATH' at path '$absolute_path': [regular file], [readable], [executable]"
             return $return_value
         elif [ $return_value -eq 0 ]; then
-            tudo_log 3 "Executable found at \"$absolute_path\""
+            tudo_log 3 "Executable found at '$absolute_path'"
             executable_found=1
         fi
     fi
@@ -4219,24 +4219,24 @@ tudo_find_absolute_path_for_executable_and_validate() {
         # Check if paths_to_check_for_executable is valid
         local invalid_value_for_path_variable_regex='^:|:$|.*::.*|.*'$'\n''.*'
         if [[ "$paths_to_check_for_executable" =~ $invalid_value_for_path_variable_regex ]]; then
-            tudo_log_errors "PATHS_TO_CHECK_FOR_EXECUTABLE \"$paths_to_check_for_executable\" is invalid, it cannot start or end with a colon, contain two consecutive colons \":\" or contain newline characters"
+            tudo_log_errors "PATHS_TO_CHECK_FOR_EXECUTABLE '$paths_to_check_for_executable' is invalid, it cannot start or end with a colon, contain two consecutive colons ':' or contain newline characters"
             return 1
         fi
 
-        tudo_log 3 "Checking for \"$path\" executable at following paths: \"$paths_to_check_for_executable\""
+        tudo_log 3 "Checking for '$path' executable at following paths: '$paths_to_check_for_executable'"
 
         # Check if path is a binary or any executable in paths_to_check_for_executable
         for path_to_check_for_executable in ${paths_to_check_for_executable//:/ }; do
             absolute_path="$path_to_check_for_executable/$path"
-            tudo_log 3 "\"$absolute_path\""
+            tudo_log 3 "'$absolute_path'"
 
             test -f "$absolute_path" && test -r "$absolute_path" && test -x "$absolute_path"
             return_value=$?
             if [ $return_value -ne 0 ] && [ $return_value -ne 1 ]; then
-                tudo_log_errors "Failed to run the following test types on the file \"${label}_PATH\" at path \"$absolute_path\": [regular file], [readable], [executable]"
+                tudo_log_errors "Failed to run the following test types on the file '${label}_PATH' at path '$absolute_path': [regular file], [readable], [executable]"
                 return $return_value
             elif [ $return_value -eq 0 ]; then
-                tudo_log 3 "Executable found at \"$absolute_path\""
+                tudo_log 3 "Executable found at '$absolute_path'"
                 executable_found=1
                 break
             fi
@@ -4256,7 +4256,7 @@ tudo_find_absolute_path_for_executable_and_validate() {
         # Set variable_name to absolute_path
         printf -v "$variable_name" "%s" "$absolute_path"
     else
-        tudo_log_errors "variable_name \"$1\" passed to \"tudo_find_absolute_path_for_executable_and_validate\" equals \"absolute_path\" or is not a valid bash variable name"
+        tudo_log_errors "variable_name '$1' passed to 'tudo_find_absolute_path_for_executable_and_validate' equals 'absolute_path' or is not a valid bash variable name"
         return 1
     fi
 
@@ -4273,7 +4273,7 @@ tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs() {
 
     # If argument count is not 2
     if [ $# -ne 2 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs\""
+        tudo_log_errors "Invalid argument count to 'tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs'"
         return 1
     fi
 
@@ -4306,14 +4306,14 @@ tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs() {
 
     # If path same as TERMUX_ROOTFS
     if [[ "$path" == "$TERMUX_ROOTFS" ]]; then
-        tudo_log 3 "$label \"$path\" is the same as TERMUX_ROOTFS"
+        tudo_log 3 "$label '$path' is the same as TERMUX_ROOTFS"
         return 2
     # If path is set to an absolute path under TERMUX_ROOTFS
     elif [[ "$path" =~ $valid_path_under_termux_rootfs_regex ]]; then
         # If path is set to a blacklist path under TERMUX_ROOTFS
         if [[ "$path" =~ $blacklisted_path_in_termux_rootfs_regex ]]; then
-            tudo_log 3 "$label \"$path\" matches one of following blacklisted paths:"
-            tudo_log 3 "\"$TERMUX_HOME/.{cache,config,local,termux}\", \"$TERMUX_PREFIX/*\""
+            tudo_log 3 "$label '$path' matches one of following blacklisted paths:"
+            tudo_log 3 "'$TERMUX_HOME/.{cache,config,local,termux}', '$TERMUX_PREFIX/*'"
             return 2
         else
             return 0
@@ -4333,7 +4333,7 @@ tudo_parse_and_validate_path_variable() {
 
     # If argument count is not 4
     if [ $# -ne 4 ]; then
-        tudo_log_errors "Invalid argument count to \"tudo_parse_and_validate_path_variable\""
+        tudo_log_errors "Invalid argument count to 'tudo_parse_and_validate_path_variable'"
         return 1
     fi
 
@@ -4348,7 +4348,7 @@ tudo_parse_and_validate_path_variable() {
         path_to_parse="$(printf "%s" "$path_to_parse" | awk -v RS=: -v ORS= '!a[$0]++ {if (NR>1) printf(":"); printf("%s", $0) }' )"
         return_value=$?
         if [ $return_value -ne 0 ]; then
-            tudo_log_errors "Failed to remove duplicates from $label \"$path_to_parse\""
+            tudo_log_errors "Failed to remove duplicates from $label '$path_to_parse'"
             return $return_value
         fi
     fi
@@ -4356,7 +4356,7 @@ tudo_parse_and_validate_path_variable() {
     # Check if path_to_parse is valid
     local invalid_value_for_path_variable_regex='^:|:$|.*::.*|.*'$'\n''.*'
     if [[ "$path_to_parse" =~ $invalid_value_for_path_variable_regex ]]; then
-        tudo_log_errors "$label \"$path_to_parse\" is invalid, it cannot start or end with a colon, contain two consecutive colons \":\" or contain newline characters"
+        tudo_log_errors "$label '$path_to_parse' is invalid, it cannot start or end with a colon, contain two consecutive colons ':' or contain newline characters"
         return 1
     fi
 
@@ -4367,7 +4367,7 @@ tudo_parse_and_validate_path_variable() {
         # Set variable_name to path
         printf -v "$variable_name" "%s" "$path_to_parse"
     else
-        tudo_log_errors "variable_name \"$1\" passed to \"tudo_parse_and_validate_path_variable\" equals \"path_to_parse\" or is not a valid bash variable name"
+        tudo_log_errors "variable_name '$1' passed to 'tudo_parse_and_validate_path_variable' equals 'path_to_parse' or is not a valid bash variable name"
         return 1
     fi
 
@@ -4810,7 +4810,7 @@ tudo_replace_comma_alternative_chars_with_commas_in_string() {
         # Set variable_name stored in $1 to variable_value in $2 after replacing all COMMA_ALTERNATIVE characters with a comma ',' in $2
         printf -v "$1" "%s" "${2//$COMMA_ALTERNATIVE/,}"
     else
-        tudo_log_errors "variable_name \"$1\" passed to \"tudo_replace_comma_alternative_chars_with_commas_in_string\" is not a valid bash variable name"
+        tudo_log_errors "variable_name '$1' passed to 'tudo_replace_comma_alternative_chars_with_commas_in_string' is not a valid bash variable name"
     fi
 
 }
@@ -4831,7 +4831,7 @@ tudo_trim_trailing_newlines() {
         # Set variable_name stored in $1 to variable_value in $2 without trailing newline and carriage return characters
         printf -v "$1" "%s" "${2%%*([$'\r\n'])}"
     else
-        tudo_log_errors "variable_name \"$1\" passed to \"tudo_trim_trailing_newlines\" is not a valid bash variable name"
+        tudo_log_errors "variable_name '$1' passed to 'tudo_trim_trailing_newlines' is not a valid bash variable name"
     fi
 
     (( extglob_was_unset )) && shopt -u extglob # Unset 'extglob', if previously unset
@@ -5434,7 +5434,7 @@ tudo_process_script_arguments() {
 
             # If more arguments are given
             if [ $# -ne 0 ]; then
-                tudo_log_arg_errors "Unknown arguments to \"$COMMAND_TYPE\": '$*'"
+                tudo_log_arg_errors "Unknown arguments to '$COMMAND_TYPE': '$*'"
                 tudo_exit_on_args_error || return $?
             fi
 
