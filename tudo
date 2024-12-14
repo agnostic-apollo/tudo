@@ -68,7 +68,7 @@ termux_core__bash__termux_scoped_env_variable get-name "TERMUX_PREFIX__N" \
     ss="$TERMUX_ENV__SS_TERMUX" "PREFIX" || return $?
 
 
-if [[ ! -x "$TERMUX_ROOTFS" ]]; then
+if [[ ! -x "$TERMUX_ROOTFS" ]] && [[ "$TUDO_SKIP_ON_NOOP_COMMAND" != "1" ]]; then
     tudo_log_errors "The TERMUX_ROOTFS '$TERMUX_ROOTFS' path not found or is not executable. Are you running in $TERMUX_APP__NAME app on Android?"
     return 1
 fi
@@ -292,32 +292,45 @@ tudo_main() {
 
     local return_value
 
+    if [[ $# -eq 0 ]] || \
+        [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]] || [[ "$1" == "--help-extra" ]] || \
+        [[ "$1" == "--version" ]]; then
+        TUDO_SKIP_ON_NOOP_COMMAND=1
+    else
+        TUDO_SKIP_ON_NOOP_COMMAND=0
+    fi
+
     # Set termux env variables
     tudo_set_termux_env_variables || return $?
 
-    # If tudo_config_file exists, source it
-    tudo_config_file="$TERMUX_HOME/.config/tudo/tudo.config"
-    tudo_config_file_sourced=0
-    if [ -f "$tudo_config_file" ] && [ -r "$tudo_config_file" ]; then
-        # Set variables provided for tudo.config
+    # If `tudo.config` exists, source it.
+    TUDO_CONFIG_FILE_PATH="$TERMUX_HOME/.config/tudo/tudo.config"
+    TUDO_CONFIG_FILE_SOURCED=0
+    if [[ "$TUDO_SKIP_ON_NOOP_COMMAND" != "1" ]] && \
+        [ -f "$TUDO_CONFIG_FILE_PATH" ] && [ -r "$TUDO_CONFIG_FILE_PATH" ]; then
+        # Set variables provided for `tudo.config`.
         TUDO__TERMUX_ROOTFS="$TERMUX_ROOTFS"
         TUDO__TERMUX_HOME="$TERMUX_HOME"
         TUDO__TERMUX_PREFIX="$TERMUX_PREFIX"
 
-        source "$tudo_config_file" || return $?
-        tudo_config_file_sourced=1
+        # shellcheck source=tudo.config
+        source "$TUDO_CONFIG_FILE_PATH" || return $?
+        TUDO_CONFIG_FILE_SOURCED=1
     fi
 
-    # Set tudo default variables
-    # There are set by a function so that they do not automatically override already set variables
-    # if the script is sourced
-    # User modifiable variables will only be set if the tudo_config_file didn't set them or
-    # if they were not already exported
+    # Set tudo default variables.
+    # They are set by a function so that default variables are not
+    # overridden by the `tudo.config` file if its sourced.
+    # However, the user modifiable variables will only be set if the
+    # `tudo.config` didn't already set them or if they were not
+    # already exported.
     tudo_set_tudo_default_variables || return $?
 
 
     # Set pre required variables to be used by this script
-    tudo_set_pre_required_variables || return $?
+    if [[ "$TUDO_SKIP_ON_NOOP_COMMAND" != "1" ]]; then
+        tudo_set_pre_required_variables || return $?
+    fi
 
 
     # Process the command arguments passed to the script
@@ -349,8 +362,8 @@ tudo_run() {
 
     tudo_log_literal 3 "\nRunning tudo"
 
-    # If tudo_config_file_sourced is enabled
-    if [[ "$tudo_config_file_sourced" == "1" ]]; then
+    # If `tudo.config` was sourced.
+    if [[ "$TUDO_CONFIG_FILE_SOURCED" == "1" ]]; then
         tudo_log 3 "config was sourced from ~/.config/tudo/tudo.config"
     fi
 
