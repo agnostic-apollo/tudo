@@ -940,9 +940,11 @@ TUDO_EOF
 
 
 
-    run_tudo_test 46 && \
-    output="$(tudo -si --post-shell="python" --post-shell-stdin-string='exit(0)' 2>&1)"
-    validate_tudo_test 0 $? "$output" "*" "Python" "*"
+    if [ -x "$TERMUX_PREFIX/bin/python" ]; then
+        run_tudo_test 46 && \
+        output="$(tudo -si --post-shell="python" --post-shell-stdin-string='exit(0)' 2>&1)"
+        validate_tudo_test 0 $? "$output" "*" "Python" "*"
+    fi
 
 
 
