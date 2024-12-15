@@ -254,6 +254,9 @@ tudo_tests_run() {
 
     cd "$TUDO_TESTS_WORKING_DIR"
 
+    local tests_start_time
+    local tests_end_time
+    tests_start_time="$(date "+%s")" || return $?
 
     # Run tests
     if [ -z "$TUDO_TESTS_COMMAND_TYPE" ]; then
@@ -270,7 +273,10 @@ tudo_tests_run() {
         return 1
     fi
 
-    tudo_tests_log 1 $'\n\n'"All 'tudo' tests successful"
+    tests_end_time=$(($(date "+%s") - tests_start_time)) || return $?
+    tudo_tests_log 5 $'\n\n'
+    tudo_tests_log 1 "All 'tudo' tests successful in \
+$((tests_end_time / 3600 )) hours $(((tests_end_time % 3600) / 60)) minutes $((tests_end_time % 60)) seconds"
 
     return 0
 
