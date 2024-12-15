@@ -31,7 +31,8 @@ Available command_options:
   [ --help-extra ]   Display more help about how tudo_tests command
                      works.
   [ -q | --quiet ]   Set log level to 'OFF'.
-  [ -v | -vv ]       Set log level to 'DEBUG', 'VERBOSE', `VVERBOSE'.
+  [ -v | -vv | -vvv | -vvvvv ]  Set log level to 'DEBUG', 'VERBOSE',
+                                'VVERBOSE' and 'VVVERBOSE'.
   [ --only-bash-tests ] Run only bash shell tests.
 
 
@@ -141,11 +142,11 @@ TUDO_TESTS_HELP_EXTRA
 
 ### Set Default Variables Start
 
-TUDO_TESTS_MAX_LOG_LEVEL=4 # Default: `4` (VVERBOSE=4)
+TUDO_TESTS_MAX_LOG_LEVEL=5 # Default: `5` (VVVERBOSE=5)
 # shellcheck disable=SC2153
 TUDO_TESTS_LOG_LEVEL="$TUDO_TESTS__LOG_LEVEL"
 { [[ ! "$TUDO_TESTS_LOG_LEVEL" =~ ^[0-9]+$ ]] || [[ "$TUDO_TESTS_LOG_LEVEL" -gt "$TUDO_TESTS_MAX_LOG_LEVEL" ]]; } && \
-TUDO_TESTS_LOG_LEVEL=1 # Default: `1` (OFF=0, NORMAL=1, DEBUG=2, VERBOSE=3, VVERBOSE=4)
+TUDO_TESTS_LOG_LEVEL=1 # Default: `1` (OFF=0, NORMAL=1, DEBUG=2, VERBOSE=3, VVERBOSE=4 and VVVERBOSE=5)
 TUDO_TESTS_LOG_ARGS="${TUDO_TESTS__LOG_ARGS:-0}" # Default: `0` (Export or manually set to `1` if you want to debug arguments received)
 
 TUDO_TESTS_COMMAND_TYPE="" # Default: ``
@@ -171,11 +172,12 @@ VALID_ABSOLUTE_PATH_REGEX='^(/[^/]+)+$'
 
 
 
-function tudo_tests_log () { local log_level="${1}"; shift; if [[ $TUDO_TESTS_LOG_LEVEL -ge $log_level ]]; then echo "$@"; fi }
-function tudo_tests_log_literal() { local log_level="${1}"; shift; if [[ $TUDO_TESTS_LOG_LEVEL -ge $log_level ]]; then echo -e "$@"; fi }
-function tudo_tests_log_errors () { echo "$@" 1>&2; }
-function tudo_tests_log_args() { if [[ $TUDO_TESTS_LOG_ARGS == "1" ]]; then echo "$@"; fi }
-function tudo_tests_log_arg_errors() { echo "$@" 1>&2; }
+function tudo_tests_log() { local log_level="${1}"; shift; if [[ $TUDO_TESTS_LOG_LEVEL -ge $log_level ]]; then echo "tudo-tests:" "$@"; fi }
+function tudo_tests_log_no_tag() { local log_level="${1}"; shift; if [[ $TUDO_TESTS_LOG_LEVEL -ge $log_level ]]; then "$@"; fi }
+function tudo_tests_log_literal() { local log_level="${1}"; shift; if [[ $TUDO_TESTS_LOG_LEVEL -ge $log_level ]]; then echo -e "tudo-tests:" "$@"; fi }
+function tudo_tests_log_errors() { echo "tudo-tests:" "$@" 1>&2; }
+function tudo_tests_log_args() { if [[ $TUDO_TESTS_LOG_ARGS == "1" ]]; then echo "tudo-tests:" "$@"; fi }
+function tudo_tests_log_arg_errors() { echo "tudo-tests:" "$@" 1>&2; }
 
 # stdin in closed for some tests as a patch to SuperSU automatic redirection of stderr to stdout when running in interactive mode
 function close_stdin () {  if [ -t 0 ]; then exec <&-; fi }
@@ -261,10 +263,10 @@ tudo_tests_run() {
     # Run tests
     if [ -z "$TUDO_TESTS_COMMAND_TYPE" ]; then
         tudo_tests_log 1 "Running 'tudo' tests"
-        tudo_tests_log 1 $'\n\n'; tudo_tests_run_su_tests || return $?
-        tudo_tests_log 1 $'\n\n'; tudo_tests_run_asu_tests || return $?
-        tudo_tests_log 1 $'\n\n'; tudo_tests_run_path_tests || return $?
-        tudo_tests_log 1 $'\n\n'; tudo_tests_run_script_tests || return $?
+        tudo_tests_log 5 $'\n\n'; tudo_tests_run_su_tests || return $?
+        tudo_tests_log 5 $'\n\n'; tudo_tests_run_asu_tests || return $?
+        tudo_tests_log 5 $'\n\n'; tudo_tests_run_path_tests || return $?
+        tudo_tests_log 5 $'\n\n'; tudo_tests_run_script_tests || return $?
     elif [[ "$TUDO_TESTS_COMMAND_TYPE" != *,* ]] && [[ ",su,asu,path,script," == *",$TUDO_TESTS_COMMAND_TYPE,"* ]]; then
         tudo_tests_run_"${TUDO_TESTS_COMMAND_TYPE,,}"_tests || return $?
     else
@@ -303,7 +305,7 @@ tudo_tests_set_pre_required_variables() {
         fi
     fi
 
-    tudo_tests_log 3 "ANDROID__BUILD_VERSION_SDK='$ANDROID__BUILD_VERSION_SDK'"
+    tudo_tests_log 5 "ANDROID__BUILD_VERSION_SDK='$ANDROID__BUILD_VERSION_SDK'"
 
 
 
@@ -317,7 +319,7 @@ tudo_tests_set_pre_required_variables() {
         LD_LIBRARY_PATH=""
     fi
 
-    tudo_tests_log 3 "LD_LIBRARY_PATH='$LD_LIBRARY_PATH'"
+    tudo_tests_log 5 "LD_LIBRARY_PATH='$LD_LIBRARY_PATH'"
 
     return 0
 
@@ -390,7 +392,7 @@ tudo_tests_run_su_tests() {
     local return_value
 
     TUDO_TESTS_COMMAND_TYPE="su"
-    tudo_tests_log 1 "Running '$TUDO_TESTS_COMMAND_TYPE' command type tests"
+    tudo_tests_log 2 "Start '$TUDO_TESTS_COMMAND_TYPE' tests"
 
 
 
@@ -442,7 +444,8 @@ tudo_tests_run_su_tests() {
     fi
 
 
-    tudo_tests_log 1 $'\n\n'"All 'su' command type tests successful"
+    tudo_tests_log 5 $'\n\n'
+    tudo_tests_log 2 "End '$TUDO_TESTS_COMMAND_TYPE' tests"
 
     return 0
 
@@ -453,7 +456,7 @@ tudo_tests_run_asu_tests() {
     local return_value
 
     TUDO_TESTS_COMMAND_TYPE="asu"
-    tudo_tests_log 1 "Running '$TUDO_TESTS_COMMAND_TYPE' command type tests"
+    tudo_tests_log 2 "Start '$TUDO_TESTS_COMMAND_TYPE' tests"
 
 
 
@@ -505,7 +508,8 @@ tudo_tests_run_asu_tests() {
     fi
 
 
-    tudo_tests_log 1 $'\n\n'"All 'asu' command type tests successful"
+    tudo_tests_log 5 $'\n\n'
+    tudo_tests_log 2 "End '$TUDO_TESTS_COMMAND_TYPE' tests"
 
     return 0
 }
@@ -515,7 +519,7 @@ tudo_tests_run_path_tests() {
     local return_value
 
     TUDO_TESTS_COMMAND_TYPE="path"
-    tudo_tests_log 1 "Running '$TUDO_TESTS_COMMAND_TYPE' command type tests"
+    tudo_tests_log 2 "Start '$TUDO_TESTS_COMMAND_TYPE' tests"
 
 
 
@@ -572,7 +576,8 @@ tudo_tests_run_path_tests() {
 
 
 
-    tudo_tests_log 1 $'\n\n'"All 'path' command type tests successful"
+    tudo_tests_log 5 $'\n\n'
+    tudo_tests_log 2 "End '$TUDO_TESTS_COMMAND_TYPE' tests"
 
     return 0
 
@@ -583,7 +588,7 @@ tudo_tests_run_script_tests() {
     local return_value
 
     TUDO_TESTS_COMMAND_TYPE="script"
-    tudo_tests_log 1 "Running '$TUDO_TESTS_COMMAND_TYPE' command type tests"
+    tudo_tests_log 2 "Start '$TUDO_TESTS_COMMAND_TYPE' tests"
 
 
 
@@ -984,7 +989,7 @@ TUDO_EOF
         validate_tudo_test 0 $? "$output" "What is your name?"$'\n'"Hi, $shell."
 
     else
-        tudo_tests_log 2 "Skipping zsh tests since its not installed"
+        tudo_tests_log 3 "Skipping zsh tests since its not installed"
     fi
 
 
@@ -1019,7 +1024,7 @@ TUDO_EOF
         validate_tudo_test 0 $? "$output" "What is your name?"$'\n'"Hi, $shell."
 
     else
-        tudo_tests_log 2 "Skipping dash tests since its not installed"
+        tudo_tests_log 3 "Skipping dash tests since its not installed"
     fi
 
 
@@ -1054,7 +1059,7 @@ TUDO_EOF
         validate_tudo_test 0 $? "$output" "What is your name?"$'\n'"Hi, $shell."
 
     else
-        tudo_tests_log 2 "Skipping sh tests since its not installed"
+        tudo_tests_log 3 "Skipping sh tests since its not installed"
     fi
 
 
@@ -1093,7 +1098,7 @@ TUDO_EOF
         validate_tudo_test 0 $? "$output" "What is your name?"$'\n'"Hi, $shell."
 
     else
-        tudo_tests_log 2 "Skipping fish tests since its not installed"
+        tudo_tests_log 3 "Skipping fish tests since its not installed"
     fi
 
 
@@ -1169,7 +1174,7 @@ TUDO_EOF
         fi
 
     else
-        tudo_tests_log 2 "Skipping python tests since its not installed"
+        tudo_tests_log 3 "Skipping python tests since its not installed"
     fi
 
 
@@ -1205,7 +1210,7 @@ TUDO_EOF
         validate_tudo_test 0 $? "$output" "What is your name?"$'\n'"Hi, $shell."
 
     else
-        tudo_tests_log 2 "Skipping ruby tests since its not installed"
+        tudo_tests_log 3 "Skipping ruby tests since its not installed"
     fi
 
 
@@ -1246,7 +1251,7 @@ TUDO_EOF
         validate_tudo_test 0 $? "$output" "*" "Hi, $shell." ""
 
     else
-        tudo_tests_log 2 "Skipping node tests since its not installed"
+        tudo_tests_log 3 "Skipping node tests since its not installed"
     fi
 
 
@@ -1282,7 +1287,7 @@ TUDO_EOF
         validate_tudo_test 0 $? "$output" "What is your name?"$'\n'"Hi, $shell."
 
     else
-        tudo_tests_log 2 "Skipping perl tests since its not installed"
+        tudo_tests_log 3 "Skipping perl tests since its not installed"
     fi
 
 
@@ -1317,7 +1322,7 @@ TUDO_EOF
         validate_tudo_test 0 $? "$output" "What is your name?"$'\n'"Hi, $shell."
 
     else
-        tudo_tests_log 2 "Skipping lua5.2 tests since its not installed"
+        tudo_tests_log 3 "Skipping lua5.2 tests since its not installed"
     fi
 
 
@@ -1352,7 +1357,7 @@ TUDO_EOF
         validate_tudo_test 0 $? "$output" "What is your name?"$'\n'"Hi, $shell."
 
     else
-        tudo_tests_log 2 "Skipping lua5.3 tests since its not installed"
+        tudo_tests_log 3 "Skipping lua5.3 tests since its not installed"
     fi
 
 
@@ -1387,7 +1392,7 @@ TUDO_EOF
         validate_tudo_test 0 $? "$output" "What is your name?"$'\n'"Hi, $shell."
 
     else
-        tudo_tests_log 2 "Skipping lua5.4 tests since its not installed"
+        tudo_tests_log 3 "Skipping lua5.4 tests since its not installed"
     fi
 
 
@@ -1424,12 +1429,13 @@ TUDO_EOF
         validate_tudo_test 0 $? "$output" "What is your name?"$'\n'"php"$'\n'"Hi, $shell."
 
     else
-        tudo_tests_log 2 "Skipping php tests since its not installed"
+        tudo_tests_log 3 "Skipping php tests since its not installed"
     fi
 
 
 
-    tudo_tests_log 1 $'\n\n'"All 'script' command type tests successful"
+    tudo_tests_log 5 $'\n\n'
+    tudo_tests_log 2 "End '$TUDO_TESTS_COMMAND_TYPE' tests"
 
     return 0
 
@@ -1499,6 +1505,8 @@ tudo_tests_run_subshell_command() {
 
 set_tudo_tests_current_test_shell () {
 
+    tudo_tests_log 3 "$1()"
+
     TUDO_TESTS_PREVIOUS_TEMP_TEST_SHELL="$TUDO_TESTS_CURRENT_TEST_SHELL";
     TUDO_TESTS_CURRENT_TEST_SHELL="$1"
 
@@ -1526,7 +1534,8 @@ set_tudo_tests_current_test_number () {
     if [ -n "$TUDO_TESTS_USER_TEST_SHELL" ] && [ -n "$TUDO_TESTS_USER_TEST_NUMBER" ] && \
             [[ "$TUDO_TESTS_PREVIOUS_TEST_SHELL" == "$TUDO_TESTS_USER_TEST_SHELL" ]] && \
                 [[ "$TUDO_TESTS_PREVIOUS_TEST_NUMBER" == "$TUDO_TESTS_USER_TEST_NUMBER" ]]; then
-        tudo_tests_log 1 $'\n\n'"User 'tudo' test successful"
+        tudo_tests_log 5 $'\n\n'
+        tudo_tests_log 1 "User 'tudo' test successful"
         exit 0
     fi
 
@@ -1553,7 +1562,8 @@ set_tudo_tests_current_test_number () {
 run_tudo_test () {
 
     set_tudo_tests_current_test_number "$1" || return $?
-    tudo_tests_log 2 $'\n\n'"Running $TUDO_TESTS_CURRENT_TEST_SHELL shell test $TUDO_TESTS_CURRENT_TEST_NUMBER";
+    tudo_tests_log 5 $'\n\n'
+    tudo_tests_log 4 "$TUDO_TESTS_CURRENT_TEST_NUMBER()"
 
 }
 
@@ -1563,7 +1573,7 @@ run_tudo_test () {
 skip_tudo_test () {
 
     set_tudo_tests_current_test_number "$1" || return $?
-    tudo_tests_log 2 $'\n\n'"Skipping $TUDO_TESTS_CURRENT_TEST_SHELL shell test $TUDO_TESTS_CURRENT_TEST_NUMBER";
+    tudo_tests_log 5 $'\n\n'"Skipping $TUDO_TESTS_CURRENT_TEST_SHELL shell test $TUDO_TESTS_CURRENT_TEST_NUMBER"
 
 }
 
@@ -1590,7 +1600,7 @@ validate_tudo_test () {
 
     # If actual_output is set
     if [ -n "$actual_output" ]; then
-        cat -v <<<"$actual_output"
+        tudo_tests_log_no_tag 5 "$(cat -v <<<"$actual_output")"
     fi
 
     # If argument count equals 4 and actual_output does not exactly match $4
@@ -1638,8 +1648,6 @@ validate_tudo_test () {
         exit "$actual_result_value"
     fi
 
-    tudo_tests_log 2 $'\n'"Test successful";
-
     return 0
 
 }
@@ -1665,7 +1673,7 @@ tudo_tests_remove_tudo_tests_temp_directories() {
     # If TUDO_TESTS_DIRECTORIES and TUDO_TESTS_TEMP_DIRECTORY_SUFFIX are set
     if [ ${#TUDO_TESTS_DIRECTORIES[@]} -ne 0 ] && [ -n "$TUDO_TESTS_TEMP_DIRECTORY_SUFFIX" ]; then
 
-        tudo_tests_log 3 $'\n\n'"Running tudo_tests_remove_tudo_tests_temp_directories"
+        tudo_tests_log 5 $'\n\n'"Running tudo_tests_remove_tudo_tests_temp_directories"
 
         # Remove all directories in TUDO_TESTS_DIRECTORIES if they match the TUDO_TESTS_TEMP_DIRECTORY_SUFFIX
         for i in "${!TUDO_TESTS_DIRECTORIES[@]}"; do
