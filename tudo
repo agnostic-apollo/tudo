@@ -2076,6 +2076,11 @@ tudo_set_tudo_shell() {
 
     tudo_log_literal 3 "\nRunning tudo_set_tudo_shell"
 
+    # If on Android `< 7`, and running `asu`/`script` commands with
+    # `-A` or `-AA` flags, then default to Android system shell, as
+    # Termux shells will have linker errors as `LD_LIBRARY_PATH` will
+    # not be set, so only use/allow `/system/bin/sh` shell.
+
     # If TUDO_SHELL is set
     if [ -n "$TUDO_SHELL" ]; then
         tudo_trim_trailing_newlines "TUDO_SHELL" "$TUDO_SHELL"
@@ -2087,9 +2092,23 @@ tudo_set_tudo_shell() {
             tudo_log_errors "Failed to validate 'TUDO_SHELL'"
             return $return_value
         fi
+
+        if [ "$ANDROID__BUILD_VERSION_SDK" -lt 24 ] && \
+                { [[ "$COMMAND_TYPE" == "asu" ]] || [[ "$COMMAND_TYPE" == "script" ]]; } && \
+                [[ "$SET_SECONDARY_PRIORITY_PATHS" == "0" ]] && \
+                [[ "$TUDO_SHELL" != "/system/bin/sh" ]]; then
+            tudo_log_errors "The 'TUDO_SHELL' must be '/system/bin/sh' if running '$COMMAND_TYPE' command on Android '< 7'"
+            return 1
+        fi
     else
         # Default to bash as TUDO_SHELL
         TUDO_SHELL="$BASH_SHELL_PATH"
+
+        if [ "$ANDROID__BUILD_VERSION_SDK" -lt 24 ] && \
+                { [[ "$COMMAND_TYPE" == "asu" ]] || [[ "$COMMAND_TYPE" == "script" ]]; } && \
+                [[ "$SET_SECONDARY_PRIORITY_PATHS" == "0" ]]; then
+            TUDO_SHELL="/system/bin/sh"
+        fi
     fi
 
     # If TUDO_SHELL is not a valid absolute path
@@ -2125,6 +2144,12 @@ tudo_set_tudo_post_shell() {
 
     tudo_log_literal 3 "\nRunning tudo_set_tudo_post_shell"
 
+
+    # If on Android `< 7`, and running `asu`/`script` commands with
+    # `-A` or `-AA` flags, then default to Android system shell, as
+    # Termux shells will have linker errors as `LD_LIBRARY_PATH` will
+    # not be set, so only use/allow `/system/bin/sh` shell.
+
     # If TUDO_POST_SHELL is set
     if [ -n "$TUDO_POST_SHELL" ]; then
         tudo_trim_trailing_newlines "TUDO_POST_SHELL" "$TUDO_POST_SHELL"
@@ -2136,9 +2161,23 @@ tudo_set_tudo_post_shell() {
             tudo_log_errors "Failed to validate 'TUDO_POST_SHELL'"
             return $return_value
         fi
+
+        if [ "$ANDROID__BUILD_VERSION_SDK" -lt 24 ] && \
+                { [[ "$COMMAND_TYPE" == "asu" ]] || [[ "$COMMAND_TYPE" == "script" ]]; } && \
+                [[ "$SET_SECONDARY_PRIORITY_PATHS" == "0" ]] && \
+                [[ "$TUDO_POST_SHELL" != "/system/bin/sh" ]]; then
+            tudo_log_errors "The 'TUDO_POST_SHELL' must be '/system/bin/sh' if running '$COMMAND_TYPE' command on Android '< 7'"
+            return 1
+        fi
     else
         # Default to bash as TUDO_POST_SHELL
         TUDO_POST_SHELL="$BASH_SHELL_PATH"
+
+        if [ "$ANDROID__BUILD_VERSION_SDK" -lt 24 ] && \
+                { [[ "$COMMAND_TYPE" == "asu" ]] || [[ "$COMMAND_TYPE" == "script" ]]; } && \
+                [[ "$SET_SECONDARY_PRIORITY_PATHS" == "0" ]]; then
+            TUDO_POST_SHELL="/system/bin/sh"
+        fi
     fi
 
     # If TUDO_POST_SHELL is not a valid absolute path
@@ -5750,7 +5789,9 @@ Use the '--shell' option to set the interactive shell to use.
 The 'asu' command type is the same as 'su' command type but
 instead the priority will be set to android bin and library paths in
 '$PATH' and '$LD_LIBRARY_PATH' variables.
-Use the '--shell' option to set the interactive shell to use.
+Use the '--shell' option to set the interactive shell to use. Only
+'/system/bin/sh' shell is allowed on Android '< 7' with '-A' and '-AA'
+flags.
 
 
 The 'path' command type runs a single command as the 'Termux app'
@@ -5789,7 +5830,8 @@ is considered as a path to script file that should be passed to
 'tudo shell' directly instead of considering it as a script text.
 Use the '--shell' option to set the script shell to use.
 Use the '--post-shell' option to set the interactive shell to use if
-'-i' option is passed.
+'-i' option is passed. Only '/system/bin/sh' shell is allowed on
+Android '< 7' with '-A' and '-AA' flags.
 The priority is given to @TERMUX__LNAME@ paths unless '-a|-A|-AA' or
 '-t|-T|-TT' flags are passed.
 

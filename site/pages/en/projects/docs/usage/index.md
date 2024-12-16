@@ -246,7 +246,9 @@ Use the '--shell' option to set the interactive shell to use.
 The 'asu' command type is the same as 'su' command type but
 instead the priority will be set to android bin and library paths in
 '$PATH' and '$LD_LIBRARY_PATH' variables.
-Use the '--shell' option to set the interactive shell to use.
+Use the '--shell' option to set the interactive shell to use. Only
+'/system/bin/sh' shell is allowed on Android '< 7' with '-A' and '-AA'
+flags.
 
 
 The 'path' command type runs a single command as the 'Termux app'
@@ -285,7 +287,8 @@ is considered as a path to script file that should be passed to
 'tudo shell' directly instead of considering it as a script text.
 Use the '--shell' option to set the script shell to use.
 Use the '--post-shell' option to set the interactive shell to use if
-'-i' option is passed.
+'-i' option is passed. Only '/system/bin/sh' shell is allowed on
+Android '< 7' with '-A' and '-AA' flags.
 The priority is given to termux paths unless '-a|-A|-AA' or
 '-t|-T|-TT' flags are passed.
 
@@ -721,7 +724,7 @@ Disable automatic deletion of the tudo temp directory `$TMPDIR/.tudo.temp.XXXXXX
 
 #### `--post-shell`
 
-The `--post-shell=<shell>` option can be used with the `script` command type to pass the name or absolute path for `tudo post shell` to be used with the `script` command type and the [`-i`](#-i) option.
+The `--post-shell=<shell>` option can be used with the `script` command type to pass the name or absolute path for `tudo post shell` to be used with the `script` command type and the [`-i`](#-i) option. Only `/system/bin/sh` shell is allowed on Android `< 7` if running `asu`/`script` commands with [`-A`](#-a-1) and [`-AA`](#-aa) flags as Termux shells will have linker errors as `LD_LIBRARY_PATH` will not be set.
 
 
 
@@ -799,7 +802,7 @@ Note that anything sent to `stdout` and `stderr` outside the `core_script` shell
 
 #### `--shell`
 
-The `--shell=<shell>` option can be used to pass the name or absolute path for `tudo shell`. For `su` and `asu` command types, this is refers to the interactive shell. For `script` command type, this refers to script shell that should run the `core_script`. For `path` command type, this option is ignored.
+The `--shell=<shell>` option can be used to pass the name or absolute path for `tudo shell`. For `su` and `asu` command types, this is refers to the interactive shell. For `script` command type, this refers to script shell that should run the `core_script`. For `path` command type, this option is ignored. Only `/system/bin/sh` shell is allowed on Android `< 7` if running `asu`/`script` commands with [`-A`](#-a-1) and [`-AA`](#-aa) flags as Termux shells will have linker errors as `LD_LIBRARY_PATH` will not be set.
 
 
 
