@@ -3556,7 +3556,8 @@ tudo_trap() {
 
     [ $tudo_exit_code -ne 0 ] && tudo_remove_tudo_temp_directory
 
-    [ -n "$1" ] && trap - $1; exit $tudo_exit_code
+    [ -n "${1:-}" ] && trap - "$1"
+    exit $tudo_exit_code
 
 }
 
@@ -3614,6 +3615,14 @@ export TUDO_SCRIPT__TEMP_DIR='"'${TUDO_TEMP_DIRECTORY//\'/\'\\\'\'}'"'
         TUDO_SCRIPT_COMMAND_TRAPS_REMOVE_TEMP_DIRECTORY_FUNCTION=""
     fi
 
+    # FIXME: Use alternate for `pgrep` as its not available on Android `< 6`.
+    # shellcheck disable=SC2016
+    local tudo_script__killtree_command='tudo_script__killtree "${1:-}" $$'
+    # If on Android `< 6`
+    if [ "$ANDROID__BUILD_VERSION_SDK" -lt 25 ]; then
+        tudo_script__killtree_command=':'
+    fi
+
     # shellcheck disable=SC2016
     TUDO_SCRIPT_COMMAND_TRAPS+='
 tudo_script__custom_trap() { :; }
@@ -3621,7 +3630,7 @@ tudo_script__custom_trap() { :; }
 tudo_script__killtree() {
     local signal="$1"; local pid="$2"; local cpid
     for cpid in $(pgrep -P "$pid"); do tudo_script__killtree "$signal" "$cpid"; done
-    [[ "$pid" != "$$" ]] && kill "-${signal:-15}" "$pid" 2>/dev/null
+    [ "$pid" != "$$" ] && kill "-${signal:-15}" "$pid" 2>/dev/null
 }
 
 tudo_script__trap() {
@@ -3630,8 +3639,8 @@ tudo_script__trap() {
     [ $return_value -eq 125 ] && return 0
     [ $return_value -ne 0 ] && tudo_script__exit_code=$return_value
     trap - EXIT '"${TUDO_SCRIPT_COMMAND_TRAPS_REMOVE_TEMP_DIRECTORY_FUNCTION:+$'\n'    $TUDO_SCRIPT_COMMAND_TRAPS_REMOVE_TEMP_DIRECTORY_FUNCTION}"'
-    [ -n "$1" ] && trap - $1
-    tudo_script__killtree "$1" $$; exit $tudo_script__exit_code
+    [ -n "${1:-}" ] && trap - "$1"
+    '"$tudo_script__killtree_command"'; exit $tudo_script__exit_code
 }
 '"
 trap 'tudo_script__trap' EXIT
