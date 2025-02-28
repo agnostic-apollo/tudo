@@ -1,4 +1,4 @@
-export TUDO_PKG__VERSION := 0.2.0
+export TUDO_PKG__VERSION := 1.0.0
 export TUDO_PKG__ARCH
 export TUDO__INSTALL_PREFIX
 

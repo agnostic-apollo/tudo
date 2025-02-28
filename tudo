@@ -12,7 +12,7 @@
 # Bash version:  4.1 or higher
 TUDO__VERSION="@TUDO_PKG__VERSION@"
 [ "$TUDO__VERSION" = @"TUDO_PKG__VERSION"@ ] && \
-TUDO__VERSION=0.2.0
+TUDO__VERSION=1.0.0
 
 
 
