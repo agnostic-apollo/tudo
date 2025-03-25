@@ -505,7 +505,7 @@ tudo_run() {
 
 
     # Set traps to run commands before exiting tudo
-    set_tudo_traps || return $?
+    set_tudo_traps "tudo_trap" || return $?
 
 
 
@@ -3569,12 +3569,24 @@ tudo_setup_tudo_temp_directory() {
 
 set_tudo_traps() {
 
-    # Set traps for the tudo itself
-    trap 'tudo_trap' EXIT
-    trap 'tudo_trap TERM' TERM
-    trap 'tudo_trap INT' INT
-    trap 'tudo_trap HUP' HUP
-    trap 'tudo_trap QUIT' QUIT
+    local trap_function="${1:-}"
+
+    if [[ ! "$trap_function" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
+        tudo_log_errors "The trap_function '$trap_function' argument passed to \
+'set_tudo_traps' is not a valid function name."
+        return 64 # EX__USAGE
+    fi
+
+    # shellcheck disable=SC2064
+    trap "$trap_function" EXIT
+    # shellcheck disable=SC2064
+    trap "$trap_function TERM" TERM
+    # shellcheck disable=SC2064
+    trap "$trap_function INT" INT
+    # shellcheck disable=SC2064
+    trap "$trap_function HUP" HUP
+    # shellcheck disable=SC2064
+    trap "$trap_function QUIT" QUIT
 
     return 0
 
