@@ -334,6 +334,9 @@ tudo_tests_set_required_variables() {
     fi
 
 
+    # Set `SU_BIN_PATH` as its used in `ANDROID_PATH` when `tudo_set_path_priority_variables()` is called.
+    tudo_set_su_variables || return $?
+
 
     # Set TUDO_TESTS_WORKING_DIR to use for tests
     TUDO_TESTS_WORKING_DIR="$TERMUX_HOME"
