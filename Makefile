@@ -9,9 +9,9 @@ export TERMUX_APP__NAME := Termux# Default value: `Termux`
 export TERMUX_APP__PACKAGE_NAME := com.termux# Default value: `com.termux`
 export TERMUX_APP__DATA_DIR := /data/data/$(TERMUX_APP__PACKAGE_NAME)# Default value: `/data/data/com.termux`
 
-export TERMUX__ROOTFS := $(TERMUX_APP__DATA_DIR)/files# Default value: `/data/data/com.termux/files`
-export TERMUX__HOME := $(TERMUX__ROOTFS)/home# Default value: `/data/data/com.termux/files/home`
-export TERMUX__PREFIX := $(TERMUX__ROOTFS)/usr# Default value: `/data/data/com.termux/files/usr`
+export TERMUX__ROOTFS_DIR := $(TERMUX_APP__DATA_DIR)/files# Default value: `/data/data/com.termux/files`
+export TERMUX__HOME := $(TERMUX__ROOTFS_DIR)/home# Default value: `/data/data/com.termux/files/home`
+export TERMUX__PREFIX := $(TERMUX__ROOTFS_DIR)/usr# Default value: `/data/data/com.termux/files/usr`
 
 export TERMUX_ENV__S_ROOT := TERMUX_# Default value: `TERMUX_`
 export TERMUX_ENV__SS_TERMUX := _# Default value: `_`
@@ -82,7 +82,7 @@ export override TERMUX__CONSTANTS__SED_ARGS := \
 	-e "s%[@]TERMUX__LNAME[@]%$(TERMUX__LNAME)%g" \
 	-e "s%[@]TERMUX_APP__NAME[@]%$(TERMUX_APP__NAME)%g" \
 	-e "s%[@]TERMUX_APP__PACKAGE_NAME[@]%$(TERMUX_APP__PACKAGE_NAME)%g" \
-	-e "s%[@]TERMUX__ROOTFS[@]%$(TERMUX__ROOTFS)%g" \
+	-e "s%[@]TERMUX__ROOTFS_DIR[@]%$(TERMUX__ROOTFS_DIR)%g" \
 	-e "s%[@]TERMUX__HOME[@]%$(TERMUX__HOME)%g" \
 	-e "s%[@]TERMUX__PREFIX[@]%$(TERMUX__PREFIX)%g" \
 	-e "s%[@]TERMUX_ENV__S_ROOT[@]%$(TERMUX_ENV__S_ROOT)%g" \

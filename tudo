@@ -55,8 +55,8 @@ TERMUX_ENV__S_TERMUX="@TERMUX_ENV__S_TERMUX@"
 TERMUX_ENV__S_TERMUX="TERMUX__"
 
 
-termux_core__bash__termux_scoped_env_variable get-value "TERMUX_ROOTFS" \
-    ss="$TERMUX_ENV__SS_TERMUX" "ROOTFS" r+='^((/)|((/[^/]+)+))$' "@TERMUX__ROOTFS@" "$termux_rootfs_default" || return $?
+termux_core__bash__termux_scoped_env_variable get-value "TERMUX_ROOTFS_DIR" \
+    ss="$TERMUX_ENV__SS_TERMUX" "ROOTFS_DIR" r+='^((/)|((/[^/]+)+))$' "@TERMUX__ROOTFS_DIR@" "$termux_rootfs_default" || return $?
 
 termux_core__bash__termux_scoped_env_variable get-value "TERMUX_HOME" \
     ss="$TERMUX_ENV__SS_TERMUX" "HOME" r+='^(/[^/]+)+$' "@TERMUX__HOME@" "$termux_rootfs_default/home" || return $?
@@ -68,13 +68,13 @@ termux_core__bash__termux_scoped_env_variable get-name "TERMUX_PREFIX__N" \
     ss="$TERMUX_ENV__SS_TERMUX" "PREFIX" || return $?
 
 
-if [[ ! -x "$TERMUX_ROOTFS" ]] && [[ "$TUDO_SKIP_ON_NOOP_COMMAND" != "1" ]]; then
-    tudo_log_errors "The TERMUX_ROOTFS '$TERMUX_ROOTFS' path not found or is not executable. Are you running in $TERMUX_APP__NAME app on Android?"
+if [[ ! -x "$TERMUX_ROOTFS_DIR" ]] && [[ "$TUDO_SKIP_ON_NOOP_COMMAND" != "1" ]]; then
+    tudo_log_errors "The TERMUX_ROOTFS_DIR '$TERMUX_ROOTFS_DIR' path not found or is not executable. Are you running in $TERMUX_APP__NAME app on Android?"
     return 1
 fi
 
 # Set variables to readonly to prevent modification by tudo.config
-for var in TERMUX_ENV__SS_TERMUX TERMUX_ENV__S_TERMUX TERMUX_ROOTFS TERMUX_HOME TERMUX_PREFIX TERMUX_PREFIX__N; do
+for var in TERMUX_ENV__SS_TERMUX TERMUX_ENV__S_TERMUX TERMUX_ROOTFS_DIR TERMUX_HOME TERMUX_PREFIX TERMUX_PREFIX__N; do
     readonly ${var}
 done
 
@@ -252,7 +252,7 @@ declare -ga TUDO_RLWRAP_ADDITIONAL_COMMAND_OPTIONS=()
 VALID_NUMBER_REGEX='^[0-9]+$'
 VALID_ABSOLUTE_PATH_REGEX='^(/[^/]+)+$'
 VALID_ROOTFS_OR_ABSOLUTE_PATH_REGEX='^((/)|((/[^/]+)+))$'
-VALID_PATH_UNDER_TERMUX_ROOTFS_REGEX='^'"$TERMUX_ROOTFS"'/.+'
+VALID_PATH_UNDER_TERMUX_ROOTFS_DIR_REGEX='^'"$TERMUX_ROOTFS_DIR"'/.+'
 VALID_PATH_UNDER_TERMUX_HOME_REGEX='^'"$TERMUX_HOME"'/.+'
 
 # Set termux and android env variables
@@ -309,7 +309,7 @@ tudo_main() {
     if [[ "$TUDO_SKIP_ON_NOOP_COMMAND" != "1" ]] && \
         [ -f "$TUDO_CONFIG_FILE_PATH" ] && [ -r "$TUDO_CONFIG_FILE_PATH" ]; then
         # Set variables provided for `tudo.config`.
-        TUDO__TERMUX_ROOTFS="$TERMUX_ROOTFS"
+        TUDO__TERMUX_ROOTFS_DIR="$TERMUX_ROOTFS_DIR"
         TUDO__TERMUX_HOME="$TERMUX_HOME"
         TUDO__TERMUX_PREFIX="$TERMUX_PREFIX"
 
@@ -1036,9 +1036,9 @@ tudo_set_required_variables() {
         return 1
     fi
 
-    # If TUDO_SHELL_HOME is not set to an absolute path under TERMUX_ROOTFS
-    if [[ ! "$TUDO_SHELL_HOME" =~ $VALID_PATH_UNDER_TERMUX_ROOTFS_REGEX ]]; then
-        tudo_log_errors "The TUDO_SHELL_HOME '$TUDO_SHELL_HOME' must be an absolute path under TERMUX_ROOTFS '$TERMUX_ROOTFS'"
+    # If TUDO_SHELL_HOME is not set to an absolute path under TERMUX_ROOTFS_DIR
+    if [[ ! "$TUDO_SHELL_HOME" =~ $VALID_PATH_UNDER_TERMUX_ROOTFS_DIR_REGEX ]]; then
+        tudo_log_errors "The TUDO_SHELL_HOME '$TUDO_SHELL_HOME' must be an absolute path under TERMUX_ROOTFS_DIR '$TERMUX_ROOTFS_DIR'"
     fi
 
     tudo_log 3 "TUDO_SHELL_HOME='$TUDO_SHELL_HOME'"
@@ -1072,9 +1072,9 @@ tudo_set_required_variables() {
             return 1
         fi
 
-        # If TUDO_POST_SHELL_HOME is not set to an absolute path under TERMUX_ROOTFS
-        if [[ ! "$TUDO_POST_SHELL_HOME" =~ $VALID_PATH_UNDER_TERMUX_ROOTFS_REGEX ]]; then
-            tudo_log_errors "The TUDO_POST_SHELL_HOME '$TUDO_POST_SHELL_HOME' must be an absolute path under TERMUX_ROOTFS '$TERMUX_ROOTFS'"
+        # If TUDO_POST_SHELL_HOME is not set to an absolute path under TERMUX_ROOTFS_DIR
+        if [[ ! "$TUDO_POST_SHELL_HOME" =~ $VALID_PATH_UNDER_TERMUX_ROOTFS_DIR_REGEX ]]; then
+            tudo_log_errors "The TUDO_POST_SHELL_HOME '$TUDO_POST_SHELL_HOME' must be an absolute path under TERMUX_ROOTFS_DIR '$TERMUX_ROOTFS_DIR'"
         fi
 
         tudo_log 3 "TUDO_POST_SHELL_HOME='$TUDO_POST_SHELL_HOME'"
@@ -1278,7 +1278,7 @@ tudo_set_pre_tudo_shell_commands_to_run() {
         # If PATH_PRIORITY is default
         else
             # If TUDO_CANONICAL_PATH_COMMAND is under termux rootfs
-            if [[ "$TUDO_CANONICAL_PATH_COMMAND" == "$TERMUX_ROOTFS"/* ]]; then
+            if [[ "$TUDO_CANONICAL_PATH_COMMAND" == "$TERMUX_ROOTFS_DIR"/* ]]; then
                 priority="termux"
                 tudo_log 3 "Setting PRE_TUDO_SHELL_COMMANDS_TO_RUN with priority to 'termux' bin and library paths for COMMAND_TYPE 'path' since TUDO_PATH_COMMAND is under termux rootfs"
             else
@@ -1314,7 +1314,7 @@ tudo_set_pre_tudo_shell_commands_to_run() {
     tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "TUDO__TERMUX_PRIORITY_LD_LIBRARY_PATH" "$TERMUX_PRIORITY_LD_LIBRARY_PATH" || return $?
     tudo_add_export_or_unset_var_command "PRE_TUDO_SHELL_COMMANDS_TO_RUN" "TUDO__ANDROID_PRIORITY_LD_LIBRARY_PATH" "$ANDROID_PRIORITY_LD_LIBRARY_PATH" || return $?
    
-    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}ROOTFS='${TERMUX_ROOTFS//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}ROOTFS_DIR='${TERMUX_ROOTFS_DIR//\'/\'\\\'\'}';"$'\n'
     PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}HOME='${TERMUX_HOME//\'/\'\\\'\'}';"$'\n'
     PRE_TUDO_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}PREFIX='${TERMUX_PREFIX//\'/\'\\\'\'}';"$'\n'
     # If `$PREFIX` already exported when running `tudo`, only then export it
@@ -1399,7 +1399,7 @@ tudo_set_pre_tudo_post_shell_commands_to_run() {
     tudo_add_export_or_unset_var_command "PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN" "TUDO__TERMUX_PRIORITY_LD_LIBRARY_PATH" "$TERMUX_PRIORITY_LD_LIBRARY_PATH" || return $?
     tudo_add_export_or_unset_var_command "PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN" "TUDO__ANDROID_PRIORITY_LD_LIBRARY_PATH" "$ANDROID_PRIORITY_LD_LIBRARY_PATH" || return $?
 
-    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}ROOTFS='${TERMUX_ROOTFS//\'/\'\\\'\'}';"$'\n'
+    PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}ROOTFS_DIR='${TERMUX_ROOTFS_DIR//\'/\'\\\'\'}';"$'\n'
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}HOME='${TERMUX_HOME//\'/\'\\\'\'}';"$'\n'
     PRE_TUDO_POST_SHELL_COMMANDS_TO_RUN+="export ${TERMUX_ENV__S_TERMUX}PREFIX='${TERMUX_PREFIX//\'/\'\\\'\'}';"$'\n'
     # If `$PREFIX` already exported when running `tudo`, only then export it
@@ -3140,7 +3140,7 @@ tudo_setup_shell_home() {
     shell_home_permission="700"
     shell_home_file_type_tests="rwx"
 
-    # Validate if shell_home is a whitelisted path under TERMUX_ROOTFS
+    # Validate if shell_home is a whitelisted path under TERMUX_ROOTFS_DIR
     tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs "${shell_label}_HOME" "$shell_home"
     return_value=$?
     if [ $return_value -ne 0 ] && [ $return_value -ne 2 ] &&  [ $return_value -ne 3 ]; then
@@ -3149,10 +3149,10 @@ tudo_setup_shell_home() {
 
     validation_result=$return_value
 
-    # If shell_home is a whitelisted path under TERMUX_ROOTFS
+    # If shell_home is a whitelisted path under TERMUX_ROOTFS_DIR
     if [ $validation_result -eq 0 ]; then
-        shell_home_ownership="--reference=\"$TERMUX_ROOTFS\""
-    # If shell_home is a blacklisted path under TERMUX_ROOTFS or is not under TERMUX_ROOTFS
+        shell_home_ownership="--reference=\"$TERMUX_ROOTFS_DIR\""
+    # If shell_home is a blacklisted path under TERMUX_ROOTFS_DIR or is not under TERMUX_ROOTFS_DIR
     else
         tudo_log_errors "The '$shell_home' cannot be used as ${shell_label}_HOME"
         return 1
@@ -3183,7 +3183,7 @@ tudo_setup_shell_home() {
         shell_rcfile_permission="600"
         shell_rcfile_file_type_tests="rw"
 
-        # Validate if shell_rcfile_parent_dir is a whitelisted path under TERMUX_ROOTFS
+        # Validate if shell_rcfile_parent_dir is a whitelisted path under TERMUX_ROOTFS_DIR
         tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs "${shell_label}_RCFILE_PARENT_DIR" "$shell_rcfile_parent_dir"
             return_value=$?
         if [ $return_value -ne 0 ] && [ $return_value -ne 2 ] &&  [ $return_value -ne 3 ]; then
@@ -3192,11 +3192,11 @@ tudo_setup_shell_home() {
 
         validation_result=$return_value
 
-        # If shell_rcfile_parent_dir is a whitelisted path under TERMUX_ROOTFS
+        # If shell_rcfile_parent_dir is a whitelisted path under TERMUX_ROOTFS_DIR
         if [ $validation_result -eq 0 ]; then
-            shell_rcfile_parent_dir_ownership="--reference=\"$TERMUX_ROOTFS\""
-            shell_rcfile_ownership="--reference=\"$TERMUX_ROOTFS\""
-        # If shell_rcfile_parent_dir is a blacklisted path under TERMUX_ROOTFS or is not under TERMUX_ROOTFS
+            shell_rcfile_parent_dir_ownership="--reference=\"$TERMUX_ROOTFS_DIR\""
+            shell_rcfile_ownership="--reference=\"$TERMUX_ROOTFS_DIR\""
+        # If shell_rcfile_parent_dir is a blacklisted path under TERMUX_ROOTFS_DIR or is not under TERMUX_ROOTFS_DIR
         else
             tudo_log_errors "The '$shell_rcfile_parent_dir' cannot be used as ${shell_label}_RCFILE_PARENT_DIR"
             return 1
@@ -3229,7 +3229,7 @@ tudo_setup_shell_home() {
         shell_histfile_permission="600"
         shell_histfile_file_type_tests="rw"
 
-        # Validate if shell_histfile_parent_dir is a whitelisted path under TERMUX_ROOTFS
+        # Validate if shell_histfile_parent_dir is a whitelisted path under TERMUX_ROOTFS_DIR
         tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs "${shell_label}_HISTFILE_PARENT_DIR" "$shell_histfile_parent_dir"
         return_value=$?
         if [ $return_value -ne 0 ] && [ $return_value -ne 2 ] &&  [ $return_value -ne 3 ]; then
@@ -3238,11 +3238,11 @@ tudo_setup_shell_home() {
 
         validation_result=$return_value
 
-        # If shell_histfile_parent_dir is a whitelisted path under TERMUX_ROOTFS
+        # If shell_histfile_parent_dir is a whitelisted path under TERMUX_ROOTFS_DIR
         if [ $validation_result -eq 0 ]; then
-            shell_histfile_parent_dir_ownership="--reference=\"$TERMUX_ROOTFS\""
-            shell_histfile_ownership="--reference=\"$TERMUX_ROOTFS\""
-        # If shell_histfile_parent_dir is a blacklisted path under TERMUX_ROOTFS or is not under TERMUX_ROOTFS
+            shell_histfile_parent_dir_ownership="--reference=\"$TERMUX_ROOTFS_DIR\""
+            shell_histfile_ownership="--reference=\"$TERMUX_ROOTFS_DIR\""
+        # If shell_histfile_parent_dir is a blacklisted path under TERMUX_ROOTFS_DIR or is not under TERMUX_ROOTFS_DIR
         else
             tudo_log_errors "The '$shell_histfile_parent_dir' cannot be used as ${shell_label}_HISTFILE_PARENT_DIR"
             return 1
@@ -3455,8 +3455,8 @@ tudo_setup_tudo_shell_working_dir() {
     shell_working_dir_ownership="--reference='${TUDO_SHELL_WORKING_DIR_PARENT_DIR//\'/\'\\\'\'}'"
 
 
-    # If TUDO_SHELL_WORKING_DIR is the same as TERMUX_ROOTFS or is under it
-    if [[ "$TUDO_SHELL_WORKING_DIR" == "$TERMUX_ROOTFS" ]] || [[ "$TUDO_SHELL_WORKING_DIR" == "$TERMUX_ROOTFS"/* ]]; then
+    # If TUDO_SHELL_WORKING_DIR is the same as TERMUX_ROOTFS_DIR or is under it
+    if [[ "$TUDO_SHELL_WORKING_DIR" == "$TERMUX_ROOTFS_DIR" ]] || [[ "$TUDO_SHELL_WORKING_DIR" == "$TERMUX_ROOTFS_DIR"/* ]]; then
         shell_working_dir_file_type_tests="drwx"
     # It might not be possible for the directory to be writable or executable in other paths like in storage or rootfs/system partition
     else
@@ -3487,9 +3487,9 @@ tudo_set_tudo_temp_directory_parent_directory() {
         return 1
     fi
 
-    # If TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY is not set to an absolute path under TERMUX_ROOTFS
-    if [[ ! "$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY" =~ $VALID_PATH_UNDER_TERMUX_ROOTFS_REGEX ]]; then
-        tudo_log_errors "The TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY '$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY' must be an absolute path under TERMUX_ROOTFS '$TERMUX_ROOTFS'"
+    # If TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY is not set to an absolute path under TERMUX_ROOTFS_DIR
+    if [[ ! "$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY" =~ $VALID_PATH_UNDER_TERMUX_ROOTFS_DIR_REGEX ]]; then
+        tudo_log_errors "The TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY '$TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY' must be an absolute path under TERMUX_ROOTFS_DIR '$TERMUX_ROOTFS_DIR'"
     fi
 
     # If TUDO_TEMP_DIRECTORY_PARENT_DIRECTORY is an absolute path under TERMUX_HOME
@@ -3532,7 +3532,7 @@ tudo_setup_tudo_temp_directory() {
 
     create_shell_tudo_temp_dir_parent_dir_if_it_does_not_exist=1
     only_set_perms_and_ownership_on_creation_of_shell_tudo_temp_dir_parent_dir=1
-    shell_tudo_temp_dir_parent_dir_ownership="--reference=\"$TERMUX_ROOTFS\""
+    shell_tudo_temp_dir_parent_dir_ownership="--reference=\"$TERMUX_ROOTFS_DIR\""
     shell_tudo_temp_dir_parent_dir_permission="700"
     shell_tudo_temp_dir_parent_dir_file_type_tests="drwx"
 
@@ -3546,7 +3546,7 @@ tudo_setup_tudo_temp_directory() {
     # TMPDIR is used since obv thats what its for, duh!
     # Moreover termux will automatically remove the temp directory when its sessions are closed if it was not
     # automatically removed at the end of tudo execution and left there
-    # The temp directory must be under TERMUX_ROOTFS so that it can be created by the 'Termux app' user
+    # The temp directory must be under TERMUX_ROOTFS_DIR so that it can be created by the 'Termux app' user
     # The temp directory must not be under TERMUX_HOME since other apps with SAF access can access it
     # A directory is created to store script files since if '--script-name' is passed, then there may
     # be conflicts between executions since temp files will share the same parent directory and have the same name
@@ -4331,7 +4331,7 @@ tudo_find_absolute_path_for_executable_and_validate() {
 }
 
 ##
-# Validate if path is under TERMUX_ROOTFS and is not backlisted
+# Validate if path is under TERMUX_ROOTFS_DIR and is not backlisted
 #
 # `tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs` `<label>` `<path>`
 ##
@@ -4360,7 +4360,7 @@ tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs() {
     # - https://cs.android.com/android/platform/superproject/+/android-14.0.0_r1:frameworks/base/core/java/android/content/pm/parsing/ApkLiteParseUtils.java;l=671-676
     # - https://cs.android.com/android/platform/superproject/+/android-14.0.0_r1:frameworks/base/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java;l=63
 
-    termux_rootfs_escaped="${TERMUX_ROOTFS//./\\.}" # Replace `.` with `\.`
+    termux_rootfs_escaped="${TERMUX_ROOTFS_DIR//./\\.}" # Replace `.` with `\.`
     termux_rootfs_escaped="${termux_rootfs_escaped////[\\\/]+}" # Replace `/` with `[\/]+`
 
     termux_home_escaped="${TERMUX_HOME//./\\.}" # Replace `.` with `\.`
@@ -4372,13 +4372,13 @@ tudo_validate_path_is_a_whitelisted_path_under_termux_rootfs() {
     local valid_path_under_termux_rootfs_regex='^'"$termux_rootfs_escaped"'[\/]+.+'
     local blacklisted_path_in_termux_rootfs_regex='^(('"$termux_home_escaped"'[\/]+\.(cache|config|local|termux))|('"$termux_prefix_escaped"')|('"$termux_prefix_escaped"'[\/]+.*))([\/]+)?$'
 
-    # If path same as TERMUX_ROOTFS
-    if [[ "$path" == "$TERMUX_ROOTFS" ]]; then
-        tudo_log 3 "$label '$path' is the same as TERMUX_ROOTFS"
+    # If path same as TERMUX_ROOTFS_DIR
+    if [[ "$path" == "$TERMUX_ROOTFS_DIR" ]]; then
+        tudo_log 3 "$label '$path' is the same as TERMUX_ROOTFS_DIR"
         return 2
-    # If path is set to an absolute path under TERMUX_ROOTFS
+    # If path is set to an absolute path under TERMUX_ROOTFS_DIR
     elif [[ "$path" =~ $valid_path_under_termux_rootfs_regex ]]; then
-        # If path is set to a blacklist path under TERMUX_ROOTFS
+        # If path is set to a blacklist path under TERMUX_ROOTFS_DIR
         if [[ "$path" =~ $blacklisted_path_in_termux_rootfs_regex ]]; then
             tudo_log 3 "$label '$path' matches one of following blacklisted paths:"
             tudo_log 3 "'$TERMUX_HOME/.{cache,config,local,termux}', '$TERMUX_PREFIX/*'"
@@ -5850,7 +5850,7 @@ priority set.
 The priority is set based on '-a|-A|-AA' or '-t|-T|-TT' flags, and
 if flags are not passed, then the priority for bin paths in '$PATH'
 variable is given to @TERMUX__LNAME@ paths followed by android paths if
-executable canonical path is under '$TERMUX__ROOTFS' directory,
+executable canonical path is under '$TERMUX__ROOTFS_DIR' directory,
 otherwise to android paths followed by @TERMUX__LNAME@ paths.
 
 

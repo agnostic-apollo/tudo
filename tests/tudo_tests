@@ -216,7 +216,7 @@ tudo_tests_main() {
     fi
 
     local -a TUDO_TESTS_REQUIRED_VARIABLES_ARRAY=(
-        TERMUX_ROOTFS
+        TERMUX_ROOTFS_DIR
         TERMUX_PREFIX
         TERMUX_HOME
         TERMUX_LD_LIBRARY_PATH
@@ -906,7 +906,7 @@ TUDO_EOF
 
     run_tudo_test 40 && \
     output="$(tudo -s --shell-home='/data' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The TUDO_SHELL_HOME '/data' must be an absolute path under TERMUX_ROOTFS '$TERMUX_ROOTFS'" "*"
+    validate_tudo_test 1 $? "$output" "" "The TUDO_SHELL_HOME '/data' must be an absolute path under TERMUX_ROOTFS_DIR '$TERMUX_ROOTFS_DIR'" "*"
 
 
 
@@ -930,7 +930,7 @@ TUDO_EOF
 
     run_tudo_test 44 && \
     output="$(tudo -si --post-shell-home='/data' 'echo "Hi, $1 $2."' "$shell" "shell" 2>&1)"
-    validate_tudo_test 1 $? "$output" "" "The TUDO_POST_SHELL_HOME '/data' must be an absolute path under TERMUX_ROOTFS '$TERMUX_ROOTFS'" "*"
+    validate_tudo_test 1 $? "$output" "" "The TUDO_POST_SHELL_HOME '/data' must be an absolute path under TERMUX_ROOTFS_DIR '$TERMUX_ROOTFS_DIR'" "*"
 
 
 
