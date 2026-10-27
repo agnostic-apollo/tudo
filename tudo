@@ -1151,7 +1151,8 @@ tudo_set_path_priority_variables() {
         fi
 
         # If SU_BIN_PATH is not empty and if it does not already exist in ANDROID_PATH, then append it to ANDROID_PATH
-        if [ -n "$SU_BIN_PATH" ] && [[ "$SU_BIN_PATH" != *:* ]] && [[ ":$ANDROID_PATH:" != *":$SU_BIN_PATH:"* ]]; then
+        if [[ "$TUDO_ADD_SU_BIN_PATH_TO_PATH_VARIABLE" == "1" ]] &&
+                [ -n "$SU_BIN_PATH" ] && [[ "$SU_BIN_PATH" != *:* ]] && [[ ":$ANDROID_PATH:" != *":$SU_BIN_PATH:"* ]]; then
             ANDROID_PATH+=":$SU_BIN_PATH"
         fi
     else
