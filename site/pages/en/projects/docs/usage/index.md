@@ -210,12 +210,15 @@ Available command_options:
   [ --sleep-if-fail ]
                      If '--sleep' option is passed, then only sleep if
                      exit code of tudo does not equal '0'.
-  [ --su-path=<path> ]
-                     Absolute path for su binary to use instead of
-                     searching for it in default search paths.
   [ --su-bin-path-add=0|1 ]
                      Whether to append path to su binary directory to
                      '$PATH' exported for android priority.
+  [ --su-path=<path> ]
+                     Absolute path for su binary to use instead of
+                     searching for it in default search paths.
+  [ --su-skip-options-check=0|1 ]
+                     Skip checking that su binary passed in
+                     '--su-path' supports the required options.
   [ --title=<title> ]
                      Title for tudo shell terminal.
   [ --work-dir=<path> ]
@@ -857,6 +860,12 @@ The `--su-bin-path-add=0|1` option can be used to define whether to add the path
 #### `--su-path`
 
 The `--su-path=<path>` option can be used to set the absolute path for `su` binary to use instead of searching for it in default search paths. This can be used if path is not in search paths or all paths in it should not be checked. This overrides `$TUDO__SU_PATH`. Check [`su` search paths](#su-search-paths) for more info and `su` binary options requirements.
+
+
+
+#### `--su-skip-options-check`
+
+The `--su-bin-path-add=0|1` option can be used to skip checking that `su` binary exported in `$TUDO__SU_PATH` or passed in [`--su-path`](#--su-path) supports the required options. Check [`su` search paths](#su-search-paths) for more info and `su` binary options requirements.
 
 
 
@@ -2004,7 +2013,17 @@ If [`-A`](#-a-1), [`-T`](#-t-1) or [`-TT`](#-tt) flags are not passed, and [`--s
 
 The `su` binary is searched at the following paths in order: `/system/bin/su`, `/debug_ramdisk/su`, `/system/xbin/su`, `/sbin/su`, `/sbin/bin/su`, `/system/sbin/su`, `/su/xbin/su`, `/su/bin/su`, `/magisk/.core/bin/su`
 
-If a `su` binary is not found at any of the paths or if no `su` found contains the `-c`, `--shell`, `--preserve-environment` and `--mount-master` options in its `--help` output, then `tudo` will not add `su` binary directory to `$PATH` exported for `android` paths. You can specify a custom path by exporting it in `$TUDO__SU_PATH` or passing the [`--su-path`](#--su-pathpath) option if the `su` binary does not exist at the default search paths or all paths in it should not be checked.
+Users can also specify a custom path instead by exporting it in `$TUDO__SU_PATH` or passing the [`--su-path`](#--su-pathpath) option if the `su` binary does not exist at the default search paths or if all paths should not be checked.
+
+`tudo` requires that the `su` binary supports the following `4` options: `--shell`, `--preserve-environment`, `--mount-master` and `-c`.
+
+If a `su` binary is not found at any of the paths or if no `su` found contains the `--shell` and `--preserve-environment` options in its `--help` output, then `tudo` will not add `su` binary directory to `$PATH` exported for `android` paths. The `--mount-master` and `-c` options should ideally exist in the help output as well, but if they are not, a fallback test `su --mount-master -c` command is run, and if it does not return the expected output, even then `tudo` will not add `su` binary directory to `$PATH` exported for `android` paths.
+
+Some root implementations may not have `--mount-master` or `-c` option in the help output, like Magisk `>= 31.1`. Magisk `>= 31.1` does support the `--mount-master` flag, but internally maps it to `--target 0`, where `0` implies using magisk global mount namespace. The `-c` option is normally not provided by `su` binary, but the target shell like `/system/bin/sh` or `bash`, and it must be the last argument passed for `su` commands so that it can be forwarded to the shell. ([1](https://github.com/topjohnwu/Magisk/pull/10140), [2](https://github.com/topjohnwu/Magisk/commit/160fb3e40bb2daaaaeb2432673769591e26d5cf8))
+
+Note that the fallback test `su` command will have a performance impact as a root shell will be invoked. So it is advisable for `su` implementation providers to include all `4` required options in the help output to avoid the performance impact. For `-c`, it can be something like `-c COMMAND    Pass COMMAND to the invoked shell. The -c option should be the last option as it is not processed by su and must be supported by invoked shell, like it is supported by the default /system/bin/sh shell.`. Each `su` root shell executed normally takes `10ms` or more to start, depending on device.
+
+Users can also export `$TUDO__SU_SKIP_OPTIONS_CHECK=1` or pass [`--su-skip-options-check=1`](#--su-skip-options-check) option to skip checking that `su` binary exported in `$TUDO__SU_PATH` or passed in [`--su-path`](#--su-path) supports the required options to avoid the performance impact or if help output does not list all the required options.
 
 - `/system/bin/su`: Used by `Magisk` and its `avd_patch.sh` script which patch the boot image/emulator ramdisk.  
 
