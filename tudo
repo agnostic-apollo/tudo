@@ -255,8 +255,28 @@ declare -ga TUDO_RLWRAP_ADDITIONAL_COMMAND_OPTIONS=()
 VALID_NUMBER_REGEX='^[0-9]+$'
 VALID_ABSOLUTE_PATH_REGEX='^(/[^/]+)+$'
 VALID_ROOTFS_OR_ABSOLUTE_PATH_REGEX='^((/)|((/[^/]+)+))$'
-VALID_PATH_UNDER_TERMUX_ROOTFS_DIR_REGEX='^'"$TERMUX_ROOTFS_DIR"'/.+'
-VALID_PATH_UNDER_TERMUX_HOME_REGEX='^'"$TERMUX_HOME"'/.+'
+
+
+local termux_rootfs_escaped
+local termux_home_escaped
+
+# Android app package names can only contain `[a-zA-Z0-9_]` characters
+# with a dot `.` between segments and each segment must start with
+# an alphabet. (`^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$`).
+# So only a dot `.` character in termux paths would need to be escaped in a regex.
+# - https://developer.android.com/build/configure-app-module#set-application-id
+# - https://cs.android.com/android/platform/superproject/+/android-14.0.0_r1:frameworks/base/core/java/android/content/pm/parsing/ApkLiteParseUtils.java;l=671-676
+# - https://cs.android.com/android/platform/superproject/+/android-14.0.0_r1:frameworks/base/core/java/android/content/pm/parsing/FrameworkParsingPackageUtils.java;l=63
+
+termux_rootfs_escaped="${TERMUX_ROOTFS_DIR//./\\.}" # Replace `.` with `\.`
+termux_rootfs_escaped="${termux_rootfs_escaped////[\\\/]+}" # Replace `/` with `[\/]+`
+
+termux_home_escaped="${TERMUX_HOME//./\\.}" # Replace `.` with `\.`
+termux_home_escaped="${termux_home_escaped////[\\\/]+}" # Replace `/` with `[\/]+`
+
+VALID_PATH_UNDER_TERMUX_ROOTFS_DIR_REGEX='^'"$termux_rootfs_escaped"'[\/]+.+'
+VALID_PATH_UNDER_TERMUX_HOME_REGEX='^'"$termux_home_escaped"'[\/]+.+'
+
 
 # Set termux and android env variables
 TERMUX_BIN="$TERMUX_PREFIX/bin"
