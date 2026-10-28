@@ -17,10 +17,10 @@ ark__replacement_strings:
 - [Install](install/index.md)
 - [Usage](usage/index.md)
 - [Developer](developer/index.md)
-  - [Build](developer/build/index.md)
-  - [Test](developer/test/index.md)
-  - [Contribute](developer/contribute/index.md)
-- [License](https://github.com/agnostic-apollo/sudo/blob/master/LICENSE)
+    - [Build](developer/build/index.md)
+    - [Test](developer/test/index.md)
+    - [Contribute](developer/contribute/index.md)
+- [License](https://github.com/agnostic-apollo/tudo/blob/master/LICENSE)
 
 ---
 
